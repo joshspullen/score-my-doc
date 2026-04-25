@@ -14,6 +14,134 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_runs: {
+        Row: {
+          agent_id: string
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          logs: Json
+          new_records: number
+          output: Json
+          records_collected: number
+          started_at: string
+          status: Database["public"]["Enums"]["agent_run_status"]
+          triggered_by: string
+        }
+        Insert: {
+          agent_id: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          logs?: Json
+          new_records?: number
+          output?: Json
+          records_collected?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["agent_run_status"]
+          triggered_by?: string
+        }
+        Update: {
+          agent_id?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          logs?: Json
+          new_records?: number
+          output?: Json
+          records_collected?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["agent_run_status"]
+          triggered_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_runs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agents: {
+        Row: {
+          config: Json
+          connector_id: string | null
+          created_at: string
+          created_by: string | null
+          cron_expression: string | null
+          description: string | null
+          id: string
+          last_run_at: string | null
+          last_run_status:
+            | Database["public"]["Enums"]["agent_run_status"]
+            | null
+          name: string
+          next_run_at: string | null
+          pattern: Database["public"]["Enums"]["agent_pattern"]
+          regulator_id: string | null
+          status: Database["public"]["Enums"]["agent_status"]
+          trigger_type: Database["public"]["Enums"]["agent_trigger"]
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          connector_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          cron_expression?: string | null
+          description?: string | null
+          id?: string
+          last_run_at?: string | null
+          last_run_status?:
+            | Database["public"]["Enums"]["agent_run_status"]
+            | null
+          name: string
+          next_run_at?: string | null
+          pattern?: Database["public"]["Enums"]["agent_pattern"]
+          regulator_id?: string | null
+          status?: Database["public"]["Enums"]["agent_status"]
+          trigger_type?: Database["public"]["Enums"]["agent_trigger"]
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          connector_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          cron_expression?: string | null
+          description?: string | null
+          id?: string
+          last_run_at?: string | null
+          last_run_status?:
+            | Database["public"]["Enums"]["agent_run_status"]
+            | null
+          name?: string
+          next_run_at?: string | null
+          pattern?: Database["public"]["Enums"]["agent_pattern"]
+          regulator_id?: string | null
+          status?: Database["public"]["Enums"]["agent_status"]
+          trigger_type?: Database["public"]["Enums"]["agent_trigger"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agents_regulator_id_fkey"
+            columns: ["regulator_id"]
+            isOneToOne: false
+            referencedRelation: "regulators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analyses: {
         Row: {
           created_at: string
@@ -817,6 +945,16 @@ export type Database = {
       teams_managed_by: { Args: { _user_id: string }; Returns: string[] }
     }
     Enums: {
+      agent_pattern: "collection" | "analysis" | "action"
+      agent_run_status: "running" | "success" | "error" | "skipped"
+      agent_status: "active" | "paused" | "draft"
+      agent_trigger:
+        | "manual"
+        | "hourly"
+        | "daily"
+        | "weekly"
+        | "monthly"
+        | "cron"
       app_role: "admin" | "user" | "manager"
       regulation_category:
         | "sanctions"
@@ -952,6 +1090,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      agent_pattern: ["collection", "analysis", "action"],
+      agent_run_status: ["running", "success", "error", "skipped"],
+      agent_status: ["active", "paused", "draft"],
+      agent_trigger: ["manual", "hourly", "daily", "weekly", "monthly", "cron"],
       app_role: ["admin", "user", "manager"],
       regulation_category: [
         "sanctions",
