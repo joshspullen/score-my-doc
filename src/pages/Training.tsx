@@ -316,6 +316,53 @@ const Training = () => {
           <DialogFooter><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button><Button onClick={saveModule}>Save</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {detail && (() => {
+        const m = detail;
+        const r = reqById(m.compliance_requirement_id);
+        const bp = r?.business_process_id ? bps.find((b) => b.id === r.business_process_id) : null;
+        const targets = r ? compAssigns.filter((c) => c.compliance_requirement_id === r.id) : [];
+        return (
+          <EntityDetailSheet
+            open={!!detail}
+            onClose={() => setDetail(null)}
+            icon={GraduationCap}
+            eyebrow="Training Module"
+            title={m.title}
+            subtitle={m.duration_minutes ? `${m.duration_minutes} min` : undefined}
+            badges={r ? [{ label: r.reference_code ? `Ref ${r.reference_code}` : "Linked regulation", className: "bg-primary/10 text-primary" }] : [{ label: "No regulation linked", className: "bg-destructive/10 text-destructive" }]}
+            description={m.description}
+            fields={[
+              { label: "Duration", value: m.duration_minutes ? `${m.duration_minutes} min` : null },
+              { label: "Content URL", value: m.content_url ? <a href={m.content_url} target="_blank" rel="noreferrer" className="text-primary hover:underline inline-flex items-center gap-1 text-xs">Open <ExternalLink className="h-3 w-3" /></a> : null },
+            ]}
+            sections={[
+              {
+                title: "Linked regulation", icon: ScrollText,
+                links: r ? [{ label: r.title, to: "/knowledge/regulations", icon: ScrollText, badge: r.reference_code ?? undefined, meta: r.category ?? undefined }] : [],
+                empty: "Link this module to a regulation to enable auto-assignment.",
+              },
+              {
+                title: "Related business process", icon: Workflow,
+                links: bp ? [{ label: bp.name, to: "/knowledge/processes", icon: Workflow }] : [],
+                empty: "The linked regulation has no business process attached.",
+              },
+              {
+                title: "Cohort (resolved from regulation targets)", icon: Target,
+                links: targets.map((c) => {
+                  if (c.target_type === "team") {
+                    const team = teams.find((t) => t.id === c.target_team_id);
+                    return { label: team?.name ?? "Team", to: "/teams", icon: Target, badge: "team" };
+                  }
+                  if (c.target_type === "role") return { label: `Role: ${c.target_role}`, icon: Target, badge: "role" };
+                  return { label: "User", to: "/people/users", icon: Target, badge: "user" };
+                }),
+                empty: "Use Assign to targets in the catalog to define a cohort.",
+              },
+            ]}
+          />
+        );
+      })()}
     </div>
   );
 };
