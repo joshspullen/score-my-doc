@@ -209,8 +209,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how" className="py-20 border-t border-border">
+      {/* The Compliance Gap */}
       <section className="bg-black text-white py-24 border-t border-black">
         <div className="container">
           <div className="max-w-3xl mb-14">
