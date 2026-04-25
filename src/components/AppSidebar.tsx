@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
-  GraduationCap, ScrollText, Workflow, UsersRound, BookOpen,
+  GraduationCap, ScrollText, Workflow, UsersRound, BookOpen, Bot,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
@@ -36,6 +36,10 @@ const INTEGRATIONS: Item[] = [
   { title: "Connectors", url: "/connectors", icon: Plug },
 ];
 
+const AUTOMATION: Item[] = [
+  { title: "Agents", url: "/agents", icon: Bot },
+];
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -46,6 +50,7 @@ export function AppSidebar() {
   if (isAdmin || isManager) peopleVisible.push(PEOPLE_TEAMS);
   if (isAdmin) peopleVisible.push(PEOPLE_USERS);
   const integrationsVisible = isAdmin ? INTEGRATIONS : [];
+  const automationVisible = isAdmin ? AUTOMATION : [];
 
   const linkBase = "flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors";
   const linkActive = "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
@@ -85,6 +90,7 @@ export function AppSidebar() {
         {renderGroup("Workspace", WORKSPACE)}
         {renderGroup("People", peopleVisible)}
         {renderGroup("Knowledge", KNOWLEDGE)}
+        {renderGroup("Automation", automationVisible)}
         {renderGroup("Integrations", integrationsVisible)}
       </SidebarContent>
     </Sidebar>
