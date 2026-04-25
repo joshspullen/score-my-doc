@@ -120,14 +120,14 @@ const BusinessProcesses = () => {
         </TableHeader>
         <TableBody>
           {filtered.map((r) => (
-            <TableRow key={r.id}>
+            <TableRow key={r.id} className="cursor-pointer" onClick={() => setDetail(r)}>
               <TableCell className="font-mono text-xs">{r.code || "—"}</TableCell>
               <TableCell className="font-medium">{r.name}</TableCell>
               <TableCell>{r.category ? <Badge variant="outline" className="text-xs">{r.category}</Badge> : "—"}</TableCell>
               <TableCell className="text-muted-foreground text-sm">{r.owner || "—"}</TableCell>
               <TableCell className="text-sm">{reqCount(r.id)}</TableCell>
               {isAdmin && (
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1">
                     <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => remove(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -144,7 +144,7 @@ const BusinessProcesses = () => {
   const renderCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       {filtered.map((r) => (
-        <div key={r.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div key={r.id} onClick={() => setDetail(r)} className="bg-card border border-border rounded-xl p-5 cursor-pointer hover:border-primary/40 transition-colors" style={{ boxShadow: "var(--shadow-card)" }}>
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="min-w-0">
               {r.code && <Badge variant="outline" className="font-mono text-xs mb-1.5">{r.code}</Badge>}
@@ -159,7 +159,7 @@ const BusinessProcesses = () => {
           <div className="flex items-center justify-between pt-3 border-t border-border">
             <span className="text-xs text-muted-foreground">{reqCount(r.id)} requirement(s)</span>
             {isAdmin && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                 <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                 <Button size="icon" variant="ghost" onClick={() => remove(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
               </div>
