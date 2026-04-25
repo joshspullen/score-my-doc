@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3 } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3, Workflow, GraduationCap, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
+import { EntityDetailSheet } from "@/components/EntityDetailSheet";
 
 type Category = "sanctions" | "aml_cft" | "prudential" | "conduct_reporting" | "operational_cyber";
 type Req = { id: string; reference_code: string | null; title: string; regulator: string | null; requirement_type: string | null; severity: string | null; description: string | null; business_process_id: string | null; category: Category | null };
@@ -20,7 +21,7 @@ type BP = { id: string; name: string };
 type Team = { id: string; name: string };
 type Profile = { id: string; display_name: string | null };
 type Assignment = { id: string; compliance_requirement_id: string; target_type: string; target_role: string | null; target_team_id: string | null; target_user_id: string | null };
-type Module = { id: string; title: string; compliance_requirement_id: string | null };
+type Module = { id: string; title: string; compliance_requirement_id: string | null; duration_minutes?: number | null };
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: "sanctions", label: "Sanctions" },
@@ -61,6 +62,7 @@ const Compliance = () => {
   const [newAssign, setNewAssign] = useState<{ type: "role" | "team" | "user"; value: string }>({ type: "role", value: "user" });
   const [view, setView] = useState<ViewMode>("cards");
   const [filter, setFilter] = useState<string>("all");
+  const [detail, setDetail] = useState<Req | null>(null);
 
   useEffect(() => { document.title = "Regulations — MERIDIAN"; load(); }, []);
 
@@ -71,7 +73,7 @@ const Compliance = () => {
       supabase.from("teams").select("id,name").order("name"),
       supabase.from("profiles").select("id,display_name").order("display_name"),
       supabase.from("compliance_assignments").select("*"),
-      supabase.from("training_modules").select("id,title,compliance_requirement_id"),
+      supabase.from("training_modules").select("id,title,compliance_requirement_id,duration_minutes"),
     ]);
     setReqs((r.data ?? []) as Req[]);
     setBps((b.data ?? []) as BP[]);
