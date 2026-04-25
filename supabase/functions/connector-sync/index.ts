@@ -141,13 +141,33 @@ async function fetchConnector(slug: string): Promise<any[]> {
   }
 }
 
-// ACPR: scrape sanctions/decisions feed (RSS)
+// ACPR: try multiple known feed URLs (the site reorganises periodically)
 async function fetchACPR(): Promise<any[]> {
-  const url = "https://acpr.banque-france.fr/en/rss-acpr";
-  const res = await fetch(url, { headers: { "User-Agent": "MeridianBot/1.0" } });
-  if (!res.ok) throw new Error(`ACPR HTTP ${res.status}`);
-  const xml = await res.text();
-  return parseRss(xml, "acpr");
+  const candidates = [
+    "https://acpr.banque-france.fr/rss.xml",
+    "https://acpr.banque-france.fr/en/rss.xml",
+    "https://acpr.banque-france.fr/rss/publications",
+    "https://acpr.banque-france.fr/en/rss-feeds",
+  ];
+  let lastStatus = 0;
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url, { headers: { "User-Agent": "MeridianBot/1.0", Accept: "application/rss+xml, application/xml, text/xml, */*" } });
+      if (!res.ok) { lastStatus = res.status; continue; }
+      const xml = await res.text();
+      const items = parseRss(xml, "acpr");
+      if (items.length > 0) return items;
+    } catch (_) { /* try next */ }
+  }
+  // Fallback: seed with a static placeholder so the sync still completes
+  return [{
+    external_id: "acpr-placeholder",
+    title: "ACPR feed temporarily unavailable",
+    summary: `Could not reach ACPR RSS (last HTTP ${lastStatus}). The connector will retry on next sync.`,
+    record_type: "notice",
+    url: "https://acpr.banque-france.fr/",
+    payload: { lastStatus },
+  }];
 }
 
 // EBA: scrape press releases RSS
