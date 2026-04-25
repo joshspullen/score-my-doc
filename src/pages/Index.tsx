@@ -1,5 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon } from "lucide-react";
+import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon, AlertTriangle, MousePointerClick, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
 import { ScoreGauge, ScoreBar } from "@/components/ScoreGauge";
@@ -63,6 +63,71 @@ const Index = () => {
                 <ScoreBar label="Risk flags" value={80} />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The Compliance Gap */}
+      <section className="bg-black text-white py-24 border-t border-black">
+        <div className="container">
+          <div className="max-w-3xl mb-14">
+            <p className="text-xs uppercase tracking-[0.25em] text-white/50 mb-4">The compliance gap</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              Banks spent <span className="underline decoration-white/30 underline-offset-8">$274 billion</span> on compliance last year. Most of it didn't work.
+            </h2>
+            <p className="text-white/60 mt-5 text-lg max-w-2xl">
+              Global AML fines hit a record <strong className="text-white">$5.8 billion in 2024</strong> — and 95% of suspicious activity reports flagged by banks are never acted on. Document review is still the weakest link.
+            </p>
+          </div>
+
+          {/* Big stat band */}
+          <div className="grid md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-2xl overflow-hidden mb-16">
+            {[
+              { value: "70%", label: "of compliance training content forgotten within 24 hours" },
+              { value: "$5.8B", label: "global AML fines issued to banks in 2024" },
+              { value: "1 in 3", label: "KYC files contain a material gap on first review" },
+              { value: "11 hrs", label: "average analyst time spent reviewing a single complex file" },
+            ].map((s, i) => (
+              <div key={i} className="bg-black p-8">
+                <div className="text-4xl md:text-5xl font-bold tracking-tight">{s.value}</div>
+                <div className="text-sm text-white/60 mt-3 leading-relaxed">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Why it fails */}
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              {
+                icon: AlertTriangle,
+                title: "Limited impact",
+                desc: "Annual e-learning modules don't change behaviour. Analysts revert to old habits within weeks of certification.",
+              },
+              {
+                icon: MousePointerClick,
+                title: "Click-through culture",
+                desc: "Compliance reviews become box-ticking exercises. Files get signed off without the gaps actually being closed.",
+              },
+              {
+                icon: Layers,
+                title: "One-size-fits-all",
+                desc: "Generic checklists ignore jurisdiction, customer risk profile, and the specific regulator the file will face.",
+              },
+            ].map((c, i) => (
+              <div key={i} className="rounded-xl border border-white/10 bg-white/[0.03] p-6 hover:bg-white/[0.06] transition-colors">
+                <div className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center mb-4">
+                  <c.icon className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">{c.title}</h3>
+                <p className="text-sm text-white/60 leading-relaxed">{c.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-14 flex items-center gap-4 text-sm text-white/50">
+            <div className="h-px flex-1 bg-white/10" />
+            <span>MERIDIAN closes the gap — at the document level</span>
+            <div className="h-px flex-1 bg-white/10" />
           </div>
         </div>
       </section>
