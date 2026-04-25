@@ -1,72 +1,66 @@
-import { useEffect, useState } from "react";
-import { Loader2, Plus, Trash2, Users, UserPlus, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Plus, Trash2, Users, UserPlus, X, LayoutGrid, Table as TableIcon, BarChart3, Crown, User as UserIcon, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 
 type Team = { id: string; name: string; description: string | null; created_at: string };
-type Member = { id: string; user_id: string; member_role: "manager" | "member"; display_name: string | null };
+type Member = { id: string; team_id: string; user_id: string; member_role: "manager" | "member" };
+type Person = { id: string; display_name: string; job_title?: string | null; department?: string | null; is_real: boolean };
+type Training = { user_id: string; status: string };
 
 const Teams = () => {
   const { user } = useAuth();
   const { isAdmin, loading: rolesLoading } = useRoles();
   const [teams, setTeams] = useState<Team[]>([]);
+  const [allMembers, setAllMembers] = useState<Member[]>([]);
+  const [people, setPeople] = useState<Map<string, Person>>(new Map());
+  const [trainings, setTrainings] = useState<Training[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"cards" | "table" | "dashboard">("cards");
   const [selected, setSelected] = useState<Team | null>(null);
-  const [members, setMembers] = useState<Member[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
-  const [createOpen, setCreateOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [newMemberId, setNewMemberId] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState<"manager" | "member">("member");
 
   useEffect(() => { document.title = "Teams — MERIDIAN"; }, []);
 
-  const loadTeams = async () => {
-    const { data, error } = await supabase.from("teams").select("*").order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    else setTeams((data ?? []) as Team[]);
+  const load = async () => {
+    const [t, m, p, f, tr] = await Promise.all([
+      supabase.from("teams").select("*").order("name"),
+      supabase.from("team_members").select("*"),
+      supabase.from("profiles").select("id, display_name"),
+      supabase.from("fictional_users").select("id, display_name, job_title, department"),
+      supabase.from("training_assignments").select("user_id, status"),
+    ]);
+    setTeams((t.data ?? []) as Team[]);
+    setAllMembers((m.data ?? []) as Member[]);
+    const map = new Map<string, Person>();
+    (p.data ?? []).forEach((x: any) => map.set(x.id, { id: x.id, display_name: x.display_name ?? x.id.slice(0, 8), is_real: true }));
+    (f.data ?? []).forEach((x: any) => map.set(x.id, { id: x.id, display_name: x.display_name, job_title: x.job_title, department: x.department, is_real: false }));
+    setPeople(map);
+    setTrainings((tr.data ?? []) as Training[]);
     setLoading(false);
   };
 
-  const loadMembers = async (teamId: string) => {
-    const { data, error } = await supabase
-      .from("team_members")
-      .select("id, user_id, member_role, profiles:user_id(display_name)")
-      .eq("team_id", teamId);
-    if (error) { toast.error(error.message); return; }
-    setMembers(
-      (data ?? []).map((m: any) => ({
-        id: m.id, user_id: m.user_id, member_role: m.member_role,
-        display_name: m.profiles?.display_name ?? null,
-      })),
-    );
-  };
-
-  useEffect(() => { if (user) loadTeams(); }, [user]);
-  useEffect(() => { if (selected) loadMembers(selected.id); }, [selected]);
+  useEffect(() => { if (user) load(); }, [user]);
 
   const createTeam = async () => {
     if (!newName.trim() || !user) return;
-    const { data, error } = await supabase
-      .from("teams")
-      .insert({ name: newName.trim(), description: newDesc.trim() || null, created_by: user.id })
-      .select()
-      .single();
+    const { data, error } = await supabase.from("teams").insert({ name: newName.trim(), description: newDesc.trim() || null, created_by: user.id }).select().single();
     if (error) { toast.error(error.message); return; }
-    // Auto-add creator as manager
     await supabase.from("team_members").insert({ team_id: data.id, user_id: user.id, member_role: "manager" });
     setNewName(""); setNewDesc(""); setCreateOpen(false);
-    toast.success("Team created");
-    loadTeams();
+    toast.success("Team created"); load();
   };
 
   const deleteTeam = async (id: string) => {
@@ -74,165 +68,295 @@ const Teams = () => {
     const { error } = await supabase.from("teams").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     if (selected?.id === id) setSelected(null);
-    toast.success("Team deleted");
-    loadTeams();
-  };
-
-  const addMember = async () => {
-    if (!selected || !newMemberId.trim()) return;
-    const { error } = await supabase.from("team_members").insert({
-      team_id: selected.id, user_id: newMemberId.trim(), member_role: newMemberRole,
-    });
-    if (error) { toast.error(error.message); return; }
-    setNewMemberId(""); setNewMemberRole("member"); setAddOpen(false);
-    toast.success("Member added");
-    loadMembers(selected.id);
+    toast.success("Deleted"); load();
   };
 
   const removeMember = async (id: string) => {
     const { error } = await supabase.from("team_members").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
-    if (selected) loadMembers(selected.id);
+    load();
+  };
+
+  const teamMembers = (teamId: string) => allMembers.filter((m) => m.team_id === teamId);
+  const teamManager = (teamId: string) => teamMembers(teamId).find((m) => m.member_role === "manager");
+  const personOf = (uid: string): Person => people.get(uid) ?? { id: uid, display_name: uid.slice(0, 8) + "…", is_real: false };
+
+  const stats = useMemo(() => {
+    const totalMembers = allMembers.length;
+    const totalManagers = allMembers.filter((m) => m.member_role === "manager").length;
+    const completed = trainings.filter((t) => t.status === "completed").length;
+    const inProgress = trainings.filter((t) => t.status === "in_progress").length;
+    const assigned = trainings.filter((t) => t.status === "assigned").length;
+    const completionRate = trainings.length ? Math.round((completed / trainings.length) * 100) : 0;
+    return { totalMembers, totalManagers, completed, inProgress, assigned, completionRate, totalTrainings: trainings.length };
+  }, [allMembers, trainings]);
+
+  const teamStats = (teamId: string) => {
+    const members = teamMembers(teamId);
+    const memberIds = new Set(members.map((m) => m.user_id));
+    const teamTrainings = trainings.filter((t) => memberIds.has(t.user_id));
+    const completed = teamTrainings.filter((t) => t.status === "completed").length;
+    const total = teamTrainings.length;
+    return { members: members.length, managers: members.filter((m) => m.member_role === "manager").length, completed, total, rate: total ? Math.round((completed / total) * 100) : 0 };
+  };
+
+  const initials = (name: string) => name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+
+  // ============ RENDERS ============
+
+  const renderCards = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {teams.map((t) => {
+        const members = teamMembers(t.id);
+        const mgr = teamManager(t.id);
+        const s = teamStats(t.id);
+        return (
+          <button key={t.id} onClick={() => setSelected(t)}
+            className="text-left bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-all"
+            style={{ boxShadow: "var(--shadow-card)" }}>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-semibold text-lg">{t.name}</h3>
+                {t.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{t.description}</p>}
+              </div>
+              <Badge variant="outline" className="flex-shrink-0">{members.length}</Badge>
+            </div>
+            {mgr && (
+              <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
+                <Crown className="h-3 w-3 text-amber-500" /> Manager: <span className="text-foreground font-medium">{personOf(mgr.user_id).display_name}</span>
+              </div>
+            )}
+            <div className="flex -space-x-2 mb-3">
+              {members.slice(0, 6).map((m) => {
+                const p = personOf(m.user_id);
+                return (
+                  <div key={m.id} className="h-8 w-8 rounded-full bg-primary/10 text-primary border-2 border-card flex items-center justify-center text-[10px] font-semibold" title={p.display_name}>
+                    {initials(p.display_name)}
+                  </div>
+                );
+              })}
+              {members.length > 6 && (
+                <div className="h-8 w-8 rounded-full bg-muted border-2 border-card flex items-center justify-center text-[10px] font-semibold text-muted-foreground">
+                  +{members.length - 6}
+                </div>
+              )}
+            </div>
+            <div className="pt-3 border-t border-border flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Training completion</span>
+              <span className="font-semibold">{s.rate}%</span>
+            </div>
+            <div className="h-1.5 bg-muted rounded-full mt-1.5 overflow-hidden">
+              <div className="h-full bg-primary" style={{ width: `${s.rate}%` }} />
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const renderTable = () => (
+    <div className="bg-card border border-border rounded-xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+      <Table>
+        <TableHeader><TableRow>
+          <TableHead>Team</TableHead><TableHead>Manager</TableHead><TableHead>Members</TableHead>
+          <TableHead>Training completion</TableHead><TableHead className="w-12"></TableHead>
+        </TableRow></TableHeader>
+        <TableBody>
+          {teams.map((t) => {
+            const mgr = teamManager(t.id);
+            const s = teamStats(t.id);
+            return (
+              <TableRow key={t.id} className="cursor-pointer" onClick={() => setSelected(t)}>
+                <TableCell>
+                  <div className="font-medium">{t.name}</div>
+                  {t.description && <div className="text-xs text-muted-foreground line-clamp-1">{t.description}</div>}
+                </TableCell>
+                <TableCell>{mgr ? personOf(mgr.user_id).display_name : <span className="text-xs text-muted-foreground">—</span>}</TableCell>
+                <TableCell>{s.members}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden"><div className="h-full bg-primary" style={{ width: `${s.rate}%` }} /></div>
+                    <span className="text-xs font-medium w-10">{s.rate}%</span>
+                    <span className="text-xs text-muted-foreground">({s.completed}/{s.total})</span>
+                  </div>
+                </TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  {isAdmin && <Button size="icon" variant="ghost" onClick={() => deleteTeam(t.id)}><Trash2 className="h-3.5 w-3.5" /></Button>}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
+  const renderDashboard = () => {
+    const tile = (label: string, value: string | number, sub?: string, icon?: React.ComponentType<{ className?: string }>) => {
+      const Icon = icon;
+      return (
+        <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-2">
+            {Icon && <Icon className="h-3.5 w-3.5" />} {label}
+          </div>
+          <div className="text-3xl font-bold tracking-tight">{value}</div>
+          {sub && <div className="text-xs text-muted-foreground mt-1">{sub}</div>}
+        </div>
+      );
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {tile("Teams", teams.length, "Active organizational units", Users)}
+          {tile("Members", stats.totalMembers, `${stats.totalManagers} managers`, UserIcon)}
+          {tile("Trainings", stats.totalTrainings, `${stats.completed} completed · ${stats.inProgress} in progress`, GraduationCap)}
+          {tile("Completion rate", `${stats.completionRate}%`, "Across all teams", BarChart3)}
+        </div>
+
+        <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <h3 className="font-semibold mb-4">Training completion by team</h3>
+          <div className="space-y-3">
+            {teams.map((t) => {
+              const s = teamStats(t.id);
+              return (
+                <div key={t.id}>
+                  <div className="flex items-center justify-between text-sm mb-1.5">
+                    <span className="font-medium">{t.name}</span>
+                    <span className="text-xs text-muted-foreground">{s.completed} / {s.total} ({s.rate}%)</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-primary transition-all" style={{ width: `${s.rate}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+            <h3 className="font-semibold mb-4">Team headcount</h3>
+            <div className="space-y-2">
+              {teams.map((t) => {
+                const s = teamStats(t.id);
+                const max = Math.max(...teams.map((x) => teamStats(x.id).members), 1);
+                return (
+                  <div key={t.id} className="flex items-center gap-3">
+                    <span className="text-sm w-40 truncate">{t.name}</span>
+                    <div className="flex-1 h-6 bg-muted rounded overflow-hidden flex items-center">
+                      <div className="h-full bg-primary/80 flex items-center justify-end px-2" style={{ width: `${(s.members / max) * 100}%` }}>
+                        <span className="text-[10px] font-semibold text-primary-foreground">{s.members}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+            <h3 className="font-semibold mb-4">Training status mix</h3>
+            <div className="flex items-end gap-3 h-40">
+              {[
+                { label: "Completed", value: stats.completed, color: "bg-green-500" },
+                { label: "In progress", value: stats.inProgress, color: "bg-blue-500" },
+                { label: "Assigned", value: stats.assigned, color: "bg-amber-500" },
+              ].map((b) => {
+                const max = Math.max(stats.completed, stats.inProgress, stats.assigned, 1);
+                return (
+                  <div key={b.label} className="flex-1 flex flex-col items-center gap-2">
+                    <div className="text-xs font-semibold">{b.value}</div>
+                    <div className="w-full bg-muted rounded-t flex-1 flex items-end overflow-hidden">
+                      <div className={`w-full ${b.color}`} style={{ height: `${(b.value / max) * 100}%` }} />
+                    </div>
+                    <div className="text-xs text-muted-foreground">{b.label}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="min-h-screen bg-background">
       <main className="container py-10">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <Users className="h-7 w-7" /> Teams
-            </h1>
-            <p className="text-muted-foreground mt-1">Group analysts and assign managers to oversee them.</p>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Users className="h-7 w-7" /> Teams</h1>
+            <p className="text-muted-foreground mt-1">Organize people, assign managers and track training across the organization.</p>
           </div>
-          {isAdmin && (
-            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-              <DialogTrigger asChild>
-                <Button className="gap-2"><Plus className="h-4 w-4" /> New team</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader><DialogTitle>Create team</DialogTitle></DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="team-name">Name</Label>
-                    <Input id="team-name" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. AML Analysts — Paris" />
+          <div className="flex items-center gap-3">
+            <Tabs value={view} onValueChange={(v) => setView(v as any)}>
+              <TabsList>
+                <TabsTrigger value="cards" className="gap-1.5"><LayoutGrid className="h-3.5 w-3.5" /> Cards</TabsTrigger>
+                <TabsTrigger value="table" className="gap-1.5"><TableIcon className="h-3.5 w-3.5" /> Table</TabsTrigger>
+                <TabsTrigger value="dashboard" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Dashboard</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {isAdmin && (
+              <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+                <DialogTrigger asChild><Button className="gap-1.5"><Plus className="h-4 w-4" /> New team</Button></DialogTrigger>
+                <DialogContent>
+                  <DialogHeader><DialogTitle>Create team</DialogTitle></DialogHeader>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5"><Label>Name</Label><Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. AML Analysts — Paris" /></div>
+                    <div className="space-y-1.5"><Label>Description</Label><Input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} /></div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="team-desc">Description (optional)</Label>
-                    <Input id="team-desc" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
-                  <Button onClick={createTeam}>Create</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
+                  <DialogFooter><Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button><Button onClick={createTeam}>Create</Button></DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
         </div>
 
         {loading || rolesLoading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Teams list */}
-            <div className="md:col-span-1 bg-card border border-border rounded-xl overflow-hidden">
-              <div className="px-4 py-3 border-b border-border text-xs font-medium uppercase tracking-wider text-muted-foreground bg-secondary/30">
-                {teams.length} team{teams.length === 1 ? "" : "s"}
-              </div>
-              <div className="divide-y divide-border">
-                {teams.map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setSelected(t)}
-                    className={`w-full text-left px-4 py-3 hover:bg-secondary/40 transition ${selected?.id === t.id ? "bg-secondary/60" : ""}`}
-                  >
-                    <div className="font-medium">{t.name}</div>
-                    {t.description && <div className="text-xs text-muted-foreground truncate">{t.description}</div>}
-                  </button>
-                ))}
-                {teams.length === 0 && (
-                  <div className="px-4 py-10 text-sm text-muted-foreground text-center">No teams yet.</div>
-                )}
-              </div>
-            </div>
-
-            {/* Team detail */}
-            <div className="md:col-span-2 bg-card border border-border rounded-xl p-6">
-              {!selected ? (
-                <div className="text-sm text-muted-foreground py-12 text-center">Select a team to view its members.</div>
-              ) : (
-                <div>
-                  <div className="flex items-start justify-between mb-6">
-                    <div>
-                      <h2 className="text-xl font-semibold">{selected.name}</h2>
-                      {selected.description && <p className="text-sm text-muted-foreground mt-1">{selected.description}</p>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline" className="gap-2"><UserPlus className="h-4 w-4" /> Add member</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader><DialogTitle>Add team member</DialogTitle></DialogHeader>
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="member-id">User ID</Label>
-                              <Input id="member-id" value={newMemberId} onChange={(e) => setNewMemberId(e.target.value)} placeholder="uuid…" />
-                              <p className="text-xs text-muted-foreground">Find the user's ID in the Admin page.</p>
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Role in team</Label>
-                              <Select value={newMemberRole} onValueChange={(v) => setNewMemberRole(v as "manager" | "member")}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="member">Member</SelectItem>
-                                  {isAdmin && <SelectItem value="manager">Manager</SelectItem>}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button variant="ghost" onClick={() => setAddOpen(false)}>Cancel</Button>
-                            <Button onClick={addMember}>Add</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      {isAdmin && (
-                        <Button size="icon" variant="ghost" onClick={() => deleteTeam(selected.id)}>
-                          <Trash2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    {members.map((m) => (
-                      <div key={m.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-                        <div className="min-w-0">
-                          <div className="font-medium truncate">{m.display_name ?? m.user_id}</div>
-                          <div className="text-xs text-muted-foreground truncate">{m.user_id}</div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Badge variant={m.member_role === "manager" ? "default" : "outline"} className="capitalize">
-                            {m.member_role}
-                          </Badge>
-                          <Button size="icon" variant="ghost" onClick={() => removeMember(m.id)}>
-                            <X className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    {members.length === 0 && (
-                      <div className="text-sm text-muted-foreground text-center py-6">No members in this team yet.</div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        ) : teams.length === 0 ? (
+          <div className="text-center py-20 text-muted-foreground">No teams yet.</div>
+        ) : view === "cards" ? renderCards() : view === "table" ? renderTable() : renderDashboard()}
       </main>
+
+      {/* Team detail dialog */}
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selected?.name}</DialogTitle>
+            {selected?.description && <p className="text-sm text-muted-foreground">{selected.description}</p>}
+          </DialogTitle>
+          {selected && (
+            <div className="space-y-3 mt-2">
+              {teamMembers(selected.id).map((m) => {
+                const p = personOf(m.user_id);
+                return (
+                  <div key={m.id} className="flex items-center justify-between border border-border rounded-lg px-4 py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">{initials(p.display_name)}</div>
+                      <div className="min-w-0">
+                        <div className="font-medium truncate flex items-center gap-2">
+                          {p.display_name}
+                          {!p.is_real && <Badge variant="outline" className="text-[9px] py-0 px-1.5">demo</Badge>}
+                        </div>
+                        {p.job_title && <div className="text-xs text-muted-foreground truncate">{p.job_title}{p.department ? ` · ${p.department}` : ""}</div>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Badge variant={m.member_role === "manager" ? "default" : "outline"} className="capitalize gap-1">
+                        {m.member_role === "manager" && <Crown className="h-3 w-3" />} {m.member_role}
+                      </Badge>
+                      {isAdmin && <Button size="icon" variant="ghost" onClick={() => removeMember(m.id)}><X className="h-3.5 w-3.5" /></Button>}
+                    </div>
+                  </div>
+                );
+              })}
+              {teamMembers(selected.id).length === 0 && <div className="text-center py-8 text-sm text-muted-foreground">No members yet.</div>}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
