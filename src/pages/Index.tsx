@@ -13,14 +13,14 @@ import googleCloud from "@/assets/partners/google-cloud.png";
 import hgCatalyst from "@/assets/partners/hg-catalyst.png";
 import lovableLogo from "@/assets/partners/lovable.png";
 import redBull from "@/assets/partners/red-bull.png";
-import cerebrus from "@/assets/partners/cerebrus.png";
+import cerebras from "@/assets/partners/cerebras.png";
 
 const PARTNERS = [
   { name: "Google Cloud", src: googleCloud },
   { name: "HG Catalyst", src: hgCatalyst },
   { name: "Lovable", src: lovableLogo },
   { name: "Red Bull", src: redBull },
-  { name: "Cerebrus", src: cerebrus },
+  { name: "Cerebras", src: cerebras },
 ];
 
 const Index = () => {
