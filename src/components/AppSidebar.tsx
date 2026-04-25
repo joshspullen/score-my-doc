@@ -1,5 +1,6 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
+  GraduationCap, ScrollText, Workflow, UsersRound,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
@@ -18,13 +19,18 @@ const WORKSPACE: Item[] = [
   { title: "My Profile", url: "/profile", icon: User },
 ];
 
-const PEOPLE: Item[] = [
-  { title: "Teams", url: "/teams", icon: Users },
-  { title: "Users", url: "/admin", icon: Shield, /* admin only */ },
+// People hub: visible to everyone, sub-items role-gated
+const PEOPLE_BASE: Item[] = [
+  { title: "Overview", url: "/people", icon: UsersRound },
+  { title: "Training", url: "/people/training", icon: GraduationCap },
+  { title: "Compliance", url: "/people/compliance", icon: ScrollText },
+  { title: "Business Processes", url: "/people/processes", icon: Workflow },
 ];
+const PEOPLE_TEAMS: Item = { title: "Teams", url: "/teams", icon: Users };
+const PEOPLE_USERS: Item = { title: "Users", url: "/admin", icon: Shield };
 
 const INTEGRATIONS: Item[] = [
-  { title: "Connectors", url: "/connectors", icon: Plug, /* admin only */ },
+  { title: "Connectors", url: "/connectors", icon: Plug },
 ];
 
 export function AppSidebar() {
@@ -33,7 +39,9 @@ export function AppSidebar() {
   const { isAdmin, isManager } = useRoles();
   const location = useLocation();
 
-  const peopleVisible = PEOPLE.filter((i) => i.url === "/teams" ? (isAdmin || isManager) : isAdmin);
+  const peopleVisible: Item[] = [...PEOPLE_BASE];
+  if (isAdmin || isManager) peopleVisible.push(PEOPLE_TEAMS);
+  if (isAdmin) peopleVisible.push(PEOPLE_USERS);
   const integrationsVisible = isAdmin ? INTEGRATIONS : [];
 
   const linkBase = "flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors";
