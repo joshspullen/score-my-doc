@@ -194,7 +194,7 @@ const Compliance = () => {
     <div className="bg-card border border-border rounded-xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
       <Table>
         <TableHeader><TableRow>
-          <TableHead>Code</TableHead><TableHead>Title</TableHead><TableHead>Regulator</TableHead>
+          <TableHead>Code</TableHead><TableHead>Title</TableHead><TableHead>Category</TableHead><TableHead>Regulator</TableHead>
           <TableHead>Severity</TableHead><TableHead>Targets</TableHead><TableHead>Trainings</TableHead>
           {isAdmin && <TableHead className="w-32"></TableHead>}
         </TableRow></TableHeader>
@@ -203,6 +203,7 @@ const Compliance = () => {
             <TableRow key={r.id}>
               <TableCell className="font-mono text-xs">{r.reference_code || "—"}</TableCell>
               <TableCell className="font-medium">{r.title}</TableCell>
+              <TableCell><span className={`text-xs px-2 py-0.5 rounded-md ${r.category ? catColor[r.category] : "bg-muted text-muted-foreground"}`}>{catLabel(r.category)}</span></TableCell>
               <TableCell className="text-xs">{r.regulator || "—"}</TableCell>
               <TableCell>{r.severity && <span className={`text-xs px-2 py-0.5 rounded-md ${sevColor[r.severity] ?? sevColor.medium}`}>{r.severity}</span>}</TableCell>
               <TableCell className="text-sm">{reqAssignments(r.id).length}</TableCell>
@@ -225,6 +226,7 @@ const Compliance = () => {
 
   const renderDashboard = () => {
     const bySeverity = ["low", "medium", "high", "critical"].map((s) => ({ s, n: reqs.filter((r) => r.severity === s).length }));
+    const byCategory = CATEGORIES.map((c) => ({ c: c.value, label: c.label, n: reqs.filter((r) => r.category === c.value).length }));
     const tile = (label: string, value: string | number, sub?: string) => (
       <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
         <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">{label}</div>
@@ -260,6 +262,24 @@ const Compliance = () => {
             })}
           </div>
         </div>
+        <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> By taxonomy category</h3>
+          <div className="space-y-2">
+            {byCategory.map((b) => {
+              const max = Math.max(...byCategory.map((x) => x.n), 1);
+              return (
+                <div key={b.c} className="flex items-center gap-3">
+                  <span className="text-sm w-44">{b.label}</span>
+                  <div className="flex-1 h-6 bg-muted rounded overflow-hidden">
+                    <div className={`h-full ${catColor[b.c]} flex items-center justify-end px-2`} style={{ width: `${(b.n / max) * 100}%` }}>
+                      <span className="text-[10px] font-semibold">{b.n}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     );
   };
@@ -268,30 +288,39 @@ const Compliance = () => {
     <div className="container py-10">
       <ModuleHeader
         icon={ScrollText}
-        title="Compliance"
-        subtitle="Regulatory requirements linked to business processes and training."
+        title="Regulations"
+        subtitle="Central-bank regulations classified by taxonomy and linked to processes and training."
         views={["dashboard", "cards", "table"]}
         view={view}
         onViewChange={setView}
         filters={filters}
         filter={filter}
         onFilterChange={setFilter}
-        actions={isAdmin ? <Button onClick={() => setEditing(emptyReq)} className="gap-1.5"><Plus className="h-4 w-4" /> New requirement</Button> : undefined}
+        actions={isAdmin ? <Button onClick={() => setEditing(emptyReq)} className="gap-1.5"><Plus className="h-4 w-4" /> New regulation</Button> : undefined}
       />
 
       {loading ? <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div> :
-        filteredReqs.length === 0 && view !== "dashboard" ? <div className="text-center py-20 text-muted-foreground">No requirements match this filter.</div> :
+        filteredReqs.length === 0 && view !== "dashboard" ? <div className="text-center py-20 text-muted-foreground">No regulations match this filter.</div> :
         view === "cards" ? renderCards() : view === "table" ? renderTable() : renderDashboard()}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>{editing?.id ? "Edit" : "New"} compliance requirement</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing?.id ? "Edit" : "New"} regulation</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5"><Label>Reference code</Label><Input value={editing?.reference_code ?? ""} onChange={(e) => setEditing({ ...editing!, reference_code: e.target.value })} placeholder="e.g. AML-2024-01" /></div>
               <div className="space-y-1.5"><Label>Regulator</Label><Input value={editing?.regulator ?? ""} onChange={(e) => setEditing({ ...editing!, regulator: e.target.value })} placeholder="ACPR / EBA…" /></div>
             </div>
             <div className="space-y-1.5"><Label>Title *</Label><Input value={editing?.title ?? ""} onChange={(e) => setEditing({ ...editing!, title: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Category</Label>
+              <Select value={editing?.category ?? "none"} onValueChange={(v) => setEditing({ ...editing!, category: v === "none" ? null : (v as Category) })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">— Uncategorized —</SelectItem>
+                  {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5"><Label>Type</Label><Input value={editing?.requirement_type ?? ""} onChange={(e) => setEditing({ ...editing!, requirement_type: e.target.value })} placeholder="reporting / control / KYC…" /></div>
               <div className="space-y-1.5"><Label>Severity</Label>
