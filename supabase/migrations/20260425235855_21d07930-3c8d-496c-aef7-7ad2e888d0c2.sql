@@ -1,0 +1,1 @@
+ALTER TABLE public.connectors ADD COLUMN IF NOT EXISTS source_url TEXT;
