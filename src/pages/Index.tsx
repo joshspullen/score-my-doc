@@ -309,3 +309,31 @@ const Index = () => {
 };
 
 export default Index;
+
+function CycleNode({
+  position,
+  icon,
+  label,
+}: {
+  position: "top" | "br" | "bl";
+  icon: React.ReactNode;
+  label: string;
+}) {
+  const positionClasses =
+    position === "top"
+      ? "top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+      : position === "br"
+      ? "bottom-[10%] right-0 translate-x-1/3 translate-y-1/3"
+      : "bottom-[10%] left-0 -translate-x-1/3 translate-y-1/3";
+
+  return (
+    <div className={`absolute ${positionClasses} flex flex-col items-center`}>
+      <div className="h-14 w-14 rounded-full bg-background border-2 border-primary flex items-center justify-center text-primary" style={{ boxShadow: "var(--shadow-elegant)" }}>
+        {icon}
+      </div>
+      <span className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground bg-background px-2 py-0.5 rounded">
+        {label}
+      </span>
+    </div>
+  );
+}
