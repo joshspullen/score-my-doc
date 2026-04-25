@@ -153,7 +153,7 @@ const Compliance = () => {
   const renderCards = () => (
     <div className="space-y-3">
       {filteredReqs.map((r) => (
-        <div key={r.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div key={r.id} onClick={() => setDetail(r)} className="bg-card border border-border rounded-xl p-5 cursor-pointer hover:border-primary/40 transition-colors" style={{ boxShadow: "var(--shadow-card)" }}>
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -170,7 +170,7 @@ const Compliance = () => {
               {r.description && <p className="text-sm text-muted-foreground mt-2">{r.description}</p>}
             </div>
             {isAdmin && (
-              <div className="flex items-center gap-1 flex-shrink-0">
+              <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                 <Button size="sm" variant="ghost" onClick={() => setAssignFor(r)} className="gap-1.5"><Target className="h-3.5 w-3.5" /> Assign</Button>
                 <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                 <Button size="icon" variant="ghost" onClick={() => removeReq(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -202,7 +202,7 @@ const Compliance = () => {
         </TableRow></TableHeader>
         <TableBody>
           {filteredReqs.map((r) => (
-            <TableRow key={r.id}>
+            <TableRow key={r.id} className="cursor-pointer" onClick={() => setDetail(r)}>
               <TableCell className="font-mono text-xs">{r.reference_code || "—"}</TableCell>
               <TableCell className="font-medium">{r.title}</TableCell>
               <TableCell><span className={`text-xs px-2 py-0.5 rounded-md ${r.category ? catColor[r.category] : "bg-muted text-muted-foreground"}`}>{catLabel(r.category)}</span></TableCell>
@@ -211,7 +211,7 @@ const Compliance = () => {
               <TableCell className="text-sm">{reqAssignments(r.id).length}</TableCell>
               <TableCell className="text-sm">{reqModules(r.id).length}</TableCell>
               {isAdmin && (
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1 justify-end">
                     <Button size="icon" variant="ghost" onClick={() => setAssignFor(r)}><Target className="h-3.5 w-3.5" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
