@@ -17,6 +17,7 @@ import People from "./pages/People.tsx";
 import Training from "./pages/Training.tsx";
 import Compliance from "./pages/Compliance.tsx";
 import BusinessProcesses from "./pages/BusinessProcesses.tsx";
+import Knowledge from "./pages/Knowledge.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { AdminRoute } from "./components/AdminRoute.tsx";
@@ -42,11 +43,12 @@ const App = () => (
             <Route path="/connectors" element={<AdminRoute><AppShell><Connectors /></AppShell></AdminRoute>} />
             <Route path="/profile" element={<ProtectedRoute><AppShell><Profile /></AppShell></ProtectedRoute>} />
             <Route path="/people" element={<ProtectedRoute><AppShell><People /></AppShell></ProtectedRoute>} />
-            <Route path="/people/training" element={<ProtectedRoute><AppShell><Training /></AppShell></ProtectedRoute>} />
-            <Route path="/people/compliance" element={<ProtectedRoute><AppShell><Compliance /></AppShell></ProtectedRoute>} />
-            <Route path="/people/processes" element={<ProtectedRoute><AppShell><BusinessProcesses /></AppShell></ProtectedRoute>} />
             <Route path="/people/users" element={<AdminRoute><AppShell><Admin /></AppShell></AdminRoute>} />
             <Route path="/people/teams" element={<ProtectedRoute><AppShell><Teams /></AppShell></ProtectedRoute>} />
+            <Route path="/knowledge" element={<ProtectedRoute><AppShell><Knowledge /></AppShell></ProtectedRoute>} />
+            <Route path="/knowledge/regulations" element={<ProtectedRoute><AppShell><Compliance /></AppShell></ProtectedRoute>} />
+            <Route path="/knowledge/processes" element={<ProtectedRoute><AppShell><BusinessProcesses /></AppShell></ProtectedRoute>} />
+            <Route path="/knowledge/training" element={<ProtectedRoute><AppShell><Training /></AppShell></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
