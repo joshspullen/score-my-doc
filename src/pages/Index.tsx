@@ -125,7 +125,92 @@ const Index = () => {
         </div>
       </section>
 
-      {/* The Compliance Gap */}
+      {/* AI vs Traditional comparison */}
+      <section className="py-24 border-t border-border bg-background">
+        <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">The learning gap</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              AI compliance training vs. the way banks do it today.
+            </h2>
+            <p className="text-muted-foreground mt-5 text-lg">
+              Same regulatory pressure. Radically different outcomes.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-px bg-border border border-border rounded-2xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+            {/* Traditional */}
+            <div className="bg-card p-8 md:p-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                  <X className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Today</p>
+                  <h3 className="font-bold text-lg">Traditional compliance training</h3>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  ["Generic", "Same module for every analyst, every jurisdiction, every customer risk profile."],
+                  ["Passive", "Slides and videos. Click 'next' until the certificate prints."],
+                  ["Annual", "Once a year, then forgotten. 70% of content gone within 24 hours."],
+                  ["Disconnected", "Happens in an LMS, not in the actual KYC workflow where decisions are made."],
+                  ["Reactive", "Triggered by a fine, an audit finding, or a regulatory deadline."],
+                  ["Unmeasurable", "Completion rates ≠ behaviour change. Nobody knows if it actually works."],
+                  ["Expensive to scale", "More analysts → more seats, more facilitators, more cost."],
+                ].map(([label, desc]) => (
+                  <li key={label} className="flex gap-3">
+                    <X className="h-4 w-4 text-muted-foreground/70 mt-1 flex-shrink-0" />
+                    <div>
+                      <span className="font-semibold text-foreground">{label}.</span>{" "}
+                      <span className="text-sm text-muted-foreground">{desc}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* AI */}
+            <div className="bg-card p-8 md:p-10 relative" style={{ background: "var(--gradient-subtle)" }}>
+              <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider">
+                MERIDIAN
+              </div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Check className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-primary">With AI</p>
+                  <h3 className="font-bold text-lg">AI compliance copilot</h3>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  ["Personalised", "Coaching is generated from each analyst's own near-misses, role, and jurisdiction."],
+                  ["Interactive", "Conversational scenarios — the analyst is prompted to think, justify, and decide."],
+                  ["Continuous", "Micro-lessons triggered the moment a real mistake is prevented. Not once a year."],
+                  ["Embedded", "Lives inside the document review workflow. Coaching happens at the point of decision."],
+                  ["Proactive", "Catches the gap before the file is signed off — not after the fine lands."],
+                  ["Measurable", "Every prevented error and every coaching outcome is logged. Risk is quantifiable."],
+                  ["Compounds with scale", "Every new file makes the trainer smarter, for everyone, at zero marginal cost."],
+                ].map(([label, desc]) => (
+                  <li key={label} className="flex gap-3">
+                    <Check className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <div>
+                      <span className="font-semibold text-foreground">{label}.</span>{" "}
+                      <span className="text-sm text-muted-foreground">{desc}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section id="how" className="py-20 border-t border-border">
       <section className="bg-black text-white py-24 border-t border-black">
         <div className="container">
           <div className="max-w-3xl mb-14">
