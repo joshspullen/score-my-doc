@@ -1,8 +1,7 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, X, Calendar } from "lucide-react";
+import { ArrowRight, Sparkles, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, Calendar, FileSearch, MessageSquare, BarChart3, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
-import { ScoreGauge, ScoreBar } from "@/components/ScoreGauge";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Accordion,
@@ -32,54 +31,65 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <AppHeader />
 
-      {/* Hero */}
+      {/* Hero — Meet MERIDIAN */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-subtle)" }} />
         <div className="container py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-medium">
-              <Sparkles className="h-3.5 w-3.5" /> AI-powered compliance scoring
-            </div>
+            <p className="text-sm md:text-base font-semibold text-primary">Meet MERIDIAN!</p>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
-              Score your KYC & regulatory documents in seconds.
+              Your AI Compliance Copilot for personal and impactful KYC & regulatory training in finance.
             </h1>
             <p className="text-lg text-muted-foreground max-w-lg">
-              Upload any KYC form or council regulation document. Get an instant compliance score, risk flags, and clear recommendations.
+              MERIDIAN catches the wrong decision before it's signed off — and turns every prevented mistake into personalised training for the analyst who made it.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
-              <Link to="/auth">
+              <a href="#demo">
                 <Button size="lg" className="gap-2">
-                  Get started free <ArrowRight className="h-4 w-4" />
+                  Book a demo <ArrowRight className="h-4 w-4" />
                 </Button>
-              </Link>
-              <a href="#how">
-                <Button size="lg" variant="outline">How it works</Button>
               </a>
+              <Link to="/auth">
+                <Button size="lg" variant="outline">Sign in</Button>
+              </Link>
             </div>
           </div>
 
           <div className="relative">
             <div
-              className="rounded-2xl bg-card border border-border p-8"
+              className="rounded-2xl bg-card border border-border p-6 md:p-8 space-y-4"
               style={{ boxShadow: "var(--shadow-elegant)" }}
             >
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Sample analysis</p>
-                  <p className="font-semibold text-foreground">KYC Identity Form</p>
+              {/* Bot bubble */}
+              <div className="flex gap-3 items-start">
+                <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="h-4 w-4" />
                 </div>
-                <div className="px-2 py-1 rounded-md bg-success/10 text-success text-xs font-semibold">
-                  Compliant
+                <div className="rounded-2xl rounded-tl-sm bg-primary/10 px-4 py-3 text-sm text-foreground max-w-[85%]">
+                  Hey there! I'm MERIDIAN, your AI compliance copilot. I just spotted a missing source-of-funds note on the file you opened. Want to walk through it?
                 </div>
               </div>
-              <div className="flex flex-col items-center mb-6">
-                <ScoreGauge score={84} size={160} />
+              {/* User bubble */}
+              <div className="flex gap-3 items-start justify-end">
+                <div className="rounded-2xl rounded-tr-sm bg-muted px-4 py-3 text-sm text-foreground max-w-[85%]">
+                  Yeah — third time this week I've missed it on a high-risk PEP file. Coach me before I sign off.
+                </div>
+                <div className="h-9 w-9 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0 text-xs font-semibold">
+                  KA
+                </div>
               </div>
-              <div className="space-y-3">
-                <ScoreBar label="Completeness" value={92} />
-                <ScoreBar label="Clarity" value={78} />
-                <ScoreBar label="Regulatory alignment" value={88} />
-                <ScoreBar label="Risk flags" value={80} />
+              {/* Bot bubble 2 */}
+              <div className="flex gap-3 items-start">
+                <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="rounded-2xl rounded-tl-sm bg-primary/10 px-4 py-3 text-sm text-foreground max-w-[85%]">
+                  Got it. Quick 2-minute scenario tuned to FCA expectations on PEP source-of-funds — let's go.
+                </div>
+              </div>
+              <div className="pt-2 flex items-center gap-2 text-xs text-muted-foreground border-t border-border">
+                <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
+                Live coaching session — embedded in your KYC workflow
               </div>
             </div>
           </div>
