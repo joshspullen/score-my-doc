@@ -207,8 +207,8 @@ const Index = () => {
             {/* Left: stages list */}
             <div className="space-y-5 lg:order-1 order-2">
               {[
-                { n: "01", icon: ShieldX, title: "Prevent the wrong decision", desc: "MERIDIAN reviews every document and flags the gap before it's signed off." },
-                { n: "02", icon: Brain, title: "Capture the near-miss", desc: "Each prevented error is logged with context: jurisdiction, file type, analyst, root cause." },
+                { n: "01", icon: ShieldX, title: "Built on ACPR failures", desc: "MERIDIAN ingests every published ACPR enforcement decision, sanction, and inspection finding — turning a decade of regulator rulings into a live training corpus." },
+                { n: "02", icon: Brain, title: "Mapped to your bank's mistakes", desc: "Each ACPR failure pattern is matched against the gaps your team has actually made, so the AI knows the exact blind spots of your institution and each analyst." },
               ].map((s) => (
                 <div key={s.n} className="flex gap-4 rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
                   <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
