@@ -94,20 +94,20 @@ const Index = () => {
           </p>
         </div>
         <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-          <div className="flex w-max animate-marquee gap-16 pr-16">
+          <div className="flex w-max animate-marquee gap-24 pr-24">
             {[...PARTNERS, ...PARTNERS].map((p, i) => (
               <div
                 key={`${p.name}-${i}`}
-                className="flex items-center gap-3 shrink-0 h-16 px-4 opacity-70 hover:opacity-100 transition-opacity"
+                className="flex items-center shrink-0 h-28 px-6 opacity-80 hover:opacity-100 transition-opacity"
                 aria-label={p.name}
               >
                 <img
                   src={p.src}
                   alt={p.name}
                   loading="lazy"
-                  width={140}
-                  height={48}
-                  className="h-12 w-auto object-contain"
+                  width={280}
+                  height={96}
+                  className="h-24 md:h-28 w-auto object-contain"
                 />
               </div>
             ))}
