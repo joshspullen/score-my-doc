@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
-  GraduationCap, ScrollText, Workflow, UsersRound,
+  GraduationCap, ScrollText, Workflow, UsersRound, BookOpen,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
@@ -19,15 +19,18 @@ const WORKSPACE: Item[] = [
   { title: "My Profile", url: "/profile", icon: User },
 ];
 
-// People hub: visible to everyone, sub-items role-gated
 const PEOPLE_BASE: Item[] = [
   { title: "Overview", url: "/people", icon: UsersRound },
-  { title: "Training", url: "/people/training", icon: GraduationCap },
-  { title: "Compliance", url: "/people/compliance", icon: ScrollText },
-  { title: "Business Processes", url: "/people/processes", icon: Workflow },
 ];
 const PEOPLE_TEAMS: Item = { title: "Teams", url: "/teams", icon: Users };
 const PEOPLE_USERS: Item = { title: "Users", url: "/admin", icon: Shield };
+
+const KNOWLEDGE: Item[] = [
+  { title: "Overview", url: "/knowledge", icon: BookOpen },
+  { title: "Regulations", url: "/knowledge/regulations", icon: ScrollText },
+  { title: "Business Processes", url: "/knowledge/processes", icon: Workflow },
+  { title: "Training", url: "/knowledge/training", icon: GraduationCap },
+];
 
 const INTEGRATIONS: Item[] = [
   { title: "Connectors", url: "/connectors", icon: Plug },
@@ -81,6 +84,7 @@ export function AppSidebar() {
       <SidebarContent>
         {renderGroup("Workspace", WORKSPACE)}
         {renderGroup("People", peopleVisible)}
+        {renderGroup("Knowledge", KNOWLEDGE)}
         {renderGroup("Integrations", integrationsVisible)}
       </SidebarContent>
     </Sidebar>

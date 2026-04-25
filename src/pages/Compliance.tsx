@@ -14,14 +14,31 @@ import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 
-type Req = { id: string; reference_code: string | null; title: string; regulator: string | null; requirement_type: string | null; severity: string | null; description: string | null; business_process_id: string | null };
+type Category = "sanctions" | "aml_cft" | "prudential" | "conduct_reporting" | "operational_cyber";
+type Req = { id: string; reference_code: string | null; title: string; regulator: string | null; requirement_type: string | null; severity: string | null; description: string | null; business_process_id: string | null; category: Category | null };
 type BP = { id: string; name: string };
 type Team = { id: string; name: string };
 type Profile = { id: string; display_name: string | null };
 type Assignment = { id: string; compliance_requirement_id: string; target_type: string; target_role: string | null; target_team_id: string | null; target_user_id: string | null };
 type Module = { id: string; title: string; compliance_requirement_id: string | null };
 
-const emptyReq: Partial<Req> = { reference_code: "", title: "", regulator: "", requirement_type: "", severity: "medium", description: "", business_process_id: null };
+const CATEGORIES: { value: Category; label: string }[] = [
+  { value: "sanctions", label: "Sanctions" },
+  { value: "aml_cft", label: "AML/CFT" },
+  { value: "prudential", label: "Prudential" },
+  { value: "conduct_reporting", label: "Conduct & Reporting" },
+  { value: "operational_cyber", label: "Operational & Cyber" },
+];
+const catLabel = (c: Category | null) => CATEGORIES.find((x) => x.value === c)?.label ?? "Uncategorized";
+const catColor: Record<Category, string> = {
+  sanctions: "bg-destructive/10 text-destructive",
+  aml_cft: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
+  prudential: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+  conduct_reporting: "bg-purple-500/10 text-purple-700 dark:text-purple-400",
+  operational_cyber: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+};
+
+const emptyReq: Partial<Req> = { reference_code: "", title: "", regulator: "", requirement_type: "", severity: "medium", description: "", business_process_id: null, category: null };
 
 const sevColor: Record<string, string> = {
   low: "bg-muted text-muted-foreground",
@@ -45,7 +62,7 @@ const Compliance = () => {
   const [view, setView] = useState<ViewMode>("cards");
   const [filter, setFilter] = useState<string>("all");
 
-  useEffect(() => { document.title = "Compliance — MERIDIAN"; load(); }, []);
+  useEffect(() => { document.title = "Regulations — MERIDIAN"; load(); }, []);
 
   const load = async () => {
     const [r, b, t, p, a, m] = await Promise.all([
@@ -72,6 +89,7 @@ const Compliance = () => {
       regulator: editing.regulator || null, requirement_type: editing.requirement_type || null,
       severity: editing.severity || "medium", description: editing.description || null,
       business_process_id: editing.business_process_id || null,
+      category: (editing.category as Category | null) || null,
     };
     const { error } = editing.id
       ? await supabase.from("compliance_requirements").update(payload).eq("id", editing.id)
@@ -118,11 +136,13 @@ const Compliance = () => {
     if (filter === "critical") return reqs.filter((r) => r.severity === "critical" || r.severity === "high");
     if (filter === "unassigned") return reqs.filter((r) => reqAssignments(r.id).length === 0);
     if (filter === "no-training") return reqs.filter((r) => reqModules(r.id).length === 0);
+    if (CATEGORIES.some((c) => c.value === filter)) return reqs.filter((r) => r.category === filter);
     return reqs;
   }, [filter, reqs, assignments, modules]);
 
   const filters = [
     { value: "all", label: "All", count: reqs.length },
+    ...CATEGORIES.map((c) => ({ value: c.value, label: c.label, count: reqs.filter((r) => r.category === c.value).length })),
     { value: "critical", label: "Critical & high", count: reqs.filter((r) => r.severity === "critical" || r.severity === "high").length },
     { value: "unassigned", label: "Unassigned", count: reqs.filter((r) => reqAssignments(r.id).length === 0).length },
     { value: "no-training", label: "No training", count: reqs.filter((r) => reqModules(r.id).length === 0).length },
@@ -137,6 +157,7 @@ const Compliance = () => {
               <div className="flex items-center gap-2 flex-wrap">
                 {r.reference_code && <Badge variant="outline" className="font-mono text-xs">{r.reference_code}</Badge>}
                 <h3 className="font-semibold">{r.title}</h3>
+                <span className={`text-xs px-2 py-0.5 rounded-md ${r.category ? catColor[r.category] : "bg-muted text-muted-foreground"}`}>{catLabel(r.category)}</span>
                 {r.severity && <span className={`text-xs px-2 py-0.5 rounded-md ${sevColor[r.severity] ?? sevColor.medium}`}>{r.severity}</span>}
               </div>
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 flex-wrap">
@@ -173,7 +194,7 @@ const Compliance = () => {
     <div className="bg-card border border-border rounded-xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
       <Table>
         <TableHeader><TableRow>
-          <TableHead>Code</TableHead><TableHead>Title</TableHead><TableHead>Regulator</TableHead>
+          <TableHead>Code</TableHead><TableHead>Title</TableHead><TableHead>Category</TableHead><TableHead>Regulator</TableHead>
           <TableHead>Severity</TableHead><TableHead>Targets</TableHead><TableHead>Trainings</TableHead>
           {isAdmin && <TableHead className="w-32"></TableHead>}
         </TableRow></TableHeader>
@@ -182,6 +203,7 @@ const Compliance = () => {
             <TableRow key={r.id}>
               <TableCell className="font-mono text-xs">{r.reference_code || "—"}</TableCell>
               <TableCell className="font-medium">{r.title}</TableCell>
+              <TableCell><span className={`text-xs px-2 py-0.5 rounded-md ${r.category ? catColor[r.category] : "bg-muted text-muted-foreground"}`}>{catLabel(r.category)}</span></TableCell>
               <TableCell className="text-xs">{r.regulator || "—"}</TableCell>
               <TableCell>{r.severity && <span className={`text-xs px-2 py-0.5 rounded-md ${sevColor[r.severity] ?? sevColor.medium}`}>{r.severity}</span>}</TableCell>
               <TableCell className="text-sm">{reqAssignments(r.id).length}</TableCell>
@@ -204,6 +226,7 @@ const Compliance = () => {
 
   const renderDashboard = () => {
     const bySeverity = ["low", "medium", "high", "critical"].map((s) => ({ s, n: reqs.filter((r) => r.severity === s).length }));
+    const byCategory = CATEGORIES.map((c) => ({ c: c.value, label: c.label, n: reqs.filter((r) => r.category === c.value).length }));
     const tile = (label: string, value: string | number, sub?: string) => (
       <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
         <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">{label}</div>
@@ -239,6 +262,24 @@ const Compliance = () => {
             })}
           </div>
         </div>
+        <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> By taxonomy category</h3>
+          <div className="space-y-2">
+            {byCategory.map((b) => {
+              const max = Math.max(...byCategory.map((x) => x.n), 1);
+              return (
+                <div key={b.c} className="flex items-center gap-3">
+                  <span className="text-sm w-44">{b.label}</span>
+                  <div className="flex-1 h-6 bg-muted rounded overflow-hidden">
+                    <div className={`h-full ${catColor[b.c]} flex items-center justify-end px-2`} style={{ width: `${(b.n / max) * 100}%` }}>
+                      <span className="text-[10px] font-semibold">{b.n}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     );
   };
@@ -247,30 +288,39 @@ const Compliance = () => {
     <div className="container py-10">
       <ModuleHeader
         icon={ScrollText}
-        title="Compliance"
-        subtitle="Regulatory requirements linked to business processes and training."
+        title="Regulations"
+        subtitle="Central-bank regulations classified by taxonomy and linked to processes and training."
         views={["dashboard", "cards", "table"]}
         view={view}
         onViewChange={setView}
         filters={filters}
         filter={filter}
         onFilterChange={setFilter}
-        actions={isAdmin ? <Button onClick={() => setEditing(emptyReq)} className="gap-1.5"><Plus className="h-4 w-4" /> New requirement</Button> : undefined}
+        actions={isAdmin ? <Button onClick={() => setEditing(emptyReq)} className="gap-1.5"><Plus className="h-4 w-4" /> New regulation</Button> : undefined}
       />
 
       {loading ? <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div> :
-        filteredReqs.length === 0 && view !== "dashboard" ? <div className="text-center py-20 text-muted-foreground">No requirements match this filter.</div> :
+        filteredReqs.length === 0 && view !== "dashboard" ? <div className="text-center py-20 text-muted-foreground">No regulations match this filter.</div> :
         view === "cards" ? renderCards() : view === "table" ? renderTable() : renderDashboard()}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>{editing?.id ? "Edit" : "New"} compliance requirement</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing?.id ? "Edit" : "New"} regulation</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5"><Label>Reference code</Label><Input value={editing?.reference_code ?? ""} onChange={(e) => setEditing({ ...editing!, reference_code: e.target.value })} placeholder="e.g. AML-2024-01" /></div>
               <div className="space-y-1.5"><Label>Regulator</Label><Input value={editing?.regulator ?? ""} onChange={(e) => setEditing({ ...editing!, regulator: e.target.value })} placeholder="ACPR / EBA…" /></div>
             </div>
             <div className="space-y-1.5"><Label>Title *</Label><Input value={editing?.title ?? ""} onChange={(e) => setEditing({ ...editing!, title: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Category</Label>
+              <Select value={editing?.category ?? "none"} onValueChange={(v) => setEditing({ ...editing!, category: v === "none" ? null : (v as Category) })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">— Uncategorized —</SelectItem>
+                  {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5"><Label>Type</Label><Input value={editing?.requirement_type ?? ""} onChange={(e) => setEditing({ ...editing!, requirement_type: e.target.value })} placeholder="reporting / control / KYC…" /></div>
               <div className="space-y-1.5"><Label>Severity</Label>
