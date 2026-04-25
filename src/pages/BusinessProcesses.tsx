@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, Workflow, Upload as UploadIcon, Download, BarChart3 } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Workflow, Upload as UploadIcon, Download, BarChart3, ScrollText, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +11,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
+import { EntityDetailSheet } from "@/components/EntityDetailSheet";
 
 type BP = { id: string; code: string | null; name: string; category: string | null; owner: string | null; description: string | null };
-type Req = { id: string; business_process_id: string | null };
+type Req = { id: string; business_process_id: string | null; title: string; reference_code: string | null; category: string | null };
+type Module = { id: string; title: string; compliance_requirement_id: string | null; duration_minutes: number | null };
 
 const empty: Partial<BP> = { code: "", name: "", category: "", owner: "", description: "" };
 
@@ -25,17 +27,21 @@ const BusinessProcesses = () => {
   const [editing, setEditing] = useState<Partial<BP> | null>(null);
   const [view, setView] = useState<ViewMode>("table");
   const [filter, setFilter] = useState<string>("all");
+  const [detail, setDetail] = useState<BP | null>(null);
+  const [modules, setModules] = useState<Module[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { document.title = "Business Processes — MERIDIAN"; load(); }, []);
 
   const load = async () => {
-    const [b, r] = await Promise.all([
+    const [b, r, m] = await Promise.all([
       supabase.from("business_processes").select("*").order("name"),
-      supabase.from("compliance_requirements").select("id, business_process_id"),
+      supabase.from("compliance_requirements").select("id, business_process_id, title, reference_code, category"),
+      supabase.from("training_modules").select("id, title, compliance_requirement_id, duration_minutes"),
     ]);
     setRows((b.data ?? []) as BP[]);
     setReqs((r.data ?? []) as Req[]);
+    setModules((m.data ?? []) as Module[]);
     setLoading(false);
   };
 
