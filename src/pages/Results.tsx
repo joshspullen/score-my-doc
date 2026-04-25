@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, AlertTriangle, Lightbulb, Loader2, Trash2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/AppHeader";
 import { ScoreGauge, ScoreBar } from "@/components/ScoreGauge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -66,7 +65,6 @@ const Results = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <AppHeader />
         <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
       </div>
     );
@@ -75,7 +73,6 @@ const Results = () => {
   if (!analysis) {
     return (
       <div className="min-h-screen bg-background">
-        <AppHeader />
         <div className="container py-20 text-center">
           <p className="text-muted-foreground">Analysis not found.</p>
           <Link to="/dashboard"><Button variant="outline" className="mt-4">Back to dashboard</Button></Link>
@@ -91,7 +88,6 @@ const Results = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
       <main className="container py-10 max-w-5xl">
         <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="h-4 w-4" /> Back to dashboard

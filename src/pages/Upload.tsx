@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload as UploadIcon, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/AppHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -80,7 +79,6 @@ const Upload = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
       <main className="container py-10 max-w-2xl">
         <h1 className="text-3xl font-bold tracking-tight mb-2">New analysis</h1>
         <p className="text-muted-foreground mb-8">Upload a KYC or council regulation document to score it.</p>

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FileText, Upload as UploadIcon, Loader2, AlertCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/AppHeader";
 import { ScoreChip } from "@/components/ScoreGauge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -53,7 +52,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
       <main className="container py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
