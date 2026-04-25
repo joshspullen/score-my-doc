@@ -89,6 +89,7 @@ const Compliance = () => {
       regulator: editing.regulator || null, requirement_type: editing.requirement_type || null,
       severity: editing.severity || "medium", description: editing.description || null,
       business_process_id: editing.business_process_id || null,
+      category: (editing.category as Category | null) || null,
     };
     const { error } = editing.id
       ? await supabase.from("compliance_requirements").update(payload).eq("id", editing.id)
@@ -135,11 +136,13 @@ const Compliance = () => {
     if (filter === "critical") return reqs.filter((r) => r.severity === "critical" || r.severity === "high");
     if (filter === "unassigned") return reqs.filter((r) => reqAssignments(r.id).length === 0);
     if (filter === "no-training") return reqs.filter((r) => reqModules(r.id).length === 0);
+    if (CATEGORIES.some((c) => c.value === filter)) return reqs.filter((r) => r.category === filter);
     return reqs;
   }, [filter, reqs, assignments, modules]);
 
   const filters = [
     { value: "all", label: "All", count: reqs.length },
+    ...CATEGORIES.map((c) => ({ value: c.value, label: c.label, count: reqs.filter((r) => r.category === c.value).length })),
     { value: "critical", label: "Critical & high", count: reqs.filter((r) => r.severity === "critical" || r.severity === "high").length },
     { value: "unassigned", label: "Unassigned", count: reqs.filter((r) => reqAssignments(r.id).length === 0).length },
     { value: "no-training", label: "No training", count: reqs.filter((r) => reqModules(r.id).length === 0).length },
@@ -154,6 +157,7 @@ const Compliance = () => {
               <div className="flex items-center gap-2 flex-wrap">
                 {r.reference_code && <Badge variant="outline" className="font-mono text-xs">{r.reference_code}</Badge>}
                 <h3 className="font-semibold">{r.title}</h3>
+                <span className={`text-xs px-2 py-0.5 rounded-md ${r.category ? catColor[r.category] : "bg-muted text-muted-foreground"}`}>{catLabel(r.category)}</span>
                 {r.severity && <span className={`text-xs px-2 py-0.5 rounded-md ${sevColor[r.severity] ?? sevColor.medium}`}>{r.severity}</span>}
               </div>
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 flex-wrap">
