@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Users, Shield, GraduationCap, ScrollText, Workflow, Plug } from "lucide-react";
+import { Users, Shield } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
 
 type Tile = { to: string; title: string; desc: string; icon: React.ComponentType<{ className?: string }>; admin?: boolean; manager?: boolean };
@@ -8,10 +8,6 @@ type Tile = { to: string; title: string; desc: string; icon: React.ComponentType
 const TILES: Tile[] = [
   { to: "/people/users", title: "Users", desc: "Roles, access and accounts.", icon: Shield, admin: true },
   { to: "/people/teams", title: "Teams", desc: "Org units and managers.", icon: Users, manager: true },
-  { to: "/people/training", title: "Training", desc: "Assigned learning paths.", icon: GraduationCap },
-  { to: "/people/compliance", title: "Compliance", desc: "Obligations & assignments.", icon: ScrollText },
-  { to: "/people/processes", title: "Business Processes", desc: "Bank process catalog.", icon: Workflow },
-  { to: "/connectors", title: "Connectors", desc: "Regulatory data sources.", icon: Plug, admin: true },
 ];
 
 const People = () => {
@@ -24,7 +20,7 @@ const People = () => {
     <div className="container py-10">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">People</h1>
-        <p className="text-muted-foreground mt-1">Users, teams, training and the compliance backbone of your organization.</p>
+        <p className="text-muted-foreground mt-1">Users, roles and teams across your organization.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {visible.map((t) => (
