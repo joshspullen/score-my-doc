@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AppHeader } from "@/components/AppHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -165,7 +164,6 @@ const Profile = () => {
   if (loading || !profile) {
     return (
       <div className="min-h-screen bg-background">
-        <AppHeader />
         <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
       </div>
     );
@@ -173,7 +171,6 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
       <main className="container py-10 max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div>
