@@ -84,6 +84,7 @@ export function AppSidebar() {
       <SidebarContent>
         {renderGroup("Workspace", WORKSPACE)}
         {renderGroup("People", peopleVisible)}
+        {renderGroup("Knowledge", KNOWLEDGE)}
         {renderGroup("Integrations", integrationsVisible)}
       </SidebarContent>
     </Sidebar>
