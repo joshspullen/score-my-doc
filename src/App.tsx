@@ -18,6 +18,7 @@ import Training from "./pages/Training.tsx";
 import Compliance from "./pages/Compliance.tsx";
 import BusinessProcesses from "./pages/BusinessProcesses.tsx";
 import Knowledge from "./pages/Knowledge.tsx";
+import Agents from "./pages/Agents.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { AdminRoute } from "./components/AdminRoute.tsx";
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/knowledge/regulations" element={<ProtectedRoute><AppShell><Compliance /></AppShell></ProtectedRoute>} />
             <Route path="/knowledge/processes" element={<ProtectedRoute><AppShell><BusinessProcesses /></AppShell></ProtectedRoute>} />
             <Route path="/knowledge/training" element={<ProtectedRoute><AppShell><Training /></AppShell></ProtectedRoute>} />
+            <Route path="/agents" element={<AdminRoute><AppShell><Agents /></AppShell></AdminRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
