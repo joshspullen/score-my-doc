@@ -61,6 +61,113 @@ export type Database = {
           },
         ]
       }
+      connector_records: {
+        Row: {
+          connector_id: string
+          external_id: string
+          fetched_at: string
+          id: string
+          payload: Json
+          published_at: string | null
+          record_type: string | null
+          summary: string | null
+          title: string
+          url: string | null
+        }
+        Insert: {
+          connector_id: string
+          external_id: string
+          fetched_at?: string
+          id?: string
+          payload?: Json
+          published_at?: string | null
+          record_type?: string | null
+          summary?: string | null
+          title: string
+          url?: string | null
+        }
+        Update: {
+          connector_id?: string
+          external_id?: string
+          fetched_at?: string
+          id?: string
+          payload?: Json
+          published_at?: string | null
+          record_type?: string | null
+          summary?: string | null
+          title?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connector_records_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connectors: {
+        Row: {
+          api_base_url: string | null
+          api_key_secret_name: string | null
+          category: string
+          config: Json
+          created_at: string
+          description: string | null
+          enabled: boolean
+          homepage_url: string | null
+          id: string
+          last_sync_at: string | null
+          last_sync_error: string | null
+          last_sync_status: string | null
+          name: string
+          records_count: number
+          requires_api_key: boolean
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          api_base_url?: string | null
+          api_key_secret_name?: string | null
+          category: string
+          config?: Json
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          homepage_url?: string | null
+          id?: string
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
+          name: string
+          records_count?: number
+          requires_api_key?: boolean
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          api_base_url?: string | null
+          api_key_secret_name?: string | null
+          category?: string
+          config?: Json
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          homepage_url?: string | null
+          id?: string
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
+          name?: string
+          records_count?: number
+          requires_api_key?: boolean
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string
