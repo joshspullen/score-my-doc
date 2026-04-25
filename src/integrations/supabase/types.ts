@@ -148,8 +148,10 @@ export type Database = {
           id: string
           reference_code: string | null
           regulator: string | null
+          regulator_id: string | null
           requirement_type: string | null
           severity: string | null
+          subcategory_id: string | null
           title: string
           updated_at: string
         }
@@ -161,8 +163,10 @@ export type Database = {
           id?: string
           reference_code?: string | null
           regulator?: string | null
+          regulator_id?: string | null
           requirement_type?: string | null
           severity?: string | null
+          subcategory_id?: string | null
           title: string
           updated_at?: string
         }
@@ -174,8 +178,10 @@ export type Database = {
           id?: string
           reference_code?: string | null
           regulator?: string | null
+          regulator_id?: string | null
           requirement_type?: string | null
           severity?: string | null
+          subcategory_id?: string | null
           title?: string
           updated_at?: string
         }
@@ -185,6 +191,20 @@ export type Database = {
             columns: ["business_process_id"]
             isOneToOne: false
             referencedRelation: "business_processes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_requirements_regulator_id_fkey"
+            columns: ["regulator_id"]
+            isOneToOne: false
+            referencedRelation: "regulators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_requirements_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "regulator_subcategories"
             referencedColumns: ["id"]
           },
         ]
@@ -253,6 +273,7 @@ export type Database = {
           last_sync_status: string | null
           name: string
           records_count: number
+          regulator_id: string | null
           requires_api_key: boolean
           slug: string
           updated_at: string
@@ -273,6 +294,7 @@ export type Database = {
           last_sync_status?: string | null
           name: string
           records_count?: number
+          regulator_id?: string | null
           requires_api_key?: boolean
           slug: string
           updated_at?: string
@@ -293,11 +315,20 @@ export type Database = {
           last_sync_status?: string | null
           name?: string
           records_count?: number
+          regulator_id?: string | null
           requires_api_key?: boolean
           slug?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "connectors_regulator_id_fkey"
+            columns: ["regulator_id"]
+            isOneToOne: false
+            referencedRelation: "regulators"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -519,6 +550,83 @@ export type Database = {
           id?: string
           linkedin_url?: string | null
           location?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      regulator_subcategories: {
+        Row: {
+          code: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          regulator_id: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          regulator_id: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          regulator_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regulator_subcategories_regulator_id_fkey"
+            columns: ["regulator_id"]
+            isOneToOne: false
+            referencedRelation: "regulators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regulators: {
+        Row: {
+          category: Database["public"]["Enums"]["regulation_category"] | null
+          country: string | null
+          created_at: string
+          description: string | null
+          id: string
+          jurisdiction: string | null
+          logo_url: string | null
+          name: string
+          short_code: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["regulation_category"] | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          jurisdiction?: string | null
+          logo_url?: string | null
+          name: string
+          short_code: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["regulation_category"] | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          jurisdiction?: string | null
+          logo_url?: string | null
+          name?: string
+          short_code?: string
           updated_at?: string
           website_url?: string | null
         }
