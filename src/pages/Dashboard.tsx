@@ -15,7 +15,7 @@ type DocRow = {
   status: "processing" | "complete" | "failed";
   created_at: string;
   error_message: string | null;
-  analyses: { id: string; overall_score: number; document_type: string | null }[] | null;
+  analyses: { id: string; overall_score: number; document_type: string | null } | { id: string; overall_score: number; document_type: string | null }[] | null;
 };
 
 const Dashboard = () => {
@@ -82,7 +82,7 @@ const Dashboard = () => {
           <div className="bg-card border border-border rounded-xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
             <div className="divide-y divide-border">
               {docs.map((d) => {
-                const analysis = d.analyses?.[0];
+                const analysis = Array.isArray(d.analyses) ? d.analyses[0] : d.analyses;
                 return (
                   <div key={d.id} className="flex items-center gap-4 p-4 hover:bg-secondary/50 transition-colors">
                     <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
