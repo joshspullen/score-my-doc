@@ -9,13 +9,16 @@ export function AppHeader() {
   const navigate = useNavigate();
 
   return (
-    <header className="border-b border-black/80 bg-black text-white sticky top-0 z-40">
-      <div className="container flex h-16 items-center justify-between">
-        <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-3 text-white">
-          <img src={logo} alt="MERIDIAN" className="h-9 w-9 text-white" />
+    <header className="border-b border-black/80 bg-black text-white sticky top-0 z-50 isolate">
+      <div className="container flex h-16 items-center justify-between relative z-10">
+        <Link
+          to={user ? "/dashboard" : "/"}
+          className="relative z-10 flex items-center gap-3 text-white cursor-pointer py-2 -my-2 pr-3 hover:opacity-80 transition-opacity"
+        >
+          <img src={logo} alt="MERIDIAN" className="h-9 w-9 text-white pointer-events-none" />
           <span className="font-bold text-lg tracking-[0.18em]">MERIDIAN</span>
         </Link>
-        <nav className="flex items-center gap-2">
+        <nav className="relative z-10 flex items-center gap-2">
           {user ? (
             <>
               <Link to="/dashboard">
