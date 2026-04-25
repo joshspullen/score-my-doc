@@ -61,6 +61,131 @@ export type Database = {
           },
         ]
       }
+      business_processes: {
+        Row: {
+          category: string | null
+          code: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      compliance_assignments: {
+        Row: {
+          compliance_requirement_id: string
+          created_at: string
+          id: string
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          target_team_id: string | null
+          target_type: string
+          target_user_id: string | null
+        }
+        Insert: {
+          compliance_requirement_id: string
+          created_at?: string
+          id?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          target_team_id?: string | null
+          target_type: string
+          target_user_id?: string | null
+        }
+        Update: {
+          compliance_requirement_id?: string
+          created_at?: string
+          id?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          target_team_id?: string | null
+          target_type?: string
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_assignments_compliance_requirement_id_fkey"
+            columns: ["compliance_requirement_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_assignments_target_team_id_fkey"
+            columns: ["target_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_requirements: {
+        Row: {
+          business_process_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          reference_code: string | null
+          regulator: string | null
+          requirement_type: string | null
+          severity: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          business_process_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_code?: string | null
+          regulator?: string | null
+          requirement_type?: string | null
+          severity?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          business_process_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_code?: string | null
+          regulator?: string | null
+          requirement_type?: string | null
+          severity?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_requirements_business_process_id_fkey"
+            columns: ["business_process_id"]
+            isOneToOne: false
+            referencedRelation: "business_processes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connector_records: {
         Row: {
           connector_id: string
@@ -114,6 +239,7 @@ export type Database = {
           api_key_secret_name: string | null
           category: string
           config: Json
+          connector_type: string
           created_at: string
           description: string | null
           enabled: boolean
@@ -133,6 +259,7 @@ export type Database = {
           api_key_secret_name?: string | null
           category: string
           config?: Json
+          connector_type?: string
           created_at?: string
           description?: string | null
           enabled?: boolean
@@ -152,6 +279,7 @@ export type Database = {
           api_key_secret_name?: string | null
           category?: string
           config?: Json
+          connector_type?: string
           created_at?: string
           description?: string | null
           enabled?: boolean
@@ -421,6 +549,88 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      training_assignments: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          due_at: string | null
+          id: string
+          status: string
+          training_module_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          status?: string
+          training_module_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          status?: string
+          training_module_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_assignments_training_module_id_fkey"
+            columns: ["training_module_id"]
+            isOneToOne: false
+            referencedRelation: "training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_modules: {
+        Row: {
+          compliance_requirement_id: string | null
+          content_url: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          compliance_requirement_id?: string | null
+          content_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          compliance_requirement_id?: string | null
+          content_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_modules_compliance_requirement_id_fkey"
+            columns: ["compliance_requirement_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_requirements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
