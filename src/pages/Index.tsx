@@ -86,6 +86,35 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Partner marquee */}
+      <section className="py-12 border-t border-border bg-background">
+        <div className="container">
+          <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground mb-8">
+            Trusted & backed by teams at
+          </p>
+        </div>
+        <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+          <div className="flex w-max animate-marquee gap-16 pr-16">
+            {[...PARTNERS, ...PARTNERS].map((p, i) => (
+              <div
+                key={`${p.name}-${i}`}
+                className="flex items-center gap-3 shrink-0 h-16 px-4 opacity-70 hover:opacity-100 transition-opacity"
+                aria-label={p.name}
+              >
+                <img
+                  src={p.src}
+                  alt={p.name}
+                  loading="lazy"
+                  width={140}
+                  height={48}
+                  className="h-12 w-auto object-contain"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* The Compliance Gap */}
       <section className="bg-black text-white py-24 border-t border-black">
         <div className="container">
