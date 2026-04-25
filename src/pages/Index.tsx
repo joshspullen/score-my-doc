@@ -1,5 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon, AlertTriangle, MousePointerClick, Layers } from "lucide-react";
+import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
 import { ScoreGauge, ScoreBar } from "@/components/ScoreGauge";
@@ -128,6 +128,114 @@ const Index = () => {
             <div className="h-px flex-1 bg-white/10" />
             <span>MERIDIAN closes the gap — at the document level</span>
             <div className="h-px flex-1 bg-white/10" />
+          </div>
+        </div>
+      </section>
+
+      {/* The Compounding Loop — cycle wheel */}
+      <section className="py-24 border-t border-border bg-background relative overflow-hidden">
+        <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">The compounding loop</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              An AI Compliance Copilot that gets smarter every time it stops a mistake.
+            </h2>
+            <p className="text-muted-foreground mt-5 text-lg">
+              Every prevented bad decision becomes training data for a personalised AI facilitator — built around your team's real blind spots, not a generic curriculum.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-[1fr_auto_1fr] gap-10 items-center">
+            {/* Left: stages list */}
+            <div className="space-y-5 lg:order-1 order-2">
+              {[
+                { n: "01", icon: ShieldX, title: "Prevent the wrong decision", desc: "MERIDIAN reviews every document and flags the gap before it's signed off." },
+                { n: "02", icon: Brain, title: "Capture the near-miss", desc: "Each prevented error is logged with context: jurisdiction, file type, analyst, root cause." },
+              ].map((s) => (
+                <div key={s.n} className="flex gap-4 rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+                  <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <s.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-mono text-muted-foreground mb-1">{s.n}</div>
+                    <h3 className="font-semibold mb-1">{s.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Center: the wheel */}
+            <div className="relative mx-auto w-[320px] h-[320px] md:w-[420px] md:h-[420px] lg:order-2 order-1">
+              {/* Outer rotating ring */}
+              <div
+                className="absolute inset-0 rounded-full border-2 border-dashed border-primary/30"
+                style={{ animation: "spin 40s linear infinite" }}
+              />
+              {/* Inner solid ring */}
+              <div className="absolute inset-6 rounded-full border border-border bg-card" style={{ boxShadow: "var(--shadow-elegant)" }} />
+              {/* Center hub */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center px-6">
+                  <div className="h-14 w-14 mx-auto rounded-full bg-primary text-primary-foreground flex items-center justify-center mb-3">
+                    <InfinityIcon className="h-7 w-7" />
+                  </div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Compounding</p>
+                  <p className="font-bold text-foreground mt-1">Knowledge<br/>Engine</p>
+                </div>
+              </div>
+
+              {/* Top node — Prevent */}
+              <CycleNode
+                position="top"
+                icon={<ShieldX className="h-5 w-5" />}
+                label="Prevent"
+              />
+              {/* Bottom-right node — Learn */}
+              <CycleNode
+                position="br"
+                icon={<Brain className="h-5 w-5" />}
+                label="Learn"
+              />
+              {/* Bottom-left node — Train */}
+              <CycleNode
+                position="bl"
+                icon={<GraduationCap className="h-5 w-5" />}
+                label="Train"
+              />
+
+              {/* Arrows around the ring */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" fill="none">
+                <defs>
+                  <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="hsl(var(--primary))" />
+                  </marker>
+                </defs>
+                {/* three curved arrows along the ring */}
+                <path d="M 70,15 A 40,40 0 0 1 88,55" stroke="hsl(var(--primary))" strokeWidth="0.6" markerEnd="url(#arrow)" />
+                <path d="M 80,72 A 40,40 0 0 1 35,88" stroke="hsl(var(--primary))" strokeWidth="0.6" markerEnd="url(#arrow)" />
+                <path d="M 12,55 A 40,40 0 0 1 30,15" stroke="hsl(var(--primary))" strokeWidth="0.6" markerEnd="url(#arrow)" />
+              </svg>
+            </div>
+
+            {/* Right: stages list */}
+            <div className="space-y-5 lg:order-3 order-3">
+              {[
+                { n: "03", icon: GraduationCap, title: "Personalised AI facilitator", desc: "A training agent is built around your actual mistakes — not generic e-learning. It coaches the analysts who need it, on the gaps they keep missing." },
+                { n: "04", icon: InfinityIcon, title: "Scales with every file", desc: "Every new prevented error compounds the model. The trainer gets sharper across the org without adding headcount." },
+              ].map((s) => (
+                <div key={s.n} className="flex gap-4 rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+                  <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <s.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-mono text-muted-foreground mb-1">{s.n}</div>
+                    <h3 className="font-semibold mb-1">{s.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
