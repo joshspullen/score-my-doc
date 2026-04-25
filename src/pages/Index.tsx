@@ -1,5 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon } from "lucide-react";
+import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, X, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
 import { ScoreGauge, ScoreBar } from "@/components/ScoreGauge";
@@ -10,6 +10,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import googleCloud from "@/assets/partners/google-cloud.png";
+import hgCatalyst from "@/assets/partners/hg-catalyst.png";
+import lovableLogo from "@/assets/partners/lovable.png";
+import redBull from "@/assets/partners/red-bull.png";
+import cerebrus from "@/assets/partners/cerebrus.png";
+
+const PARTNERS = [
+  { name: "Google Cloud", src: googleCloud },
+  { name: "HG Catalyst", src: hgCatalyst },
+  { name: "Lovable", src: lovableLogo },
+  { name: "Red Bull", src: redBull },
+  { name: "Cerebrus", src: cerebrus },
+];
 
 const Index = () => {
   const { user, loading } = useAuth();
