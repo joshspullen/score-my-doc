@@ -14,14 +14,31 @@ import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 
-type Req = { id: string; reference_code: string | null; title: string; regulator: string | null; requirement_type: string | null; severity: string | null; description: string | null; business_process_id: string | null };
+type Category = "sanctions" | "aml_cft" | "prudential" | "conduct_reporting" | "operational_cyber";
+type Req = { id: string; reference_code: string | null; title: string; regulator: string | null; requirement_type: string | null; severity: string | null; description: string | null; business_process_id: string | null; category: Category | null };
 type BP = { id: string; name: string };
 type Team = { id: string; name: string };
 type Profile = { id: string; display_name: string | null };
 type Assignment = { id: string; compliance_requirement_id: string; target_type: string; target_role: string | null; target_team_id: string | null; target_user_id: string | null };
 type Module = { id: string; title: string; compliance_requirement_id: string | null };
 
-const emptyReq: Partial<Req> = { reference_code: "", title: "", regulator: "", requirement_type: "", severity: "medium", description: "", business_process_id: null };
+const CATEGORIES: { value: Category; label: string }[] = [
+  { value: "sanctions", label: "Sanctions" },
+  { value: "aml_cft", label: "AML/CFT" },
+  { value: "prudential", label: "Prudential" },
+  { value: "conduct_reporting", label: "Conduct & Reporting" },
+  { value: "operational_cyber", label: "Operational & Cyber" },
+];
+const catLabel = (c: Category | null) => CATEGORIES.find((x) => x.value === c)?.label ?? "Uncategorized";
+const catColor: Record<Category, string> = {
+  sanctions: "bg-destructive/10 text-destructive",
+  aml_cft: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
+  prudential: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+  conduct_reporting: "bg-purple-500/10 text-purple-700 dark:text-purple-400",
+  operational_cyber: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+};
+
+const emptyReq: Partial<Req> = { reference_code: "", title: "", regulator: "", requirement_type: "", severity: "medium", description: "", business_process_id: null, category: null };
 
 const sevColor: Record<string, string> = {
   low: "bg-muted text-muted-foreground",
@@ -45,7 +62,7 @@ const Compliance = () => {
   const [view, setView] = useState<ViewMode>("cards");
   const [filter, setFilter] = useState<string>("all");
 
-  useEffect(() => { document.title = "Compliance — MERIDIAN"; load(); }, []);
+  useEffect(() => { document.title = "Regulations — MERIDIAN"; load(); }, []);
 
   const load = async () => {
     const [r, b, t, p, a, m] = await Promise.all([
