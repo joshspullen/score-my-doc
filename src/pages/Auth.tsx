@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/useAuth";
+import logo from "@/assets/meridian-logo.svg";
 
 const emailSchema = z.string().trim().email("Invalid email").max(255);
 const passwordSchema = z.string().min(8, "Password must be at least 8 characters").max(72);
@@ -21,7 +22,7 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { document.title = "Sign in — ComplyScore"; }, []);
+  useEffect(() => { document.title = "Sign in — MERIDIAN"; }, []);
 
   if (!loading && user) return <Navigate to="/dashboard" replace />;
 
@@ -65,21 +66,23 @@ const Auth = () => {
   };
 
   const handleGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/dashboard` },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/dashboard`,
     });
-    if (error) toast.error(error.message);
+    if (result.error) {
+      toast.error(result.error.message ?? "Google sign-in failed");
+      return;
+    }
+    if (result.redirected) return;
+    navigate("/dashboard");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--gradient-subtle)" }}>
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center gap-2 justify-center mb-8">
-          <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-            <ShieldCheck className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-bold text-lg">ComplyScore</span>
+          <img src={logo} alt="MERIDIAN" className="h-10 w-10" />
+          <span className="font-bold text-lg tracking-wider">MERIDIAN</span>
         </Link>
 
         <div className="bg-card border border-border rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>

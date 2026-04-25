@@ -40,7 +40,7 @@ const Results = () => {
       if (error) toast.error(error.message);
       else {
         setAnalysis(data as unknown as AnalysisRow);
-        document.title = `${data.document_type ?? "Analysis"} — ComplyScore`;
+        document.title = `${data.document_type ?? "Analysis"} — MERIDIAN`;
       }
       setLoading(false);
     })();
