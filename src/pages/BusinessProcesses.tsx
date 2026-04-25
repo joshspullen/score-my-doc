@@ -250,6 +250,49 @@ const BusinessProcesses = () => {
           <DialogFooter><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button><Button onClick={save}>Save</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {detail && (() => {
+        const p = detail;
+        const linkedReqs = reqs.filter((r) => r.business_process_id === p.id);
+        const linkedReqIds = new Set(linkedReqs.map((r) => r.id));
+        const linkedTrainings = modules.filter((m) => m.compliance_requirement_id && linkedReqIds.has(m.compliance_requirement_id));
+        return (
+          <EntityDetailSheet
+            open={!!detail}
+            onClose={() => setDetail(null)}
+            icon={Workflow}
+            eyebrow="Business Process"
+            title={p.name}
+            subtitle={p.code ? `Code ${p.code}` : undefined}
+            badges={p.category ? [{ label: p.category, className: "bg-primary/10 text-primary" }] : undefined}
+            description={p.description}
+            fields={[
+              { label: "Code", value: p.code ? <span className="font-mono text-xs">{p.code}</span> : null },
+              { label: "Category", value: p.category || null },
+              { label: "Owner", value: p.owner || null },
+            ]}
+            sections={[
+              {
+                title: "Regulations applying to this process", icon: ScrollText,
+                links: linkedReqs.map((r) => ({
+                  label: r.title, to: "/knowledge/regulations", icon: ScrollText,
+                  badge: r.reference_code ?? undefined,
+                  meta: r.category ?? undefined,
+                })),
+                empty: "No regulations linked to this process.",
+              },
+              {
+                title: "Training derived from these regulations", icon: GraduationCap,
+                links: linkedTrainings.map((m) => ({
+                  label: m.title, to: "/knowledge/training", icon: GraduationCap,
+                  meta: m.duration_minutes ? `${m.duration_minutes} min` : undefined,
+                })),
+                empty: "No training modules cover this process yet.",
+              },
+            ]}
+          />
+        );
+      })()}
     </div>
   );
 };
