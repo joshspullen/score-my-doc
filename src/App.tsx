@@ -13,6 +13,10 @@ import Admin from "./pages/Admin.tsx";
 import Teams from "./pages/Teams.tsx";
 import Connectors from "./pages/Connectors.tsx";
 import Profile from "./pages/Profile.tsx";
+import People from "./pages/People.tsx";
+import Training from "./pages/Training.tsx";
+import Compliance from "./pages/Compliance.tsx";
+import BusinessProcesses from "./pages/BusinessProcesses.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { AdminRoute } from "./components/AdminRoute.tsx";
@@ -37,6 +41,12 @@ const App = () => (
             <Route path="/teams" element={<ProtectedRoute><AppShell><Teams /></AppShell></ProtectedRoute>} />
             <Route path="/connectors" element={<AdminRoute><AppShell><Connectors /></AppShell></AdminRoute>} />
             <Route path="/profile" element={<ProtectedRoute><AppShell><Profile /></AppShell></ProtectedRoute>} />
+            <Route path="/people" element={<ProtectedRoute><AppShell><People /></AppShell></ProtectedRoute>} />
+            <Route path="/people/training" element={<ProtectedRoute><AppShell><Training /></AppShell></ProtectedRoute>} />
+            <Route path="/people/compliance" element={<ProtectedRoute><AppShell><Compliance /></AppShell></ProtectedRoute>} />
+            <Route path="/people/processes" element={<ProtectedRoute><AppShell><BusinessProcesses /></AppShell></ProtectedRoute>} />
+            <Route path="/people/users" element={<AdminRoute><AppShell><Admin /></AppShell></AdminRoute>} />
+            <Route path="/people/teams" element={<ProtectedRoute><AppShell><Teams /></AppShell></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
