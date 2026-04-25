@@ -19,7 +19,7 @@ const Upload = () => {
   const [dragOver, setDragOver] = useState(false);
   const [stage, setStage] = useState<"idle" | "uploading" | "analyzing">("idle");
 
-  useEffect(() => { document.title = "Upload — ComplyScore"; }, []);
+  useEffect(() => { document.title = "Upload — MERIDIAN"; }, []);
 
   const validateAndSet = (f: File) => {
     if (!ALLOWED.includes(f.type)) {

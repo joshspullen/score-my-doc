@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [docs, setDocs] = useState<DocRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { document.title = "Dashboard — ComplyScore"; }, []);
+  useEffect(() => { document.title = "Dashboard — MERIDIAN"; }, []);
 
   const load = async () => {
     const { data, error } = await supabase

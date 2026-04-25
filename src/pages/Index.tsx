@@ -128,7 +128,7 @@ const Index = () => {
 
       <footer className="border-t border-border py-8">
         <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} ComplyScore. AI-assisted analysis is for guidance only.
+          © {new Date().getFullYear()} MERIDIAN. AI-assisted analysis is for guidance only.
         </div>
       </footer>
     </div>
