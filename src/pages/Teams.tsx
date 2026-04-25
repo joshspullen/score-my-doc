@@ -326,7 +326,7 @@ const Teams = () => {
           <DialogHeader>
             <DialogTitle>{selected?.name}</DialogTitle>
             {selected?.description && <p className="text-sm text-muted-foreground">{selected.description}</p>}
-          </DialogTitle>
+          </DialogHeader>
           {selected && (
             <div className="space-y-3 mt-2">
               {teamMembers(selected.id).map((m) => {
