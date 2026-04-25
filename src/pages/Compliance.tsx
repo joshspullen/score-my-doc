@@ -402,6 +402,58 @@ const Compliance = () => {
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      {detail && (() => {
+        const r = detail;
+        const bp = r.business_process_id ? bps.find((b) => b.id === r.business_process_id) : null;
+        const linkedModules = reqModules(r.id);
+        const linkedAssignments = reqAssignments(r.id);
+        return (
+          <EntityDetailSheet
+            open={!!detail}
+            onClose={() => setDetail(null)}
+            icon={ScrollText}
+            eyebrow="Regulation"
+            title={r.title}
+            subtitle={r.reference_code ? `Reference ${r.reference_code}` : undefined}
+            badges={[
+              { label: catLabel(r.category), className: r.category ? catColor[r.category] : "bg-muted text-muted-foreground" },
+              ...(r.severity ? [{ label: r.severity, className: sevColor[r.severity] ?? sevColor.medium }] : []),
+            ]}
+            description={r.description}
+            fields={[
+              { label: "Regulator", value: r.regulator || null },
+              { label: "Type", value: r.requirement_type || null },
+              { label: "Reference code", value: r.reference_code ? <span className="font-mono text-xs">{r.reference_code}</span> : null },
+            ]}
+            sections={[
+              {
+                title: "Linked business process", icon: Workflow,
+                links: bp ? [{ label: bp.name, to: "/knowledge/processes", icon: Workflow }] : [],
+                empty: "No process linked to this regulation.",
+              },
+              {
+                title: "Training modules", icon: GraduationCap,
+                links: linkedModules.map((m) => ({
+                  label: m.title, to: "/knowledge/training", icon: GraduationCap,
+                  meta: m.duration_minutes ? `${m.duration_minutes} min` : undefined,
+                })),
+                empty: "No training module references this regulation yet.",
+              },
+              {
+                title: "Assigned to", icon: Target,
+                links: linkedAssignments.map((a) => {
+                  const { icon, text } = targetLabel(a);
+                  const to = a.target_type === "team" && a.target_team_id ? "/teams" : a.target_type === "user" ? "/people/users" : undefined;
+                  return { label: text, icon, to, badge: a.target_type };
+                }),
+                empty: "No targets assigned. Use Assign to attach a role, team or user.",
+              },
+            ]}
+            primaryHref={isAdmin ? undefined : undefined}
+          />
+        );
+      })()}
     </div>
   );
 };
