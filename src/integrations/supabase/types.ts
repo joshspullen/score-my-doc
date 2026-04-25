@@ -204,21 +204,162 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
+      profile_certifications: {
         Row: {
           created_at: string
-          display_name: string | null
+          credential_url: string | null
+          expiry_date: string | null
           id: string
+          issue_date: string | null
+          issuer: string | null
+          name: string
+          updated_at: string
+          user_id: string
         }
         Insert: {
           created_at?: string
-          display_name?: string | null
-          id: string
+          credential_url?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          issuer?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
         }
         Update: {
           created_at?: string
-          display_name?: string | null
+          credential_url?: string | null
+          expiry_date?: string | null
           id?: string
+          issue_date?: string | null
+          issuer?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profile_education: {
+        Row: {
+          created_at: string
+          degree: string | null
+          description: string | null
+          end_year: number | null
+          field_of_study: string | null
+          id: string
+          institution: string
+          start_year: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          degree?: string | null
+          description?: string | null
+          end_year?: number | null
+          field_of_study?: string | null
+          id?: string
+          institution: string
+          start_year?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          degree?: string | null
+          description?: string | null
+          end_year?: number | null
+          field_of_study?: string | null
+          id?: string
+          institution?: string
+          start_year?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profile_experience: {
+        Row: {
+          company: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          is_current: boolean
+          location: string | null
+          role: string
+          start_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_current?: boolean
+          location?: string | null
+          role: string
+          start_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_current?: boolean
+          location?: string | null
+          role?: string
+          start_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          github_url: string | null
+          headline: string | null
+          id: string
+          linkedin_url: string | null
+          location: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          github_url?: string | null
+          headline?: string | null
+          id: string
+          linkedin_url?: string | null
+          location?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          github_url?: string | null
+          headline?: string | null
+          id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          updated_at?: string
+          website_url?: string | null
         }
         Relationships: []
       }
