@@ -332,6 +332,36 @@ export type Database = {
         }
         Relationships: []
       }
+      fictional_users: {
+        Row: {
+          avatar_seed: string | null
+          created_at: string
+          department: string | null
+          display_name: string
+          email: string | null
+          id: string
+          job_title: string | null
+        }
+        Insert: {
+          avatar_seed?: string | null
+          created_at?: string
+          department?: string | null
+          display_name: string
+          email?: string | null
+          id?: string
+          job_title?: string | null
+        }
+        Update: {
+          avatar_seed?: string | null
+          created_at?: string
+          department?: string | null
+          display_name?: string
+          email?: string | null
+          id?: string
+          job_title?: string | null
+        }
+        Relationships: []
+      }
       profile_certifications: {
         Row: {
           created_at: string
