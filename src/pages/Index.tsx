@@ -38,10 +38,10 @@ const Index = () => {
           <div className="space-y-6">
             <p className="text-sm md:text-base font-semibold text-primary">Meet MERIDIAN!</p>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
-              Your AI Compliance Copilot for personal and impactful KYC & regulatory training in finance.
+              Your AI Compliance Copilot, trained on every <a href="https://acpr.banque-france.fr/en" target="_blank" rel="noopener noreferrer" className="underline decoration-primary/40 underline-offset-[6px] hover:decoration-primary">ACPR</a> sanction ever issued.
             </h1>
             <p className="text-lg text-muted-foreground max-w-lg">
-              MERIDIAN catches the wrong decision before it's signed off — and turns every prevented mistake into personalised training for the analyst who made it.
+              MERIDIAN learns from every past ACPR enforcement decision and turns each one into personalised training — built around the specific mistakes your bank and your analysts have actually made.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <a href="#demo">
@@ -66,13 +66,13 @@ const Index = () => {
                   <Sparkles className="h-4 w-4" />
                 </div>
                 <div className="rounded-2xl rounded-tl-sm bg-primary/10 px-4 py-3 text-sm text-foreground max-w-[85%]">
-                  Hey there! I'm MERIDIAN, your AI compliance copilot. I just spotted a missing source-of-funds note on the file you opened. Want to walk through it?
+                  Hey — I'm MERIDIAN. Your bank was sanctioned by the ACPR in 2022 for the exact gap I'm seeing on this file. Want to walk through it before you sign off?
                 </div>
               </div>
               {/* User bubble */}
               <div className="flex gap-3 items-start justify-end">
                 <div className="rounded-2xl rounded-tr-sm bg-muted px-4 py-3 text-sm text-foreground max-w-[85%]">
-                  Yeah — third time this week I've missed it on a high-risk PEP file. Coach me before I sign off.
+                  Yes — same source-of-funds issue I missed on a PEP file last week. Coach me through what the ACPR expected.
                 </div>
                 <div className="h-9 w-9 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0 text-xs font-semibold">
                   KA
@@ -84,12 +84,12 @@ const Index = () => {
                   <Sparkles className="h-4 w-4" />
                 </div>
                 <div className="rounded-2xl rounded-tl-sm bg-primary/10 px-4 py-3 text-sm text-foreground max-w-[85%]">
-                  Got it. Quick 2-minute scenario tuned to FCA expectations on PEP source-of-funds — let's go.
+                  Got it. 2-minute scenario rebuilt from ACPR Decision n°2022-04 on PEP source-of-funds — let's go.
                 </div>
               </div>
               <div className="pt-2 flex items-center gap-2 text-xs text-muted-foreground border-t border-border">
                 <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                Live coaching session — embedded in your KYC workflow
+                Live coaching session — grounded in real ACPR enforcement decisions
               </div>
             </div>
           </div>
