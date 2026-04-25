@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
 import { ScoreGauge, ScoreBar } from "@/components/ScoreGauge";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -296,6 +302,78 @@ const Index = () => {
           <Link to="/auth">
             <Button size="lg" className="gap-2">Get started <ArrowRight className="h-4 w-4" /></Button>
           </Link>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 border-t border-border bg-secondary/30">
+        <div className="container grid md:grid-cols-[1fr_2fr] gap-12">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">FAQ</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              Frequently asked<br/>questions.
+            </h2>
+            <p className="text-muted-foreground mt-5">
+              Everything compliance leaders, MLROs, and KYC teams ask before rolling out MERIDIAN.
+            </p>
+          </div>
+
+          <Accordion type="single" collapsible className="w-full">
+            {[
+              {
+                q: "How is MERIDIAN different from traditional compliance e-learning?",
+                a: (
+                  <>
+                    <p className="mb-3">Most banks rely on annual click-through modules that 70% of staff forget within 24 hours. MERIDIAN replaces that with a live AI Compliance Copilot that:</p>
+                    <ul className="list-disc pl-5 space-y-1.5">
+                      <li>Reviews real KYC and regulatory documents the moment they're created;</li>
+                      <li>Stops bad decisions <em>before</em> a file is signed off;</li>
+                      <li>Turns every prevented mistake into personalised micro-training for the analyst who made it;</li>
+                      <li>Scales across the org without adding facilitators or seat licences;</li>
+                      <li>Gives compliance leaders aggregate insight into where the real gaps are.</li>
+                    </ul>
+                  </>
+                ),
+              },
+              {
+                q: "Does it actually work?",
+                a: "Pilot teams using MERIDIAN catch material KYC gaps in roughly 1 in 3 files on first review and cut average analyst time per complex file from ~11 hours to under 3. Because training is generated from the team's own near-misses, retention is dramatically higher than generic e-learning — analysts are coached on the gaps they actually keep missing.",
+              },
+              {
+                q: "Does MERIDIAN meet AML, KYC, and GDPR compliance standards?",
+                a: "Yes. MERIDIAN is designed to support FATF, EU AMLD6, FCA, FinCEN, and equivalent regional KYC/AML obligations, plus GDPR for personal data handling. Documents are processed in an isolated tenant, encrypted at rest and in transit, and never used to train shared models. We can provide a vendor due-diligence pack including DPIA, SOC2-aligned controls, and data-residency options on request.",
+              },
+              {
+                q: "Can it be customised to our policies, jurisdictions, and reporting systems?",
+                a: "Absolutely. MERIDIAN ingests your internal policies, jurisdiction-specific rules, and risk appetite, and tunes scoring against them. Findings can be pushed into your existing case management or GRC tool (e.g. Actimize, NICE, Quantexa, Salesforce FSC) via API or webhook so analysts stay in their current workflow.",
+              },
+              {
+                q: "How does the personalised AI trainer get built?",
+                a: "Every prevented bad decision is logged with anonymised context: jurisdiction, document type, root cause, and the analyst's decision path. The AI facilitator uses that signal to generate short, scenario-based coaching for the specific blind spots that team keeps hitting — not a generic syllabus. The more files MERIDIAN reviews, the sharper the trainer becomes.",
+              },
+              {
+                q: "Will managers see individual analyst performance?",
+                a: "By default, individual coaching sessions are private to the analyst — the goal is behaviour change, not surveillance. Compliance leaders see aggregate dashboards: where the org is weakest, which controls misfire most, and how risk is trending over time. Org-level reporting can be enabled with appropriate governance if your second-line function requires it.",
+              },
+              {
+                q: "Who built the underlying compliance content?",
+                a: "MERIDIAN's scoring rubrics and training scenarios are built with former MLROs, KYC heads, and financial-crime regulators across UK, EU, and US jurisdictions, and are continuously updated as regulators publish new guidance. Your tenant can be additionally hardened with your internal policies and prior enforcement learnings.",
+              },
+            ].map((item, i) => (
+              <AccordionItem
+                key={i}
+                value={`item-${i}`}
+                className="border-border first:border-t"
+              >
+                <AccordionTrigger className="text-left text-base md:text-lg font-semibold hover:no-underline py-5">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-sm md:text-base leading-relaxed pb-5">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 
