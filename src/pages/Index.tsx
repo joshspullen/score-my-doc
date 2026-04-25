@@ -298,131 +298,154 @@ const Index = () => {
         </div>
       </section>
 
-      {/* AI vs Traditional comparison */}
-      <section className="py-24 border-t border-border bg-background">
+      {/* A better way to learn — 3 numbered product blocks (arti-style) */}
+      <section id="product" className="py-24 border-t border-border bg-background">
         <div className="container">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">The learning gap</p>
+          <div className="max-w-2xl mb-16">
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">A better way to learn</p>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
-              AI compliance training vs. the way banks do it today.
+              MERIDIAN is an AI compliance facilitator that delivers the rigorous, personal training your analysts deserve — through real conversations on real files.
             </h2>
-            <p className="text-muted-foreground mt-5 text-lg">
-              Same regulatory pressure. Radically different outcomes.
-            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-px bg-border border border-border rounded-2xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
-            {/* Traditional */}
-            <div className="bg-card p-8 md:p-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                  <X className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Today</p>
-                  <h3 className="font-bold text-lg">Traditional compliance training</h3>
-                </div>
-              </div>
-              <ul className="space-y-4">
-                {[
-                  ["Generic", "Same module for every analyst, every jurisdiction, every customer risk profile."],
-                  ["Passive", "Slides and videos. Click 'next' until the certificate prints."],
-                  ["Annual", "Once a year, then forgotten. 70% of content gone within 24 hours."],
-                  ["Disconnected", "Happens in an LMS, not in the actual KYC workflow where decisions are made."],
-                  ["Reactive", "Triggered by a fine, an audit finding, or a regulatory deadline."],
-                  ["Unmeasurable", "Completion rates ≠ behaviour change. Nobody knows if it actually works."],
-                  ["Expensive to scale", "More analysts → more seats, more facilitators, more cost."],
-                ].map(([label, desc]) => (
-                  <li key={label} className="flex gap-3">
-                    <X className="h-4 w-4 text-muted-foreground/70 mt-1 flex-shrink-0" />
-                    <div>
-                      <span className="font-semibold text-foreground">{label}.</span>{" "}
-                      <span className="text-sm text-muted-foreground">{desc}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* AI */}
-            <div className="bg-card p-8 md:p-10 relative" style={{ background: "var(--gradient-subtle)" }}>
-              <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider">
-                MERIDIAN
-              </div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Check className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-primary">With AI</p>
-                  <h3 className="font-bold text-lg">AI compliance copilot</h3>
-                </div>
-              </div>
-              <ul className="space-y-4">
-                {[
-                  ["Personalised", "Coaching is generated from each analyst's own near-misses, role, and jurisdiction."],
-                  ["Interactive", "Conversational scenarios — the analyst is prompted to think, justify, and decide."],
-                  ["Continuous", "Micro-lessons triggered the moment a real mistake is prevented. Not once a year."],
-                  ["Embedded", "Lives inside the document review workflow. Coaching happens at the point of decision."],
-                  ["Proactive", "Catches the gap before the file is signed off — not after the fine lands."],
-                  ["Measurable", "Every prevented error and every coaching outcome is logged. Risk is quantifiable."],
-                  ["Compounds with scale", "Every new file makes the trainer smarter, for everyone, at zero marginal cost."],
-                ].map(([label, desc]) => (
-                  <li key={label} className="flex gap-3">
-                    <Check className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
-                    <div>
-                      <span className="font-semibold text-foreground">{label}.</span>{" "}
-                      <span className="text-sm text-muted-foreground">{desc}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section id="how" className="py-20 border-t border-border">
-        <div className="container">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">How it works</h2>
-            <p className="text-muted-foreground mt-3">Three steps to a compliance score you can act on.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="space-y-24">
             {[
-              { icon: UploadIcon, title: "Upload", desc: "Drop in your KYC form, council regulation, or any compliance document. PDF, image, or DOCX." },
-              { icon: Sparkles, title: "AI analyzes", desc: "Our model evaluates completeness, clarity, regulatory alignment, and risk in seconds." },
-              { icon: Gauge, title: "Get your score", desc: "Receive an overall score, sub-scores, flagged issues, and concrete next steps." },
-            ].map((s, i) => (
-              <div key={i} className="rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-card)" }}>
-                <div className="h-11 w-11 rounded-lg bg-accent flex items-center justify-center mb-4">
-                  <s.icon className="h-5 w-5 text-accent-foreground" />
+              {
+                n: "01",
+                title: "Adapt to your bank",
+                icon: FileSearch,
+                desc: "MERIDIAN ingests your internal policies, jurisdiction-specific rules, and risk appetite — then tunes scoring and coaching against them.",
+                bullets: [
+                  "Import your AML, KYC, and onboarding policies",
+                  "Adjust tone, depth, and reading level per analyst",
+                  "Centralised regulatory resource hub (FCA, FinCEN, AMLD6, FATF)",
+                  "Signpost to the right escalation path for every flag",
+                ],
+                reverse: false,
+              },
+              {
+                n: "02",
+                title: "Train your team",
+                icon: MessageSquare,
+                desc: "Powered by multi-agent AI and former-MLRO content, MERIDIAN delivers compliance training that feels like a real review with a senior officer.",
+                bullets: [
+                  "Research-backed scenarios from real enforcement cases",
+                  "Voice and text interaction inside the KYC workflow",
+                  "Personalised feedback the moment a near-miss happens",
+                  "Micro-lessons under 3 minutes — not annual modules",
+                ],
+                reverse: true,
+              },
+              {
+                n: "03",
+                title: "Monitor your risk",
+                icon: BarChart3,
+                desc: "Use the compliance dashboard to measure learning outcomes, track risk trends, and identify exactly where your second-line defences are weakest.",
+                bullets: [
+                  "Engagement and coaching analytics per team",
+                  "Sentiment and root-cause insights across files",
+                  "Risk-pattern detection across jurisdictions",
+                  "Audit-ready logs for every prevented decision",
+                ],
+                reverse: false,
+              },
+            ].map((b) => (
+              <div
+                key={b.n}
+                className={`grid md:grid-cols-2 gap-10 md:gap-16 items-center ${b.reverse ? "md:[&>div:first-child]:order-2" : ""}`}
+              >
+                <div>
+                  <p className="text-6xl md:text-7xl font-bold text-primary/20 leading-none">{b.n}</p>
+                  <h3 className="text-3xl md:text-4xl font-bold tracking-tight mt-2">{b.title}</h3>
+                  <p className="text-muted-foreground mt-4 text-lg">{b.desc}</p>
+                  <ul className="mt-6 space-y-3">
+                    {b.bullets.map((bl) => (
+                      <li key={bl} className="flex gap-3 items-start text-sm">
+                        <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span className="text-foreground/90">{bl}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{i + 1}. {s.title}</h3>
-                <p className="text-sm text-muted-foreground">{s.desc}</p>
+                <div
+                  className="rounded-2xl border border-border bg-card aspect-[4/3] flex items-center justify-center relative overflow-hidden"
+                  style={{ boxShadow: "var(--shadow-elegant)", background: "var(--gradient-subtle)" }}
+                >
+                  <div className="absolute inset-0 opacity-30" style={{
+                    backgroundImage: "radial-gradient(circle at 30% 30%, hsl(var(--primary)) 0%, transparent 50%)"
+                  }} />
+                  <b.icon className="h-24 w-24 md:h-32 md:w-32 text-primary relative" strokeWidth={1.2} />
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 border-t border-border bg-secondary/30">
+      {/* Research backed results — stats */}
+      <section className="py-24 border-t border-border bg-background">
         <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">Research-backed results</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              Built on financial-crime research from former regulators and MLROs.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border border border-border rounded-2xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+            {[
+              { value: "87%", label: "Knowledge gain", desc: "Higher post-training scores than annual e-learning modules." },
+              { value: "62%", label: "Behaviour shift", desc: "Analysts apply correct controls on first review without prompting." },
+              { value: "73%", label: "Time saved", desc: "Reduction in average analyst time per complex KYC file." },
+              { value: "9.1", suffix: "/10", label: "Analyst rating", desc: "Compliance officers rate MERIDIAN coaching above their LMS." },
+            ].map((s, i) => (
+              <div key={i} className="bg-card p-8">
+                <div className="text-5xl md:text-6xl font-bold tracking-tight text-foreground">
+                  {s.value}
+                  {s.suffix && <span className="text-2xl text-muted-foreground">{s.suffix}</span>}
+                </div>
+                <div className="text-sm font-semibold text-foreground mt-4">{s.label}</div>
+                <div className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{s.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials — already trusted and loved */}
+      <section className="py-24 border-t border-border bg-secondary/30">
+        <div className="container">
+          <div className="max-w-2xl mb-14">
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">Trusted by compliance teams</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              Already loved by MLROs and KYC analysts.
+            </h2>
+          </div>
+
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: ShieldCheck, title: "Built for KYC & regulatory work", desc: "Tuned for identity verification, AML, GDPR, and council bylaw documents." },
-              { icon: FileCheck2, title: "Actionable findings", desc: "Every issue comes with severity and a clear recommendation to fix it." },
-              { icon: Gauge, title: "History & tracking", desc: "Every analysis is saved to your dashboard so you can track improvements over time." },
-            ].map((f, i) => (
-              <div key={i} className="flex gap-4">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <f.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground">{f.desc}</p>
+              {
+                quote: "It caught a source-of-funds gap on a high-risk PEP file my whole team had signed off. Then it coached the analyst through it in three minutes. That's the difference between an LMS and a copilot.",
+                name: "Head of Financial Crime",
+                org: "Tier-1 European Bank",
+              },
+              {
+                quote: "Our annual AML training had 4% retention after a quarter. With MERIDIAN, analysts learn from their own near-misses on real files. Knowledge actually sticks.",
+                name: "MLRO",
+                org: "UK Challenger Bank",
+              },
+              {
+                quote: "I stopped feeling like I was clicking through slides. The conversation actually challenged how I was reading the file — and I caught the gap myself.",
+                name: "Senior KYC Analyst",
+                org: "Global Asset Manager",
+              },
+            ].map((t, i) => (
+              <div key={i} className="rounded-2xl bg-card border border-border p-7 flex flex-col" style={{ boxShadow: "var(--shadow-card)" }}>
+                <Quote className="h-7 w-7 text-primary/40 mb-4" />
+                <p className="text-foreground leading-relaxed flex-1">"{t.quote}"</p>
+                <div className="mt-6 pt-5 border-t border-border">
+                  <p className="font-semibold text-sm">{t.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t.org}</p>
                 </div>
               </div>
             ))}
