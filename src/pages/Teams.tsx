@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Plus, Trash2, Users, UserPlus, X, LayoutGrid, Table as TableIcon, BarChart3, Crown, User as UserIcon, GraduationCap } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, UserPlus, X, BarChart3, Crown, User as UserIcon, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
+import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 
 type Team = { id: string; name: string; description: string | null; created_at: string };
 type Member = { id: string; team_id: string; user_id: string; member_role: "manager" | "member" };
@@ -26,7 +27,7 @@ const Teams = () => {
   const [people, setPeople] = useState<Map<string, Person>>(new Map());
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"cards" | "table" | "dashboard">("cards");
+  const [view, setView] = useState<ViewMode>("cards");
   const [selected, setSelected] = useState<Team | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
@@ -284,34 +285,27 @@ const Teams = () => {
   return (
     <div className="min-h-screen bg-background">
       <main className="container py-10">
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Users className="h-7 w-7" /> Teams</h1>
-            <p className="text-muted-foreground mt-1">Organize people, assign managers and track training across the organization.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Tabs value={view} onValueChange={(v) => setView(v as any)}>
-              <TabsList>
-                <TabsTrigger value="cards" className="gap-1.5"><LayoutGrid className="h-3.5 w-3.5" /> Cards</TabsTrigger>
-                <TabsTrigger value="table" className="gap-1.5"><TableIcon className="h-3.5 w-3.5" /> Table</TabsTrigger>
-                <TabsTrigger value="dashboard" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Dashboard</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            {isAdmin && (
-              <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogTrigger asChild><Button className="gap-1.5"><Plus className="h-4 w-4" /> New team</Button></DialogTrigger>
-                <DialogContent>
-                  <DialogHeader><DialogTitle>Create team</DialogTitle></DialogHeader>
-                  <div className="space-y-3">
-                    <div className="space-y-1.5"><Label>Name</Label><Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. AML Analysts — Paris" /></div>
-                    <div className="space-y-1.5"><Label>Description</Label><Input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} /></div>
-                  </div>
-                  <DialogFooter><Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button><Button onClick={createTeam}>Create</Button></DialogFooter>
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
-        </div>
+        <ModuleHeader
+          icon={Users}
+          title="Teams"
+          subtitle="Organize people, assign managers and track training across the organization."
+          views={["dashboard", "cards", "table"]}
+          view={view}
+          onViewChange={setView}
+          actions={isAdmin ? (
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <DialogTrigger asChild><Button className="gap-1.5"><Plus className="h-4 w-4" /> New team</Button></DialogTrigger>
+              <DialogContent>
+                <DialogHeader><DialogTitle>Create team</DialogTitle></DialogHeader>
+                <div className="space-y-3">
+                  <div className="space-y-1.5"><Label>Name</Label><Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. AML Analysts — Paris" /></div>
+                  <div className="space-y-1.5"><Label>Description</Label><Input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} /></div>
+                </div>
+                <DialogFooter><Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button><Button onClick={createTeam}>Create</Button></DialogFooter>
+              </DialogContent>
+            </Dialog>
+          ) : undefined}
+        />
 
         {loading || rolesLoading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>

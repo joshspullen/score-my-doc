@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, ExternalLink, UserPlus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, ExternalLink, UserPlus, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,11 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
+import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 
 type Module = { id: string; title: string; description: string | null; content_url: string | null; duration_minutes: number | null; compliance_requirement_id: string | null };
 type Req = { id: string; title: string; reference_code: string | null };
@@ -27,6 +28,8 @@ const Training = () => {
   const [myAssignments, setMyAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Module> | null>(null);
+  const [view, setView] = useState<ViewMode>("cards");
+  const [filter, setFilter] = useState<string>("mine");
 
   useEffect(() => { document.title = "Training — MERIDIAN"; load(); }, [user]);
 
@@ -65,12 +68,10 @@ const Training = () => {
     toast.success("Deleted"); load();
   };
 
-  // Auto-assign by resolving compliance_assignments → users
   const autoAssign = async (m: Module) => {
     if (!m.compliance_requirement_id) { toast.error("Link this module to a compliance requirement first."); return; }
     const { data: ca } = await supabase.from("compliance_assignments").select("*").eq("compliance_requirement_id", m.compliance_requirement_id);
     if (!ca || ca.length === 0) { toast.error("Linked requirement has no targets yet."); return; }
-
     const userIds = new Set<string>();
     for (const a of ca) {
       if (a.target_type === "user" && a.target_user_id) userIds.add(a.target_user_id);
@@ -106,87 +107,177 @@ const Training = () => {
     return <Badge variant="secondary">Assigned</Badge>;
   };
 
-  return (
-    <div className="container py-10">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><GraduationCap className="h-7 w-7" /> Training</h1>
-          <p className="text-muted-foreground mt-1">Learning paths derived from your compliance assignments.</p>
+  const stats = useMemo(() => {
+    const total = myAssignments.length;
+    const completed = myAssignments.filter((a) => a.status === "completed").length;
+    const inProgress = myAssignments.filter((a) => a.status === "in_progress").length;
+    const assigned = myAssignments.filter((a) => a.status === "assigned").length;
+    return { total, completed, inProgress, assigned, rate: total ? Math.round((completed / total) * 100) : 0 };
+  }, [myAssignments]);
+
+  const filters = isAdmin
+    ? [
+        { value: "mine", label: "My training", count: myAssignments.length },
+        { value: "catalog", label: "Catalog", count: modules.length },
+      ]
+    : [{ value: "mine", label: "My training", count: myAssignments.length }];
+
+  // Items in the active filter
+  const items: { module: Module; assignment?: Assignment; req: Req | null }[] = useMemo(() => {
+    if (filter === "mine") {
+      return myAssignments.map((a) => {
+        const m = moduleById(a.training_module_id);
+        if (!m) return null;
+        return { module: m, assignment: a, req: reqById(m.compliance_requirement_id) };
+      }).filter(Boolean) as any;
+    }
+    return modules.map((m) => ({ module: m, req: reqById(m.compliance_requirement_id) }));
+  }, [filter, myAssignments, modules, reqs]);
+
+  const renderCards = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {items.map(({ module: m, assignment: a, req: r }) => (
+        <div key={a?.id ?? m.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-semibold">{m.title}</h3>
+                {a && statusBadge(a.status)}
+                {m.duration_minutes && <Badge variant="outline" className="text-xs">{m.duration_minutes} min</Badge>}
+              </div>
+              {r ? <p className="text-xs text-muted-foreground mt-1">→ {r.reference_code ? `${r.reference_code} — ` : ""}{r.title}</p> :
+                filter === "catalog" && <p className="text-xs text-destructive mt-1">No requirement linked</p>}
+            </div>
+          </div>
+          {m.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{m.description}</p>}
+          <div className="flex items-center gap-2 flex-wrap">
+            {filter === "mine" && a && m.content_url && <a href={m.content_url} target="_blank" rel="noreferrer"><Button size="sm" variant="outline" className="gap-1.5">Open <ExternalLink className="h-3.5 w-3.5" /></Button></a>}
+            {filter === "mine" && a?.status === "assigned" && <Button size="sm" onClick={() => setStatus(a, "in_progress")} className="gap-1.5"><Play className="h-3.5 w-3.5" /> Start</Button>}
+            {filter === "mine" && a?.status === "in_progress" && <Button size="sm" onClick={() => setStatus(a, "completed")} className="gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Complete</Button>}
+            {filter === "catalog" && (
+              <>
+                <Button size="sm" variant="outline" onClick={() => autoAssign(m)} className="gap-1.5"><UserPlus className="h-3.5 w-3.5" /> Assign to targets</Button>
+                <Button size="icon" variant="ghost" onClick={() => setEditing(m)}><Pencil className="h-3.5 w-3.5" /></Button>
+                <Button size="icon" variant="ghost" onClick={() => removeModule(m.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+              </>
+            )}
+          </div>
         </div>
+      ))}
+    </div>
+  );
+
+  const renderTable = () => (
+    <div className="bg-card border border-border rounded-xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+      <Table>
+        <TableHeader><TableRow>
+          <TableHead>Module</TableHead>
+          <TableHead>Requirement</TableHead>
+          <TableHead>Duration</TableHead>
+          {filter === "mine" && <TableHead>Status</TableHead>}
+          <TableHead className="w-32"></TableHead>
+        </TableRow></TableHeader>
+        <TableBody>
+          {items.length === 0 ? (
+            <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">Nothing here.</TableCell></TableRow>
+          ) : items.map(({ module: m, assignment: a, req: r }) => (
+            <TableRow key={a?.id ?? m.id}>
+              <TableCell className="font-medium">{m.title}</TableCell>
+              <TableCell className="text-xs text-muted-foreground">{r ? `${r.reference_code ?? ""} ${r.title}` : "—"}</TableCell>
+              <TableCell className="text-xs">{m.duration_minutes ? `${m.duration_minutes} min` : "—"}</TableCell>
+              {filter === "mine" && <TableCell>{a && statusBadge(a.status)}</TableCell>}
+              <TableCell>
+                <div className="flex items-center gap-1 justify-end">
+                  {filter === "mine" && a?.status === "assigned" && <Button size="sm" variant="ghost" onClick={() => setStatus(a, "in_progress")}><Play className="h-3.5 w-3.5" /></Button>}
+                  {filter === "mine" && a?.status === "in_progress" && <Button size="sm" variant="ghost" onClick={() => setStatus(a, "completed")}><CheckCircle2 className="h-3.5 w-3.5" /></Button>}
+                  {filter === "catalog" && (
+                    <>
+                      <Button size="icon" variant="ghost" onClick={() => autoAssign(m)}><UserPlus className="h-3.5 w-3.5" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => setEditing(m)}><Pencil className="h-3.5 w-3.5" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => removeModule(m.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                    </>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
+  const renderDashboard = () => {
+    const tile = (label: string, value: string | number, sub?: string) => (
+      <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">{label}</div>
+        <div className="text-3xl font-bold tracking-tight">{value}</div>
+        {sub && <div className="text-xs text-muted-foreground mt-1">{sub}</div>}
       </div>
-
-      <Tabs defaultValue="mine">
-        <TabsList>
-          <TabsTrigger value="mine">My training ({myAssignments.length})</TabsTrigger>
-          {isAdmin && <TabsTrigger value="catalog">Catalog ({modules.length})</TabsTrigger>}
-        </TabsList>
-
-        <TabsContent value="mine" className="mt-4">
-          {loading ? <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div> :
-            myAssignments.length === 0 ? <div className="text-center py-20 text-muted-foreground">No training assigned yet.</div> : (
-            <div className="space-y-3">
-              {myAssignments.map((a) => {
-                const m = moduleById(a.training_module_id);
-                if (!m) return null;
-                const r = reqById(m.compliance_requirement_id);
+    );
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {filter === "mine" ? (
+            <>
+              {tile("My total", stats.total, "Assignments")}
+              {tile("Completed", stats.completed)}
+              {tile("In progress", stats.inProgress)}
+              {tile("Completion", `${stats.rate}%`)}
+            </>
+          ) : (
+            <>
+              {tile("Catalog", modules.length, "Total modules")}
+              {tile("Linked", modules.filter((m) => m.compliance_requirement_id).length, "To requirements")}
+              {tile("Avg duration", modules.filter((m) => m.duration_minutes).length ? `${Math.round(modules.filter((m) => m.duration_minutes).reduce((s, m) => s + (m.duration_minutes || 0), 0) / modules.filter((m) => m.duration_minutes).length)} min` : "—")}
+              {tile("Requirements", reqs.length, "Available")}
+            </>
+          )}
+        </div>
+        {filter === "mine" && (
+          <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+            <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Status mix</h3>
+            <div className="flex items-end gap-3 h-40">
+              {[
+                { label: "Completed", value: stats.completed, color: "bg-green-500" },
+                { label: "In progress", value: stats.inProgress, color: "bg-blue-500" },
+                { label: "Assigned", value: stats.assigned, color: "bg-amber-500" },
+              ].map((b) => {
+                const max = Math.max(stats.completed, stats.inProgress, stats.assigned, 1);
                 return (
-                  <div key={a.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold">{m.title}</h3>
-                          {statusBadge(a.status)}
-                          {m.duration_minutes && <Badge variant="outline" className="text-xs">{m.duration_minutes} min</Badge>}
-                        </div>
-                        {r && <p className="text-xs text-muted-foreground mt-1">For requirement: {r.reference_code ? `${r.reference_code} — ` : ""}{r.title}</p>}
-                        {m.description && <p className="text-sm text-muted-foreground mt-2">{m.description}</p>}
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {m.content_url && <a href={m.content_url} target="_blank" rel="noreferrer"><Button size="sm" variant="outline" className="gap-1.5">Open <ExternalLink className="h-3.5 w-3.5" /></Button></a>}
-                        {a.status === "assigned" && <Button size="sm" onClick={() => setStatus(a, "in_progress")} className="gap-1.5"><Play className="h-3.5 w-3.5" /> Start</Button>}
-                        {a.status === "in_progress" && <Button size="sm" onClick={() => setStatus(a, "completed")} className="gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Complete</Button>}
-                      </div>
+                  <div key={b.label} className="flex-1 flex flex-col items-center gap-2">
+                    <div className="text-xs font-semibold">{b.value}</div>
+                    <div className="w-full bg-muted rounded-t flex-1 flex items-end overflow-hidden">
+                      <div className={`w-full ${b.color}`} style={{ height: `${(b.value / max) * 100}%` }} />
                     </div>
+                    <div className="text-xs text-muted-foreground">{b.label}</div>
                   </div>
                 );
               })}
             </div>
-          )}
-        </TabsContent>
-
-        {isAdmin && (
-          <TabsContent value="catalog" className="mt-4">
-            <div className="flex justify-end mb-3">
-              <Button onClick={() => setEditing(empty)} className="gap-1.5"><Plus className="h-4 w-4" /> New module</Button>
-            </div>
-            {modules.length === 0 ? <div className="text-center py-20 text-muted-foreground">No modules yet.</div> : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {modules.map((m) => {
-                  const r = reqById(m.compliance_requirement_id);
-                  return (
-                    <div key={m.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="min-w-0">
-                          <h3 className="font-semibold">{m.title}</h3>
-                          {r ? <p className="text-xs text-muted-foreground mt-0.5">→ {r.reference_code ? `${r.reference_code} ` : ""}{r.title}</p> :
-                            <p className="text-xs text-destructive mt-0.5">No requirement linked</p>}
-                        </div>
-                        {m.duration_minutes && <Badge variant="outline" className="text-xs flex-shrink-0">{m.duration_minutes} min</Badge>}
-                      </div>
-                      {m.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{m.description}</p>}
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline" onClick={() => autoAssign(m)} className="gap-1.5"><UserPlus className="h-3.5 w-3.5" /> Assign to targets</Button>
-                        <Button size="icon" variant="ghost" onClick={() => setEditing(m)}><Pencil className="h-3.5 w-3.5" /></Button>
-                        <Button size="icon" variant="ghost" onClick={() => removeModule(m.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </TabsContent>
+          </div>
         )}
-      </Tabs>
+      </div>
+    );
+  };
+
+  return (
+    <div className="container py-10">
+      <ModuleHeader
+        icon={GraduationCap}
+        title="Training"
+        subtitle="Learning paths derived from your compliance assignments."
+        views={["dashboard", "cards", "table"]}
+        view={view}
+        onViewChange={setView}
+        filters={filters}
+        filter={filter}
+        onFilterChange={setFilter}
+        actions={isAdmin && filter === "catalog" ? <Button onClick={() => setEditing(empty)} className="gap-1.5"><Plus className="h-4 w-4" /> New module</Button> : undefined}
+      />
+
+      {loading ? <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div> :
+        items.length === 0 && view !== "dashboard" ? <div className="text-center py-20 text-muted-foreground">Nothing to show.</div> :
+        view === "cards" ? renderCards() : view === "table" ? renderTable() : renderDashboard()}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>

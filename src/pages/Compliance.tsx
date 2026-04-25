@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
+import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 
 type Req = { id: string; reference_code: string | null; title: string; regulator: string | null; requirement_type: string | null; severity: string | null; description: string | null; business_process_id: string | null };
 type BP = { id: string; name: string };
@@ -20,6 +22,13 @@ type Assignment = { id: string; compliance_requirement_id: string; target_type: 
 type Module = { id: string; title: string; compliance_requirement_id: string | null };
 
 const emptyReq: Partial<Req> = { reference_code: "", title: "", regulator: "", requirement_type: "", severity: "medium", description: "", business_process_id: null };
+
+const sevColor: Record<string, string> = {
+  low: "bg-muted text-muted-foreground",
+  medium: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+  high: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
+  critical: "bg-destructive/10 text-destructive",
+};
 
 const Compliance = () => {
   const { isAdmin } = useRoles();
@@ -33,6 +42,8 @@ const Compliance = () => {
   const [editing, setEditing] = useState<Partial<Req> | null>(null);
   const [assignFor, setAssignFor] = useState<Req | null>(null);
   const [newAssign, setNewAssign] = useState<{ type: "role" | "team" | "user"; value: string }>({ type: "role", value: "user" });
+  const [view, setView] = useState<ViewMode>("cards");
+  const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => { document.title = "Compliance — MERIDIAN"; load(); }, []);
 
@@ -102,62 +113,155 @@ const Compliance = () => {
     return { icon: UserIcon, text: `User: ${profiles.find((p) => p.id === a.target_user_id)?.display_name ?? "—"}` };
   };
 
-  const sevColor: Record<string, string> = { low: "bg-muted text-muted-foreground", medium: "bg-blue-500/10 text-blue-700 dark:text-blue-400", high: "bg-orange-500/10 text-orange-700 dark:text-orange-400", critical: "bg-destructive/10 text-destructive" };
+  const filteredReqs = useMemo(() => {
+    if (filter === "all") return reqs;
+    if (filter === "critical") return reqs.filter((r) => r.severity === "critical" || r.severity === "high");
+    if (filter === "unassigned") return reqs.filter((r) => reqAssignments(r.id).length === 0);
+    if (filter === "no-training") return reqs.filter((r) => reqModules(r.id).length === 0);
+    return reqs;
+  }, [filter, reqs, assignments, modules]);
 
-  return (
-    <div className="container py-10">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><ScrollText className="h-7 w-7" /> Compliance</h1>
-          <p className="text-muted-foreground mt-1">Regulatory requirements linked to business processes and training.</p>
+  const filters = [
+    { value: "all", label: "All", count: reqs.length },
+    { value: "critical", label: "Critical & high", count: reqs.filter((r) => r.severity === "critical" || r.severity === "high").length },
+    { value: "unassigned", label: "Unassigned", count: reqs.filter((r) => reqAssignments(r.id).length === 0).length },
+    { value: "no-training", label: "No training", count: reqs.filter((r) => reqModules(r.id).length === 0).length },
+  ];
+
+  const renderCards = () => (
+    <div className="space-y-3">
+      {filteredReqs.map((r) => (
+        <div key={r.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                {r.reference_code && <Badge variant="outline" className="font-mono text-xs">{r.reference_code}</Badge>}
+                <h3 className="font-semibold">{r.title}</h3>
+                {r.severity && <span className={`text-xs px-2 py-0.5 rounded-md ${sevColor[r.severity] ?? sevColor.medium}`}>{r.severity}</span>}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 flex-wrap">
+                {r.regulator && <span>Regulator: {r.regulator}</span>}
+                {r.requirement_type && <span>Type: {r.requirement_type}</span>}
+                {r.business_process_id && <span>Process: {bps.find((b) => b.id === r.business_process_id)?.name ?? "—"}</span>}
+              </div>
+              {r.description && <p className="text-sm text-muted-foreground mt-2">{r.description}</p>}
+            </div>
+            {isAdmin && (
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <Button size="sm" variant="ghost" onClick={() => setAssignFor(r)} className="gap-1.5"><Target className="h-3.5 w-3.5" /> Assign</Button>
+                <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
+                <Button size="icon" variant="ghost" onClick={() => removeReq(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-border">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Assigned to:</span>
+            {reqAssignments(r.id).length === 0 ? <span className="text-xs text-muted-foreground">No targets</span> :
+              reqAssignments(r.id).map((a) => {
+                const { icon: Icon, text } = targetLabel(a);
+                return <Badge key={a.id} variant="secondary" className="gap-1"><Icon className="h-3 w-3" />{text}</Badge>;
+              })}
+            <span className="text-xs uppercase tracking-wider text-muted-foreground ml-3">Trainings:</span>
+            <span className="text-xs">{reqModules(r.id).length} linked</span>
+          </div>
         </div>
-        {isAdmin && <Button onClick={() => setEditing(emptyReq)} className="gap-1.5"><Plus className="h-4 w-4" /> New requirement</Button>}
-      </div>
+      ))}
+    </div>
+  );
 
-      {loading ? <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div> : reqs.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">No compliance requirements yet.</div>
-      ) : (
-        <div className="space-y-3">
-          {reqs.map((r) => (
-            <div key={r.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {r.reference_code && <Badge variant="outline" className="font-mono text-xs">{r.reference_code}</Badge>}
-                    <h3 className="font-semibold">{r.title}</h3>
-                    {r.severity && <span className={`text-xs px-2 py-0.5 rounded-md ${sevColor[r.severity] ?? sevColor.medium}`}>{r.severity}</span>}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 flex-wrap">
-                    {r.regulator && <span>Regulator: {r.regulator}</span>}
-                    {r.requirement_type && <span>Type: {r.requirement_type}</span>}
-                    {r.business_process_id && <span>Process: {bps.find((b) => b.id === r.business_process_id)?.name ?? "—"}</span>}
-                  </div>
-                  {r.description && <p className="text-sm text-muted-foreground mt-2">{r.description}</p>}
-                </div>
-                {isAdmin && (
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button size="sm" variant="ghost" onClick={() => setAssignFor(r)} className="gap-1.5"><Target className="h-3.5 w-3.5" /> Assign</Button>
+  const renderTable = () => (
+    <div className="bg-card border border-border rounded-xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+      <Table>
+        <TableHeader><TableRow>
+          <TableHead>Code</TableHead><TableHead>Title</TableHead><TableHead>Regulator</TableHead>
+          <TableHead>Severity</TableHead><TableHead>Targets</TableHead><TableHead>Trainings</TableHead>
+          {isAdmin && <TableHead className="w-32"></TableHead>}
+        </TableRow></TableHeader>
+        <TableBody>
+          {filteredReqs.map((r) => (
+            <TableRow key={r.id}>
+              <TableCell className="font-mono text-xs">{r.reference_code || "—"}</TableCell>
+              <TableCell className="font-medium">{r.title}</TableCell>
+              <TableCell className="text-xs">{r.regulator || "—"}</TableCell>
+              <TableCell>{r.severity && <span className={`text-xs px-2 py-0.5 rounded-md ${sevColor[r.severity] ?? sevColor.medium}`}>{r.severity}</span>}</TableCell>
+              <TableCell className="text-sm">{reqAssignments(r.id).length}</TableCell>
+              <TableCell className="text-sm">{reqModules(r.id).length}</TableCell>
+              {isAdmin && (
+                <TableCell>
+                  <div className="flex items-center gap-1 justify-end">
+                    <Button size="icon" variant="ghost" onClick={() => setAssignFor(r)}><Target className="h-3.5 w-3.5" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => removeReq(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                   </div>
-                )}
-              </div>
-              <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-border">
-                <span className="text-xs uppercase tracking-wider text-muted-foreground">Assigned to:</span>
-                {reqAssignments(r.id).length === 0 ? <span className="text-xs text-muted-foreground">No targets</span> :
-                  reqAssignments(r.id).map((a) => {
-                    const { icon: Icon, text } = targetLabel(a);
-                    return <Badge key={a.id} variant="secondary" className="gap-1"><Icon className="h-3 w-3" />{text}</Badge>;
-                  })}
-                <span className="text-xs uppercase tracking-wider text-muted-foreground ml-3">Trainings:</span>
-                <span className="text-xs">{reqModules(r.id).length} linked</span>
-              </div>
-            </div>
+                </TableCell>
+              )}
+            </TableRow>
           ))}
-        </div>
-      )}
+        </TableBody>
+      </Table>
+    </div>
+  );
 
-      {/* Edit/create requirement */}
+  const renderDashboard = () => {
+    const bySeverity = ["low", "medium", "high", "critical"].map((s) => ({ s, n: reqs.filter((r) => r.severity === s).length }));
+    const tile = (label: string, value: string | number, sub?: string) => (
+      <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">{label}</div>
+        <div className="text-3xl font-bold tracking-tight">{value}</div>
+        {sub && <div className="text-xs text-muted-foreground mt-1">{sub}</div>}
+      </div>
+    );
+    const totalAssigned = reqs.filter((r) => reqAssignments(r.id).length > 0).length;
+    const totalWithTraining = reqs.filter((r) => reqModules(r.id).length > 0).length;
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {tile("Requirements", reqs.length, "Total tracked")}
+          {tile("Assigned", totalAssigned, `${reqs.length - totalAssigned} unassigned`)}
+          {tile("With training", totalWithTraining, `${reqs.length - totalWithTraining} missing`)}
+          {tile("Critical+high", bySeverity.filter((b) => b.s === "critical" || b.s === "high").reduce((s, b) => s + b.n, 0))}
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> By severity</h3>
+          <div className="space-y-2">
+            {bySeverity.map((b) => {
+              const max = Math.max(...bySeverity.map((x) => x.n), 1);
+              return (
+                <div key={b.s} className="flex items-center gap-3">
+                  <span className="text-sm w-24 capitalize">{b.s}</span>
+                  <div className="flex-1 h-6 bg-muted rounded overflow-hidden">
+                    <div className={`h-full ${sevColor[b.s]} flex items-center justify-end px-2`} style={{ width: `${(b.n / max) * 100}%` }}>
+                      <span className="text-[10px] font-semibold">{b.n}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="container py-10">
+      <ModuleHeader
+        icon={ScrollText}
+        title="Compliance"
+        subtitle="Regulatory requirements linked to business processes and training."
+        views={["dashboard", "cards", "table"]}
+        view={view}
+        onViewChange={setView}
+        filters={filters}
+        filter={filter}
+        onFilterChange={setFilter}
+        actions={isAdmin ? <Button onClick={() => setEditing(emptyReq)} className="gap-1.5"><Plus className="h-4 w-4" /> New requirement</Button> : undefined}
+      />
+
+      {loading ? <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div> :
+        filteredReqs.length === 0 && view !== "dashboard" ? <div className="text-center py-20 text-muted-foreground">No requirements match this filter.</div> :
+        view === "cards" ? renderCards() : view === "table" ? renderTable() : renderDashboard()}
+
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader><DialogTitle>{editing?.id ? "Edit" : "New"} compliance requirement</DialogTitle></DialogHeader>
@@ -194,7 +298,6 @@ const Compliance = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Assignments dialog */}
       <Dialog open={!!assignFor} onOpenChange={(o) => !o && setAssignFor(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader><DialogTitle>Assign: {assignFor?.title}</DialogTitle></DialogHeader>
