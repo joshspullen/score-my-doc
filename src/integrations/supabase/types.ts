@@ -142,6 +142,7 @@ export type Database = {
       compliance_requirements: {
         Row: {
           business_process_id: string | null
+          category: Database["public"]["Enums"]["regulation_category"] | null
           created_at: string
           description: string | null
           id: string
@@ -154,6 +155,7 @@ export type Database = {
         }
         Insert: {
           business_process_id?: string | null
+          category?: Database["public"]["Enums"]["regulation_category"] | null
           created_at?: string
           description?: string | null
           id?: string
@@ -166,6 +168,7 @@ export type Database = {
         }
         Update: {
           business_process_id?: string | null
+          category?: Database["public"]["Enums"]["regulation_category"] | null
           created_at?: string
           description?: string | null
           id?: string
@@ -707,6 +710,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "manager"
+      regulation_category:
+        | "sanctions"
+        | "aml_cft"
+        | "prudential"
+        | "conduct_reporting"
+        | "operational_cyber"
       team_member_role: "manager" | "member"
     }
     CompositeTypes: {
@@ -836,6 +845,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "manager"],
+      regulation_category: [
+        "sanctions",
+        "aml_cft",
+        "prudential",
+        "conduct_reporting",
+        "operational_cyber",
+      ],
       team_member_role: ["manager", "member"],
     },
   },
