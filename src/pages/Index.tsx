@@ -1,5 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon } from "lucide-react";
+import { ArrowRight, FileCheck2, Gauge, ShieldCheck, Sparkles, Upload as UploadIcon, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, X, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
 import { ScoreGauge, ScoreBar } from "@/components/ScoreGauge";
@@ -10,6 +10,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import googleCloud from "@/assets/partners/google-cloud.png";
+import hgCatalyst from "@/assets/partners/hg-catalyst.png";
+import lovableLogo from "@/assets/partners/lovable.png";
+import redBull from "@/assets/partners/red-bull.png";
+import cerebrus from "@/assets/partners/cerebrus.png";
+
+const PARTNERS = [
+  { name: "Google Cloud", src: googleCloud },
+  { name: "HG Catalyst", src: hgCatalyst },
+  { name: "Lovable", src: lovableLogo },
+  { name: "Red Bull", src: redBull },
+  { name: "Cerebrus", src: cerebrus },
+];
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -69,6 +82,35 @@ const Index = () => {
                 <ScoreBar label="Risk flags" value={80} />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Partner marquee */}
+      <section className="py-12 border-t border-border bg-background">
+        <div className="container">
+          <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground mb-8">
+            Trusted & backed by teams at
+          </p>
+        </div>
+        <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+          <div className="flex w-max animate-marquee gap-16 pr-16">
+            {[...PARTNERS, ...PARTNERS].map((p, i) => (
+              <div
+                key={`${p.name}-${i}`}
+                className="flex items-center gap-3 shrink-0 h-16 px-4 opacity-70 hover:opacity-100 transition-opacity"
+                aria-label={p.name}
+              >
+                <img
+                  src={p.src}
+                  alt={p.name}
+                  loading="lazy"
+                  width={140}
+                  height={48}
+                  className="h-12 w-auto object-contain"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -246,6 +288,90 @@ const Index = () => {
         </div>
       </section>
 
+      {/* AI vs Traditional comparison */}
+      <section className="py-24 border-t border-border bg-background">
+        <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">The learning gap</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              AI compliance training vs. the way banks do it today.
+            </h2>
+            <p className="text-muted-foreground mt-5 text-lg">
+              Same regulatory pressure. Radically different outcomes.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-px bg-border border border-border rounded-2xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+            {/* Traditional */}
+            <div className="bg-card p-8 md:p-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                  <X className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Today</p>
+                  <h3 className="font-bold text-lg">Traditional compliance training</h3>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  ["Generic", "Same module for every analyst, every jurisdiction, every customer risk profile."],
+                  ["Passive", "Slides and videos. Click 'next' until the certificate prints."],
+                  ["Annual", "Once a year, then forgotten. 70% of content gone within 24 hours."],
+                  ["Disconnected", "Happens in an LMS, not in the actual KYC workflow where decisions are made."],
+                  ["Reactive", "Triggered by a fine, an audit finding, or a regulatory deadline."],
+                  ["Unmeasurable", "Completion rates ≠ behaviour change. Nobody knows if it actually works."],
+                  ["Expensive to scale", "More analysts → more seats, more facilitators, more cost."],
+                ].map(([label, desc]) => (
+                  <li key={label} className="flex gap-3">
+                    <X className="h-4 w-4 text-muted-foreground/70 mt-1 flex-shrink-0" />
+                    <div>
+                      <span className="font-semibold text-foreground">{label}.</span>{" "}
+                      <span className="text-sm text-muted-foreground">{desc}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* AI */}
+            <div className="bg-card p-8 md:p-10 relative" style={{ background: "var(--gradient-subtle)" }}>
+              <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider">
+                MERIDIAN
+              </div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Check className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-primary">With AI</p>
+                  <h3 className="font-bold text-lg">AI compliance copilot</h3>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  ["Personalised", "Coaching is generated from each analyst's own near-misses, role, and jurisdiction."],
+                  ["Interactive", "Conversational scenarios — the analyst is prompted to think, justify, and decide."],
+                  ["Continuous", "Micro-lessons triggered the moment a real mistake is prevented. Not once a year."],
+                  ["Embedded", "Lives inside the document review workflow. Coaching happens at the point of decision."],
+                  ["Proactive", "Catches the gap before the file is signed off — not after the fine lands."],
+                  ["Measurable", "Every prevented error and every coaching outcome is logged. Risk is quantifiable."],
+                  ["Compounds with scale", "Every new file makes the trainer smarter, for everyone, at zero marginal cost."],
+                ].map(([label, desc]) => (
+                  <li key={label} className="flex gap-3">
+                    <Check className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <div>
+                      <span className="font-semibold text-foreground">{label}.</span>{" "}
+                      <span className="text-sm text-muted-foreground">{desc}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How it works */}
       <section id="how" className="py-20 border-t border-border">
         <div className="container">
@@ -294,14 +420,110 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 border-t border-border">
-        <div className="container text-center max-w-2xl">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Ready to score your first document?</h2>
-          <p className="text-muted-foreground mt-3 mb-8">Free to start. No credit card required.</p>
-          <Link to="/auth">
-            <Button size="lg" className="gap-2">Get started <ArrowRight className="h-4 w-4" /></Button>
-          </Link>
+      {/* Book a demo */}
+      <section id="demo" className="py-24 border-t border-border bg-black text-white relative overflow-hidden">
+        <div
+          className="absolute inset-0 -z-10 opacity-20"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 20%, hsl(var(--primary)) 0%, transparent 40%), radial-gradient(circle at 80% 80%, hsl(var(--primary)) 0%, transparent 40%)",
+          }}
+        />
+        <div className="container grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-white/50 mb-4">Book a demo</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              See MERIDIAN catch a real KYC gap in under 60 seconds.
+            </h2>
+            <p className="text-white/60 mt-5 text-lg max-w-lg">
+              We'll walk you through a live document review, show you the personalised AI trainer in action, and benchmark it against your current process.
+            </p>
+            <ul className="mt-8 space-y-3">
+              {[
+                "30-minute walkthrough with a compliance specialist",
+                "Bring your own (redacted) KYC file or use ours",
+                "Custom risk-scoring tuned to your jurisdiction",
+                "No obligation — pilot terms available on request",
+              ].map((b) => (
+                <li key={b} className="flex gap-3 text-sm text-white/80">
+                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  {b}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-2xl bg-white text-foreground p-8 md:p-10 border border-white/10" style={{ boxShadow: "var(--shadow-elegant)" }}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Schedule</p>
+                <p className="font-bold">Pick a time that works</p>
+              </div>
+            </div>
+
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget as HTMLFormElement;
+                const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
+                window.location.href = `mailto:demo@meridian.ai?subject=MERIDIAN demo request&body=Email: ${encodeURIComponent(email || "")}`;
+              }}
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">First name</label>
+                  <input
+                    name="firstName"
+                    required
+                    className="mt-1 w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Company</label>
+                  <input
+                    name="company"
+                    required
+                    className="mt-1 w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Work email</label>
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="you@bank.com"
+                  className="mt-1 w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Role</label>
+                <select
+                  name="role"
+                  className="mt-1 w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  defaultValue=""
+                >
+                  <option value="" disabled>Select your role</option>
+                  <option>MLRO / Head of Compliance</option>
+                  <option>KYC / AML analyst</option>
+                  <option>Risk leadership</option>
+                  <option>Operations / Transformation</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <Button type="submit" size="lg" className="w-full gap-2 mt-2">
+                Book my demo <ArrowRight className="h-4 w-4" />
+              </Button>
+              <p className="text-[11px] text-muted-foreground text-center">
+                We'll reply within one business day. No spam — ever.
+              </p>
+            </form>
+          </div>
         </div>
       </section>
 
