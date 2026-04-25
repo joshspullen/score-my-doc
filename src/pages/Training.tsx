@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, ExternalLink, UserPlus, BarChart3 } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, ExternalLink, UserPlus, BarChart3, ScrollText, Workflow, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +13,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
+import { EntityDetailSheet } from "@/components/EntityDetailSheet";
 
 type Module = { id: string; title: string; description: string | null; content_url: string | null; duration_minutes: number | null; compliance_requirement_id: string | null };
-type Req = { id: string; title: string; reference_code: string | null };
+type Req = { id: string; title: string; reference_code: string | null; business_process_id: string | null; category: string | null };
+type BP = { id: string; name: string };
+type CompAssign = { id: string; compliance_requirement_id: string; target_type: string; target_role: string | null; target_team_id: string | null; target_user_id: string | null };
+type Team = { id: string; name: string };
 type Assignment = { id: string; training_module_id: string; user_id: string; status: string; due_at: string | null; completed_at: string | null };
 
 const empty: Partial<Module> = { title: "", description: "", content_url: "", duration_minutes: null, compliance_requirement_id: null };
@@ -25,24 +29,34 @@ const Training = () => {
   const { isAdmin } = useRoles();
   const [modules, setModules] = useState<Module[]>([]);
   const [reqs, setReqs] = useState<Req[]>([]);
+  const [bps, setBps] = useState<BP[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [compAssigns, setCompAssigns] = useState<CompAssign[]>([]);
   const [myAssignments, setMyAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Module> | null>(null);
   const [view, setView] = useState<ViewMode>("cards");
   const [filter, setFilter] = useState<string>("mine");
+  const [detail, setDetail] = useState<Module | null>(null);
 
   useEffect(() => { document.title = "Training — MERIDIAN"; load(); }, [user]);
 
   const load = async () => {
     if (!user) return;
-    const [m, r, a] = await Promise.all([
+    const [m, r, a, b, t, ca] = await Promise.all([
       supabase.from("training_modules").select("*").order("title"),
-      supabase.from("compliance_requirements").select("id,title,reference_code").order("title"),
+      supabase.from("compliance_requirements").select("id,title,reference_code,business_process_id,category").order("title"),
       supabase.from("training_assignments").select("*").eq("user_id", user.id),
+      supabase.from("business_processes").select("id,name"),
+      supabase.from("teams").select("id,name"),
+      supabase.from("compliance_assignments").select("*"),
     ]);
     setModules((m.data ?? []) as Module[]);
     setReqs((r.data ?? []) as Req[]);
     setMyAssignments((a.data ?? []) as Assignment[]);
+    setBps((b.data ?? []) as BP[]);
+    setTeams((t.data ?? []) as Team[]);
+    setCompAssigns((ca.data ?? []) as CompAssign[]);
     setLoading(false);
   };
 
