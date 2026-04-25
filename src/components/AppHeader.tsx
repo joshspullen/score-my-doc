@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, Shield, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import logo from "@/assets/meridian-logo.svg";
 
 export function AppHeader() {
   const { user, signOut } = useAuth();
+  const { isAdmin, isManager } = useRoles();
   const navigate = useNavigate();
 
   return (
@@ -24,6 +26,20 @@ export function AppHeader() {
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white">Dashboard</Button>
               </Link>
+              {(isAdmin || isManager) && (
+                <Link to="/teams">
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white gap-1.5">
+                    <Users className="h-4 w-4" /> Teams
+                  </Button>
+                </Link>
+              )}
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white gap-1.5">
+                    <Shield className="h-4 w-4" /> Admin
+                  </Button>
+                </Link>
+              )}
               <Link to="/upload">
                 <Button size="sm" className="bg-white text-black hover:bg-white/90">New analysis</Button>
               </Link>
