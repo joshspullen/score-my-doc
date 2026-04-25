@@ -151,7 +151,7 @@ const Training = () => {
   const renderCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {items.map(({ module: m, assignment: a, req: r }) => (
-        <div key={a?.id ?? m.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div key={a?.id ?? m.id} onClick={() => setDetail(m)} className="bg-card border border-border rounded-xl p-5 cursor-pointer hover:border-primary/40 transition-colors" style={{ boxShadow: "var(--shadow-card)" }}>
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -164,7 +164,7 @@ const Training = () => {
             </div>
           </div>
           {m.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{m.description}</p>}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
             {filter === "mine" && a && m.content_url && <a href={m.content_url} target="_blank" rel="noreferrer"><Button size="sm" variant="outline" className="gap-1.5">Open <ExternalLink className="h-3.5 w-3.5" /></Button></a>}
             {filter === "mine" && a?.status === "assigned" && <Button size="sm" onClick={() => setStatus(a, "in_progress")} className="gap-1.5"><Play className="h-3.5 w-3.5" /> Start</Button>}
             {filter === "mine" && a?.status === "in_progress" && <Button size="sm" onClick={() => setStatus(a, "completed")} className="gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Complete</Button>}
@@ -195,12 +195,12 @@ const Training = () => {
           {items.length === 0 ? (
             <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">Nothing here.</TableCell></TableRow>
           ) : items.map(({ module: m, assignment: a, req: r }) => (
-            <TableRow key={a?.id ?? m.id}>
+            <TableRow key={a?.id ?? m.id} className="cursor-pointer" onClick={() => setDetail(m)}>
               <TableCell className="font-medium">{m.title}</TableCell>
               <TableCell className="text-xs text-muted-foreground">{r ? `${r.reference_code ?? ""} ${r.title}` : "—"}</TableCell>
               <TableCell className="text-xs">{m.duration_minutes ? `${m.duration_minutes} min` : "—"}</TableCell>
               {filter === "mine" && <TableCell>{a && statusBadge(a.status)}</TableCell>}
-              <TableCell>
+              <TableCell onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-1 justify-end">
                   {filter === "mine" && a?.status === "assigned" && <Button size="sm" variant="ghost" onClick={() => setStatus(a, "in_progress")}><Play className="h-3.5 w-3.5" /></Button>}
                   {filter === "mine" && a?.status === "in_progress" && <Button size="sm" variant="ghost" onClick={() => setStatus(a, "completed")}><CheckCircle2 className="h-3.5 w-3.5" /></Button>}
