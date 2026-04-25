@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, Workflow, Upload as UploadIcon, Download, BarChart3 } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Workflow, Upload as UploadIcon, Download, BarChart3, ScrollText, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +11,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
+import { EntityDetailSheet } from "@/components/EntityDetailSheet";
 
 type BP = { id: string; code: string | null; name: string; category: string | null; owner: string | null; description: string | null };
-type Req = { id: string; business_process_id: string | null };
+type Req = { id: string; business_process_id: string | null; title: string; reference_code: string | null; category: string | null };
+type Module = { id: string; title: string; compliance_requirement_id: string | null; duration_minutes: number | null };
 
 const empty: Partial<BP> = { code: "", name: "", category: "", owner: "", description: "" };
 
@@ -25,17 +27,21 @@ const BusinessProcesses = () => {
   const [editing, setEditing] = useState<Partial<BP> | null>(null);
   const [view, setView] = useState<ViewMode>("table");
   const [filter, setFilter] = useState<string>("all");
+  const [detail, setDetail] = useState<BP | null>(null);
+  const [modules, setModules] = useState<Module[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { document.title = "Business Processes — MERIDIAN"; load(); }, []);
 
   const load = async () => {
-    const [b, r] = await Promise.all([
+    const [b, r, m] = await Promise.all([
       supabase.from("business_processes").select("*").order("name"),
-      supabase.from("compliance_requirements").select("id, business_process_id"),
+      supabase.from("compliance_requirements").select("id, business_process_id, title, reference_code, category"),
+      supabase.from("training_modules").select("id, title, compliance_requirement_id, duration_minutes"),
     ]);
     setRows((b.data ?? []) as BP[]);
     setReqs((r.data ?? []) as Req[]);
+    setModules((m.data ?? []) as Module[]);
     setLoading(false);
   };
 
@@ -114,14 +120,14 @@ const BusinessProcesses = () => {
         </TableHeader>
         <TableBody>
           {filtered.map((r) => (
-            <TableRow key={r.id}>
+            <TableRow key={r.id} className="cursor-pointer" onClick={() => setDetail(r)}>
               <TableCell className="font-mono text-xs">{r.code || "—"}</TableCell>
               <TableCell className="font-medium">{r.name}</TableCell>
               <TableCell>{r.category ? <Badge variant="outline" className="text-xs">{r.category}</Badge> : "—"}</TableCell>
               <TableCell className="text-muted-foreground text-sm">{r.owner || "—"}</TableCell>
               <TableCell className="text-sm">{reqCount(r.id)}</TableCell>
               {isAdmin && (
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1">
                     <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => remove(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -138,7 +144,7 @@ const BusinessProcesses = () => {
   const renderCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       {filtered.map((r) => (
-        <div key={r.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div key={r.id} onClick={() => setDetail(r)} className="bg-card border border-border rounded-xl p-5 cursor-pointer hover:border-primary/40 transition-colors" style={{ boxShadow: "var(--shadow-card)" }}>
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="min-w-0">
               {r.code && <Badge variant="outline" className="font-mono text-xs mb-1.5">{r.code}</Badge>}
@@ -153,7 +159,7 @@ const BusinessProcesses = () => {
           <div className="flex items-center justify-between pt-3 border-t border-border">
             <span className="text-xs text-muted-foreground">{reqCount(r.id)} requirement(s)</span>
             {isAdmin && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                 <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                 <Button size="icon" variant="ghost" onClick={() => remove(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
               </div>
@@ -244,6 +250,49 @@ const BusinessProcesses = () => {
           <DialogFooter><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button><Button onClick={save}>Save</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {detail && (() => {
+        const p = detail;
+        const linkedReqs = reqs.filter((r) => r.business_process_id === p.id);
+        const linkedReqIds = new Set(linkedReqs.map((r) => r.id));
+        const linkedTrainings = modules.filter((m) => m.compliance_requirement_id && linkedReqIds.has(m.compliance_requirement_id));
+        return (
+          <EntityDetailSheet
+            open={!!detail}
+            onClose={() => setDetail(null)}
+            icon={Workflow}
+            eyebrow="Business Process"
+            title={p.name}
+            subtitle={p.code ? `Code ${p.code}` : undefined}
+            badges={p.category ? [{ label: p.category, className: "bg-primary/10 text-primary" }] : undefined}
+            description={p.description}
+            fields={[
+              { label: "Code", value: p.code ? <span className="font-mono text-xs">{p.code}</span> : null },
+              { label: "Category", value: p.category || null },
+              { label: "Owner", value: p.owner || null },
+            ]}
+            sections={[
+              {
+                title: "Regulations applying to this process", icon: ScrollText,
+                links: linkedReqs.map((r) => ({
+                  label: r.title, to: "/knowledge/regulations", icon: ScrollText,
+                  badge: r.reference_code ?? undefined,
+                  meta: r.category ?? undefined,
+                })),
+                empty: "No regulations linked to this process.",
+              },
+              {
+                title: "Training derived from these regulations", icon: GraduationCap,
+                links: linkedTrainings.map((m) => ({
+                  label: m.title, to: "/knowledge/training", icon: GraduationCap,
+                  meta: m.duration_minutes ? `${m.duration_minutes} min` : undefined,
+                })),
+                empty: "No training modules cover this process yet.",
+              },
+            ]}
+          />
+        );
+      })()}
     </div>
   );
 };

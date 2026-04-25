@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3 } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3, Workflow, GraduationCap, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
+import { EntityDetailSheet } from "@/components/EntityDetailSheet";
 
 type Category = "sanctions" | "aml_cft" | "prudential" | "conduct_reporting" | "operational_cyber";
 type Req = { id: string; reference_code: string | null; title: string; regulator: string | null; requirement_type: string | null; severity: string | null; description: string | null; business_process_id: string | null; category: Category | null };
@@ -20,7 +21,7 @@ type BP = { id: string; name: string };
 type Team = { id: string; name: string };
 type Profile = { id: string; display_name: string | null };
 type Assignment = { id: string; compliance_requirement_id: string; target_type: string; target_role: string | null; target_team_id: string | null; target_user_id: string | null };
-type Module = { id: string; title: string; compliance_requirement_id: string | null };
+type Module = { id: string; title: string; compliance_requirement_id: string | null; duration_minutes?: number | null };
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: "sanctions", label: "Sanctions" },
@@ -61,6 +62,7 @@ const Compliance = () => {
   const [newAssign, setNewAssign] = useState<{ type: "role" | "team" | "user"; value: string }>({ type: "role", value: "user" });
   const [view, setView] = useState<ViewMode>("cards");
   const [filter, setFilter] = useState<string>("all");
+  const [detail, setDetail] = useState<Req | null>(null);
 
   useEffect(() => { document.title = "Regulations — MERIDIAN"; load(); }, []);
 
@@ -71,7 +73,7 @@ const Compliance = () => {
       supabase.from("teams").select("id,name").order("name"),
       supabase.from("profiles").select("id,display_name").order("display_name"),
       supabase.from("compliance_assignments").select("*"),
-      supabase.from("training_modules").select("id,title,compliance_requirement_id"),
+      supabase.from("training_modules").select("id,title,compliance_requirement_id,duration_minutes"),
     ]);
     setReqs((r.data ?? []) as Req[]);
     setBps((b.data ?? []) as BP[]);
@@ -151,7 +153,7 @@ const Compliance = () => {
   const renderCards = () => (
     <div className="space-y-3">
       {filteredReqs.map((r) => (
-        <div key={r.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div key={r.id} onClick={() => setDetail(r)} className="bg-card border border-border rounded-xl p-5 cursor-pointer hover:border-primary/40 transition-colors" style={{ boxShadow: "var(--shadow-card)" }}>
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -168,7 +170,7 @@ const Compliance = () => {
               {r.description && <p className="text-sm text-muted-foreground mt-2">{r.description}</p>}
             </div>
             {isAdmin && (
-              <div className="flex items-center gap-1 flex-shrink-0">
+              <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                 <Button size="sm" variant="ghost" onClick={() => setAssignFor(r)} className="gap-1.5"><Target className="h-3.5 w-3.5" /> Assign</Button>
                 <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                 <Button size="icon" variant="ghost" onClick={() => removeReq(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -200,7 +202,7 @@ const Compliance = () => {
         </TableRow></TableHeader>
         <TableBody>
           {filteredReqs.map((r) => (
-            <TableRow key={r.id}>
+            <TableRow key={r.id} className="cursor-pointer" onClick={() => setDetail(r)}>
               <TableCell className="font-mono text-xs">{r.reference_code || "—"}</TableCell>
               <TableCell className="font-medium">{r.title}</TableCell>
               <TableCell><span className={`text-xs px-2 py-0.5 rounded-md ${r.category ? catColor[r.category] : "bg-muted text-muted-foreground"}`}>{catLabel(r.category)}</span></TableCell>
@@ -209,7 +211,7 @@ const Compliance = () => {
               <TableCell className="text-sm">{reqAssignments(r.id).length}</TableCell>
               <TableCell className="text-sm">{reqModules(r.id).length}</TableCell>
               {isAdmin && (
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1 justify-end">
                     <Button size="icon" variant="ghost" onClick={() => setAssignFor(r)}><Target className="h-3.5 w-3.5" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
@@ -400,6 +402,58 @@ const Compliance = () => {
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      {detail && (() => {
+        const r = detail;
+        const bp = r.business_process_id ? bps.find((b) => b.id === r.business_process_id) : null;
+        const linkedModules = reqModules(r.id);
+        const linkedAssignments = reqAssignments(r.id);
+        return (
+          <EntityDetailSheet
+            open={!!detail}
+            onClose={() => setDetail(null)}
+            icon={ScrollText}
+            eyebrow="Regulation"
+            title={r.title}
+            subtitle={r.reference_code ? `Reference ${r.reference_code}` : undefined}
+            badges={[
+              { label: catLabel(r.category), className: r.category ? catColor[r.category] : "bg-muted text-muted-foreground" },
+              ...(r.severity ? [{ label: r.severity, className: sevColor[r.severity] ?? sevColor.medium }] : []),
+            ]}
+            description={r.description}
+            fields={[
+              { label: "Regulator", value: r.regulator || null },
+              { label: "Type", value: r.requirement_type || null },
+              { label: "Reference code", value: r.reference_code ? <span className="font-mono text-xs">{r.reference_code}</span> : null },
+            ]}
+            sections={[
+              {
+                title: "Linked business process", icon: Workflow,
+                links: bp ? [{ label: bp.name, to: "/knowledge/processes", icon: Workflow }] : [],
+                empty: "No process linked to this regulation.",
+              },
+              {
+                title: "Training modules", icon: GraduationCap,
+                links: linkedModules.map((m) => ({
+                  label: m.title, to: "/knowledge/training", icon: GraduationCap,
+                  meta: m.duration_minutes ? `${m.duration_minutes} min` : undefined,
+                })),
+                empty: "No training module references this regulation yet.",
+              },
+              {
+                title: "Assigned to", icon: Target,
+                links: linkedAssignments.map((a) => {
+                  const { icon, text } = targetLabel(a);
+                  const to = a.target_type === "team" && a.target_team_id ? "/teams" : a.target_type === "user" ? "/people/users" : undefined;
+                  return { label: text, icon, to, badge: a.target_type };
+                }),
+                empty: "No targets assigned. Use Assign to attach a role, team or user.",
+              },
+            ]}
+            primaryHref={isAdmin ? undefined : undefined}
+          />
+        );
+      })()}
     </div>
   );
 };

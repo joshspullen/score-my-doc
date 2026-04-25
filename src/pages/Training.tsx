@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, ExternalLink, UserPlus, BarChart3 } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, ExternalLink, UserPlus, BarChart3, ScrollText, Workflow, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +13,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
+import { EntityDetailSheet } from "@/components/EntityDetailSheet";
 
 type Module = { id: string; title: string; description: string | null; content_url: string | null; duration_minutes: number | null; compliance_requirement_id: string | null };
-type Req = { id: string; title: string; reference_code: string | null };
+type Req = { id: string; title: string; reference_code: string | null; business_process_id: string | null; category: string | null };
+type BP = { id: string; name: string };
+type CompAssign = { id: string; compliance_requirement_id: string; target_type: string; target_role: string | null; target_team_id: string | null; target_user_id: string | null };
+type Team = { id: string; name: string };
 type Assignment = { id: string; training_module_id: string; user_id: string; status: string; due_at: string | null; completed_at: string | null };
 
 const empty: Partial<Module> = { title: "", description: "", content_url: "", duration_minutes: null, compliance_requirement_id: null };
@@ -25,24 +29,34 @@ const Training = () => {
   const { isAdmin } = useRoles();
   const [modules, setModules] = useState<Module[]>([]);
   const [reqs, setReqs] = useState<Req[]>([]);
+  const [bps, setBps] = useState<BP[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [compAssigns, setCompAssigns] = useState<CompAssign[]>([]);
   const [myAssignments, setMyAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Module> | null>(null);
   const [view, setView] = useState<ViewMode>("cards");
   const [filter, setFilter] = useState<string>("mine");
+  const [detail, setDetail] = useState<Module | null>(null);
 
   useEffect(() => { document.title = "Training — MERIDIAN"; load(); }, [user]);
 
   const load = async () => {
     if (!user) return;
-    const [m, r, a] = await Promise.all([
+    const [m, r, a, b, t, ca] = await Promise.all([
       supabase.from("training_modules").select("*").order("title"),
-      supabase.from("compliance_requirements").select("id,title,reference_code").order("title"),
+      supabase.from("compliance_requirements").select("id,title,reference_code,business_process_id,category").order("title"),
       supabase.from("training_assignments").select("*").eq("user_id", user.id),
+      supabase.from("business_processes").select("id,name"),
+      supabase.from("teams").select("id,name"),
+      supabase.from("compliance_assignments").select("*"),
     ]);
     setModules((m.data ?? []) as Module[]);
     setReqs((r.data ?? []) as Req[]);
     setMyAssignments((a.data ?? []) as Assignment[]);
+    setBps((b.data ?? []) as BP[]);
+    setTeams((t.data ?? []) as Team[]);
+    setCompAssigns((ca.data ?? []) as CompAssign[]);
     setLoading(false);
   };
 
@@ -137,7 +151,7 @@ const Training = () => {
   const renderCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {items.map(({ module: m, assignment: a, req: r }) => (
-        <div key={a?.id ?? m.id} className="bg-card border border-border rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+        <div key={a?.id ?? m.id} onClick={() => setDetail(m)} className="bg-card border border-border rounded-xl p-5 cursor-pointer hover:border-primary/40 transition-colors" style={{ boxShadow: "var(--shadow-card)" }}>
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -150,7 +164,7 @@ const Training = () => {
             </div>
           </div>
           {m.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{m.description}</p>}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
             {filter === "mine" && a && m.content_url && <a href={m.content_url} target="_blank" rel="noreferrer"><Button size="sm" variant="outline" className="gap-1.5">Open <ExternalLink className="h-3.5 w-3.5" /></Button></a>}
             {filter === "mine" && a?.status === "assigned" && <Button size="sm" onClick={() => setStatus(a, "in_progress")} className="gap-1.5"><Play className="h-3.5 w-3.5" /> Start</Button>}
             {filter === "mine" && a?.status === "in_progress" && <Button size="sm" onClick={() => setStatus(a, "completed")} className="gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Complete</Button>}
@@ -181,12 +195,12 @@ const Training = () => {
           {items.length === 0 ? (
             <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">Nothing here.</TableCell></TableRow>
           ) : items.map(({ module: m, assignment: a, req: r }) => (
-            <TableRow key={a?.id ?? m.id}>
+            <TableRow key={a?.id ?? m.id} className="cursor-pointer" onClick={() => setDetail(m)}>
               <TableCell className="font-medium">{m.title}</TableCell>
               <TableCell className="text-xs text-muted-foreground">{r ? `${r.reference_code ?? ""} ${r.title}` : "—"}</TableCell>
               <TableCell className="text-xs">{m.duration_minutes ? `${m.duration_minutes} min` : "—"}</TableCell>
               {filter === "mine" && <TableCell>{a && statusBadge(a.status)}</TableCell>}
-              <TableCell>
+              <TableCell onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-1 justify-end">
                   {filter === "mine" && a?.status === "assigned" && <Button size="sm" variant="ghost" onClick={() => setStatus(a, "in_progress")}><Play className="h-3.5 w-3.5" /></Button>}
                   {filter === "mine" && a?.status === "in_progress" && <Button size="sm" variant="ghost" onClick={() => setStatus(a, "completed")}><CheckCircle2 className="h-3.5 w-3.5" /></Button>}
@@ -302,6 +316,53 @@ const Training = () => {
           <DialogFooter><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button><Button onClick={saveModule}>Save</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {detail && (() => {
+        const m = detail;
+        const r = reqById(m.compliance_requirement_id);
+        const bp = r?.business_process_id ? bps.find((b) => b.id === r.business_process_id) : null;
+        const targets = r ? compAssigns.filter((c) => c.compliance_requirement_id === r.id) : [];
+        return (
+          <EntityDetailSheet
+            open={!!detail}
+            onClose={() => setDetail(null)}
+            icon={GraduationCap}
+            eyebrow="Training Module"
+            title={m.title}
+            subtitle={m.duration_minutes ? `${m.duration_minutes} min` : undefined}
+            badges={r ? [{ label: r.reference_code ? `Ref ${r.reference_code}` : "Linked regulation", className: "bg-primary/10 text-primary" }] : [{ label: "No regulation linked", className: "bg-destructive/10 text-destructive" }]}
+            description={m.description}
+            fields={[
+              { label: "Duration", value: m.duration_minutes ? `${m.duration_minutes} min` : null },
+              { label: "Content URL", value: m.content_url ? <a href={m.content_url} target="_blank" rel="noreferrer" className="text-primary hover:underline inline-flex items-center gap-1 text-xs">Open <ExternalLink className="h-3 w-3" /></a> : null },
+            ]}
+            sections={[
+              {
+                title: "Linked regulation", icon: ScrollText,
+                links: r ? [{ label: r.title, to: "/knowledge/regulations", icon: ScrollText, badge: r.reference_code ?? undefined, meta: r.category ?? undefined }] : [],
+                empty: "Link this module to a regulation to enable auto-assignment.",
+              },
+              {
+                title: "Related business process", icon: Workflow,
+                links: bp ? [{ label: bp.name, to: "/knowledge/processes", icon: Workflow }] : [],
+                empty: "The linked regulation has no business process attached.",
+              },
+              {
+                title: "Cohort (resolved from regulation targets)", icon: Target,
+                links: targets.map((c) => {
+                  if (c.target_type === "team") {
+                    const team = teams.find((t) => t.id === c.target_team_id);
+                    return { label: team?.name ?? "Team", to: "/teams", icon: Target, badge: "team" };
+                  }
+                  if (c.target_type === "role") return { label: `Role: ${c.target_role}`, icon: Target, badge: "role" };
+                  return { label: "User", to: "/people/users", icon: Target, badge: "user" };
+                }),
+                empty: "Use Assign to targets in the catalog to define a cohort.",
+              },
+            ]}
+          />
+        );
+      })()}
     </div>
   );
 };
