@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Shield, Users, Plug } from "lucide-react";
+import { LogOut, Shield, Users, Plug, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
@@ -25,6 +25,11 @@ export function AppHeader() {
             <>
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white">Dashboard</Button>
+              </Link>
+              <Link to="/profile">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white gap-1.5">
+                  <User className="h-4 w-4" /> Profile
+                </Button>
               </Link>
               {(isAdmin || isManager) && (
                 <Link to="/teams">

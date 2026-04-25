@@ -12,6 +12,7 @@ import Results from "./pages/Results.tsx";
 import Admin from "./pages/Admin.tsx";
 import Teams from "./pages/Teams.tsx";
 import Connectors from "./pages/Connectors.tsx";
+import Profile from "./pages/Profile.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { AdminRoute } from "./components/AdminRoute.tsx";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
             <Route path="/teams" element={<ProtectedRoute><Teams /></ProtectedRoute>} />
             <Route path="/connectors" element={<AdminRoute><Connectors /></AdminRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
