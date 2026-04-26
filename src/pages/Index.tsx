@@ -1,8 +1,9 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowRight, Sparkles, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, Calendar, FileSearch, MessageSquare, BarChart3, Quote, X } from "lucide-react";
+import { ArrowRight, Sparkles, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, Calendar, FileSearch, MessageSquare, BarChart3, Quote, X, Bot, BookOpen, Plug, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/AppHeader";
 import { useAuth } from "@/hooks/useAuth";
+import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import {
   Accordion,
   AccordionContent,
@@ -29,13 +30,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <MarketingHeader />
 
       {/* Hero — Meet MERIDIAN */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-subtle)" }} />
         <div className="container py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
+            <Link to="/platform/agents" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors">
+              <Bot className="h-3.5 w-3.5" /> Now with autonomous Agents
+              <ArrowRight className="h-3 w-3" />
+            </Link>
             <p className="text-sm md:text-base font-semibold text-primary">Meet MERIDIAN!</p>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
               Your AI Compliance Copilot, trained on every <a href="https://acpr.banque-france.fr/en" target="_blank" rel="noopener noreferrer" className="underline decoration-primary/40 underline-offset-[6px] hover:decoration-primary">ACPR</a> sanction ever issued.
