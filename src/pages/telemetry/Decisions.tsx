@@ -30,7 +30,7 @@ const Decisions = () => {
   const [traces, setTraces] = useState<Trace[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { document.title = "Decisions — MERIDIAN"; }, []);
+  useEffect(() => { document.title = "Decision Intelligence — MERIDIAN"; }, []);
 
   useEffect(() => {
     (async () => {
@@ -70,11 +70,11 @@ const Decisions = () => {
     <div className="container py-10">
       <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Activity className="h-7 w-7" /> Decision Telemetry</h1>
-          <p className="text-muted-foreground mt-1">Every human decision, traced like an LLM run.</p>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Activity className="h-7 w-7" /> Decision Intelligence</h1>
+          <p className="text-muted-foreground mt-1">See every decision your teams make — what was chosen, why, and what happened next.</p>
         </div>
         <Link to="/telemetry/traces" className="text-sm font-medium text-primary inline-flex items-center gap-1 hover:underline">
-          Open Trace Explorer <ArrowRight className="h-4 w-4" />
+          Open decision log <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
