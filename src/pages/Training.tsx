@@ -54,7 +54,7 @@ const Training = () => {
       supabase.from("teams").select("id,name"),
       supabase.from("compliance_assignments").select("*"),
     ]);
-    setModules((m.data ?? []) as Module[]);
+    setModules(((m.data ?? []) as unknown) as Module[]);
     setReqs((r.data ?? []) as Req[]);
     setMyAssignments((a.data ?? []) as Assignment[]);
     setBps((b.data ?? []) as BP[]);
