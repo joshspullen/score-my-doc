@@ -53,6 +53,8 @@ export function AdminDashboard() {
         ))}
       </div>
 
+      <RegulatoryRadar />
+
       <div className="rounded-xl border border-border bg-card p-6" style={{ boxShadow: "var(--shadow-card)" }}>
         <div className="flex items-center justify-between mb-4">
           <div>
