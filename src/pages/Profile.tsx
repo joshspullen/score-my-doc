@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
-import { Loader2, User, Plus, Pencil, Trash2, Briefcase, GraduationCap, Award, Linkedin, Globe, Github, Save } from "lucide-react";
+import { Loader2, User, Plus, Pencil, Trash2, Briefcase, GraduationCap, Award, Linkedin, Globe, Github, Save, Activity, BookOpen, ExternalLink, CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
 
 type Profile = {
   id: string;
@@ -24,6 +29,25 @@ type Profile = {
 type Edu = { id: string; institution: string; degree: string | null; field_of_study: string | null; start_year: number | null; end_year: number | null; description: string | null };
 type Exp = { id: string; company: string; role: string; location: string | null; start_date: string | null; end_date: string | null; is_current: boolean; description: string | null };
 type Cert = { id: string; name: string; issuer: string | null; issue_date: string | null; expiry_date: string | null; credential_url: string | null };
+type TrainingAssignment = {
+  id: string; status: string; due_at: string | null; completed_at: string | null;
+  training_modules: { id: string; title: string; duration_minutes: number | null; content_url: string | null } | null;
+};
+type DecisionTrace = {
+  id: string; title: string; category: string | null;
+  outcome: "pending" | "correct" | "incorrect" | "divergent" | "n_a";
+  deviation: boolean; decided_at: string;
+  decision_made: any; ai_recommendation: any;
+};
+type Policy = { id: string; name: string };
+
+const outcomeBadge: Record<DecisionTrace["outcome"], string> = {
+  pending: "bg-muted text-muted-foreground",
+  correct: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  incorrect: "bg-destructive/10 text-destructive",
+  divergent: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
+  n_a: "bg-muted text-muted-foreground",
+};
 
 const Profile = () => {
   const { user } = useAuth();
@@ -31,6 +55,9 @@ const Profile = () => {
   const [education, setEducation] = useState<Edu[]>([]);
   const [experience, setExperience] = useState<Exp[]>([]);
   const [certifications, setCertifications] = useState<Cert[]>([]);
+  const [trainingAssignments, setTrainingAssignments] = useState<TrainingAssignment[]>([]);
+  const [decisions, setDecisions] = useState<DecisionTrace[]>([]);
+  const [policies, setPolicies] = useState<Policy[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -41,22 +68,33 @@ const Profile = () => {
   const [expEditing, setExpEditing] = useState<Partial<Exp> | null>(null);
   const [certOpen, setCertOpen] = useState(false);
   const [certEditing, setCertEditing] = useState<Partial<Cert> | null>(null);
+  const [decisionOpen, setDecisionOpen] = useState(false);
+  const [newDecision, setNewDecision] = useState<{
+    title: string; category: string; policy_id: string | null;
+    options: string; choice: string; outcome: DecisionTrace["outcome"]; notes: string;
+  }>({ title: "", category: "KYC", policy_id: null, options: "Approve\nEscalate\nReject", choice: "", outcome: "pending", notes: "" });
 
   useEffect(() => { document.title = "My Profile — MERIDIAN"; }, []);
 
   const load = async () => {
     if (!user) return;
-    const [p, e, x, c] = await Promise.all([
+    const [p, e, x, c, t, d, pol] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
       supabase.from("profile_education").select("*").eq("user_id", user.id).order("end_year", { ascending: false, nullsFirst: false }),
       supabase.from("profile_experience").select("*").eq("user_id", user.id).order("start_date", { ascending: false, nullsFirst: false }),
       supabase.from("profile_certifications").select("*").eq("user_id", user.id).order("issue_date", { ascending: false, nullsFirst: false }),
+      supabase.from("training_assignments").select("id, status, due_at, completed_at, training_modules(id, title, duration_minutes, content_url)").eq("user_id", user.id),
+      supabase.from("decision_traces").select("id,title,category,outcome,deviation,decided_at,decision_made,ai_recommendation").eq("user_id", user.id).order("decided_at", { ascending: false }),
+      supabase.from("business_processes").select("id,name").order("name"),
     ]);
     if (p.error) toast.error(p.error.message);
     setProfile((p.data as Profile) ?? { id: user.id, display_name: null, headline: null, bio: null, location: null, avatar_url: null, linkedin_url: null, website_url: null, github_url: null });
     setEducation((e.data ?? []) as Edu[]);
     setExperience((x.data ?? []) as Exp[]);
     setCertifications((c.data ?? []) as Cert[]);
+    setTrainingAssignments((t.data ?? []) as TrainingAssignment[]);
+    setDecisions((d.data ?? []) as DecisionTrace[]);
+    setPolicies((pol.data ?? []) as Policy[]);
     setLoading(false);
   };
   useEffect(() => { if (user) load(); }, [user]);
@@ -161,6 +199,49 @@ const Profile = () => {
     load();
   };
 
+  // ----- Training -----
+  const markTrainingComplete = async (id: string) => {
+    const { error } = await supabase
+      .from("training_assignments")
+      .update({ status: "completed", completed_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Marked complete"); load();
+  };
+
+  // ----- Decisions -----
+  const recordDecision = async () => {
+    if (!user || !newDecision.title.trim() || !newDecision.choice.trim()) {
+      toast.error("Title and your choice are required"); return;
+    }
+    const optionsArr = newDecision.options.split("\n").map((s) => s.trim()).filter(Boolean).map((label, i) => ({ id: `opt_${i}`, label }));
+    const { data: trace, error } = await supabase.from("decision_traces").insert({
+      user_id: user.id,
+      title: newDecision.title,
+      category: newDecision.category || null,
+      policy_id: newDecision.policy_id,
+      trigger_context: { source: "manual" },
+      options_presented: optionsArr,
+      decision_made: { choice: newDecision.choice, rationale: newDecision.notes || null },
+      outcome: newDecision.outcome,
+      outcome_notes: newDecision.notes || null,
+      deviation: false,
+    }).select("id").single();
+    if (error || !trace) { toast.error(error?.message ?? "Failed"); return; }
+    // Add canonical spans
+    await supabase.from("decision_spans").insert([
+      { trace_id: trace.id, step_order: 1, step_type: "trigger", label: "Trigger / Context", payload: { source: "manual" } },
+      { trace_id: trace.id, step_order: 2, step_type: "options", label: "Options Presented", payload: { options: optionsArr } },
+      { trace_id: trace.id, step_order: 3, step_type: "decision", label: "Decision Made", payload: { choice: newDecision.choice, rationale: newDecision.notes || null } },
+      { trace_id: trace.id, step_order: 4, step_type: "policy_ref", label: "Policy Referenced", payload: { policy_id: newDecision.policy_id } },
+      { trace_id: trace.id, step_order: 5, step_type: "outcome", label: "Outcome", payload: { outcome: newDecision.outcome, notes: newDecision.notes || null } },
+    ]);
+    toast.success("Decision recorded");
+    setDecisionOpen(false);
+    setNewDecision({ title: "", category: "KYC", policy_id: null, options: "Approve\nEscalate\nReject", choice: "", outcome: "pending", notes: "" });
+    load();
+  };
+
   if (loading || !profile) {
     return (
       <div className="min-h-screen bg-background">
@@ -177,12 +258,19 @@ const Profile = () => {
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
               <User className="h-7 w-7" /> My Profile
             </h1>
-            <p className="text-muted-foreground mt-1">Your CV: background, experience, certifications, and links.</p>
+            <p className="text-muted-foreground mt-1">Your background, training, and decisions in one place.</p>
           </div>
         </div>
 
-        {/* Profile core */}
-        <section className="bg-card border border-border rounded-xl p-6 mb-6" style={{ boxShadow: "var(--shadow-card)" }}>
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="profile" className="gap-1.5"><User className="h-3.5 w-3.5" /> Profile</TabsTrigger>
+            <TabsTrigger value="training" className="gap-1.5"><GraduationCap className="h-3.5 w-3.5" /> Training</TabsTrigger>
+            <TabsTrigger value="decisions" className="gap-1.5"><Activity className="h-3.5 w-3.5" /> Decisions</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile" className="space-y-6 mt-0">
+        <section className="bg-card border border-border rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
           <h2 className="font-semibold text-lg mb-4">About you</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -225,7 +313,6 @@ const Profile = () => {
           </div>
         </section>
 
-        {/* Experience */}
         <SectionList
           title="Experience"
           icon={<Briefcase className="h-5 w-5" />}
@@ -244,7 +331,6 @@ const Profile = () => {
           ))}
         </SectionList>
 
-        {/* Education */}
         <SectionList
           title="Education"
           icon={<GraduationCap className="h-5 w-5" />}
@@ -262,8 +348,9 @@ const Profile = () => {
             />
           ))}
         </SectionList>
+          </TabsContent>
 
-        {/* Certifications */}
+          <TabsContent value="training" className="space-y-6 mt-0">
         <SectionList
           title="Certifications"
           icon={<Award className="h-5 w-5" />}
@@ -281,6 +368,77 @@ const Profile = () => {
             />
           ))}
         </SectionList>
+
+        <section className="bg-card border border-border rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-lg flex items-center gap-2"><BookOpen className="h-5 w-5" /> My training</h2>
+            <Link to="/knowledge/training" className="text-xs text-primary hover:underline">Browse catalog</Link>
+          </div>
+          {trainingAssignments.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No training assigned yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {trainingAssignments.map((a) => (
+                <div key={a.id} className="flex items-center justify-between gap-3 border border-border rounded-lg p-4">
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{a.training_modules?.title ?? "Untitled module"}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {a.training_modules?.duration_minutes ? `${a.training_modules.duration_minutes} min · ` : ""}
+                      {a.due_at ? `due ${new Date(a.due_at).toLocaleDateString()}` : "no due date"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className={a.status === "completed" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}>
+                      {a.status}
+                    </Badge>
+                    {a.training_modules?.content_url && (
+                      <a href={a.training_modules.content_url} target="_blank" rel="noopener noreferrer">
+                        <Button size="sm" variant="outline" className="gap-1.5"><ExternalLink className="h-3.5 w-3.5" /> Open</Button>
+                      </a>
+                    )}
+                    {a.status !== "completed" && (
+                      <Button size="sm" onClick={() => markTrainingComplete(a.id)} className="gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Mark done
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+          </TabsContent>
+
+          <TabsContent value="decisions" className="space-y-6 mt-0">
+        <section className="bg-card border border-border rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="font-semibold text-lg flex items-center gap-2"><Activity className="h-5 w-5" /> My decisions</h2>
+              <p className="text-xs text-muted-foreground mt-1">Every decision you record here is traceable in the Decision Log.</p>
+            </div>
+            <Button size="sm" onClick={() => setDecisionOpen(true)} className="gap-1.5"><Plus className="h-4 w-4" /> Record decision</Button>
+          </div>
+          {decisions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No decisions recorded yet. Click "Record decision" to log your first one.</p>
+          ) : (
+            <div className="space-y-2">
+              {decisions.map((d) => (
+                <Link key={d.id} to={`/telemetry/traces?id=${d.id}`} className="flex items-center justify-between gap-3 border border-border rounded-lg p-4 hover:bg-muted/40 transition-colors">
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{d.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {d.category ?? "Other"} · {formatDistanceToNow(new Date(d.decided_at), { addSuffix: true })}
+                      {d.decision_made?.choice && <> · chose <code className="text-xs">{d.decision_made.choice}</code></>}
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className={outcomeBadge[d.outcome]}>{d.outcome}</Badge>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Experience dialog */}
