@@ -122,7 +122,7 @@ export function AppSidebar() {
                     open={isOpen && !collapsed}
                     onOpenChange={(o) => setOpenKey(o ? g.key : null)}
                   >
-                    <SidebarMenuItem>
+                    <SidebarMenuItem data-tour={`group-${g.key}`}>
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton isActive={hasActive} className="w-full">
                           <g.icon className="h-4 w-4 flex-shrink-0" />

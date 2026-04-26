@@ -32,15 +32,15 @@ const viewMeta: Record<ViewMode, { label: string; icon: LucideIcon }> = {
 
 export const ModuleHeader = ({ icon: Icon, title, subtitle, views, view, onViewChange, filters, filter, onFilterChange, actions }: ModuleHeaderProps) => {
   return (
-    <div className="mb-6 space-y-4">
+    <div className="mb-6 space-y-4" data-tour="module-header">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Icon className="h-7 w-7" /> {title}</h1>
+          <h1 data-tour="module-title" className="text-3xl font-bold tracking-tight flex items-center gap-2"><Icon className="h-7 w-7" /> {title}</h1>
           {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {views && view && onViewChange && (
-            <Tabs value={view} onValueChange={(v) => onViewChange(v as ViewMode)}>
+            <Tabs value={view} onValueChange={(v) => onViewChange(v as ViewMode)} data-tour="module-views">
               <TabsList>
                 {views.map((v) => {
                   const M = viewMeta[v];
