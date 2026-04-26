@@ -304,7 +304,7 @@ export default function Agents() {
                     {(() => {
                       const c = connectors.find((x) => x.id === editor.connector_id);
                       if (!c) return <p className="text-xs text-muted-foreground">Select a connector above to inherit its source URL.</p>;
-                      if (!c.source_url) return <p className="text-xs text-amber-600 dark:text-amber-400">⚠ This connector has no source URL. Set it in the Connectors page.</p>;
+                      if (!c.source_url) return <p className="text-xs text-amber-600 dark:text-amber-400">This connector has no source URL. Set it in the Connectors page.</p>;
                       return <code className="text-xs break-all bg-background px-2 py-1 rounded border block">{c.source_url}</code>;
                     })()}
                   </div>
