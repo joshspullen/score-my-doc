@@ -161,6 +161,7 @@ const Training = () => {
                 <h3 className="font-semibold">{m.title}</h3>
                 {a && statusBadge(a.status)}
                 {m.duration_minutes && <Badge variant="outline" className="text-xs">{m.duration_minutes} min</Badge>}
+                {m.quiz && m.quiz.length > 0 && <Badge variant="outline" className="text-xs gap-1"><HelpCircle className="h-3 w-3" />{m.quiz.length} Q</Badge>}
               </div>
               {r ? <p className="text-xs text-muted-foreground mt-1">→ {r.reference_code ? `${r.reference_code} — ` : ""}{r.title}</p> :
                 filter === "catalog" && <p className="text-xs text-destructive mt-1">No requirement linked</p>}
@@ -168,20 +169,15 @@ const Training = () => {
           </div>
           {m.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{m.description}</p>}
           <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-            {filter === "mine" && a && (m.quiz && m.quiz.length > 0) && (
-              <Button size="sm" onClick={() => setQuizFor({ module: m, assignmentId: a.id })} className="gap-1.5">
-                <HelpCircle className="h-3.5 w-3.5" /> {a.status === "completed" ? "Retake quiz" : "Take quiz"}
+            {m.quiz && m.quiz.length > 0 && (
+              <Button size="sm" onClick={() => setQuizFor({ module: m, assignmentId: a?.id })} className="gap-1.5">
+                <HelpCircle className="h-3.5 w-3.5" /> {a?.status === "completed" ? "Retake quiz" : "Take quiz"}
               </Button>
             )}
             {filter === "mine" && a && (!m.quiz || m.quiz.length === 0) && a.status === "assigned" && <Button size="sm" onClick={() => setStatus(a, "in_progress")} className="gap-1.5"><Play className="h-3.5 w-3.5" /> Start</Button>}
             {filter === "mine" && a && (!m.quiz || m.quiz.length === 0) && a.status === "in_progress" && <Button size="sm" onClick={() => setStatus(a, "completed")} className="gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Complete</Button>}
             {filter === "catalog" && (
               <>
-                {m.quiz && m.quiz.length > 0 && (
-                  <Button size="sm" variant="outline" onClick={() => setQuizFor({ module: m })} className="gap-1.5">
-                    <HelpCircle className="h-3.5 w-3.5" /> Preview quiz
-                  </Button>
-                )}
                 <Button size="sm" variant="outline" onClick={() => autoAssign(m)} className="gap-1.5"><UserPlus className="h-3.5 w-3.5" /> Assign to targets</Button>
                 <Button size="icon" variant="ghost" onClick={() => setEditing(m)}><Pencil className="h-3.5 w-3.5" /></Button>
                 <Button size="icon" variant="ghost" onClick={() => removeModule(m.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -214,6 +210,11 @@ const Training = () => {
               {filter === "mine" && <TableCell>{a && statusBadge(a.status)}</TableCell>}
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-1 justify-end">
+                  {m.quiz && m.quiz.length > 0 && (
+                    <Button size="sm" variant="outline" onClick={() => setQuizFor({ module: m, assignmentId: a?.id })} className="gap-1.5 h-8">
+                      <HelpCircle className="h-3.5 w-3.5" /> Quiz
+                    </Button>
+                  )}
                   {filter === "mine" && a?.status === "assigned" && <Button size="sm" variant="ghost" onClick={() => setStatus(a, "in_progress")}><Play className="h-3.5 w-3.5" /></Button>}
                   {filter === "mine" && a?.status === "in_progress" && <Button size="sm" variant="ghost" onClick={() => setStatus(a, "completed")}><CheckCircle2 className="h-3.5 w-3.5" /></Button>}
                   {filter === "catalog" && (
