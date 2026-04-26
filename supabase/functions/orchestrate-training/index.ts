@@ -303,7 +303,17 @@ async function resolvePolicies(admin: any, regulation: RegulationRow, policyIdsI
     q = q.eq("category", regulation.category);
   }
   const { data } = await q;
-  return (data ?? []) as PolicyRow[];
+  const filtered = (data ?? []) as PolicyRow[];
+  if (filtered.length > 0) return filtered;
+
+  // Final fallback: return any available policies so orchestration can proceed
+  const { data: anyPolicies } = await admin
+    .from("business_processes")
+    .select("*")
+    .order("doc_level")
+    .order("name")
+    .limit(DEFAULT_MAX_POLICIES);
+  return (anyPolicies ?? []) as PolicyRow[];
 }
 
 function clip(s: string, max: number): { text: string; truncated: boolean } {
