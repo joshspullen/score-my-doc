@@ -24,6 +24,7 @@ const COLS = [
     title: "Company",
     links: [
       { to: "/company", label: "About" },
+      { to: "/team", label: "Team" },
       { to: "/pricing", label: "Pricing" },
       { to: "/contact", label: "Contact" },
       { to: "/auth", label: "Sign in" },
