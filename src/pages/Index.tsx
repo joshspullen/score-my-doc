@@ -38,16 +38,30 @@ const Index = () => {
         <div className="container py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <Link to="/platform/agents" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors">
-              <Bot className="h-3.5 w-3.5" /> Now with autonomous Agents
+              <Bot className="h-3.5 w-3.5" /> RegTech for fintechs · Live regulator feeds
               <ArrowRight className="h-3 w-3" />
             </Link>
-            <p className="text-sm md:text-base font-semibold text-primary">Meet MERIDIAN!</p>
+            <p className="text-sm md:text-base font-semibold text-primary">Meet MERIDIAN — the RegTech intelligence layer for fintechs.</p>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
-              Your AI Compliance Copilot, trained on every <a href="https://acpr.banque-france.fr/en" target="_blank" rel="noopener noreferrer" className="underline decoration-primary/40 underline-offset-[6px] hover:decoration-primary">ACPR</a> sanction ever issued.
+              Every regulator. Every rule. Mapped to your policies, tied to every <a href="/dashboard" className="underline decoration-primary/40 underline-offset-[6px] hover:decoration-primary">automated decision</a>.
             </h1>
             <p className="text-lg text-muted-foreground max-w-lg">
-              MERIDIAN learns from every past ACPR enforcement decision and turns each one into personalised training — built around the specific mistakes your bank and your analysts have actually made.
+              Live feeds from EBA, ACPR, ESMA, OFAC and more — AI-mapped to your internal policies and to every decision your platform makes. Built for fintech CTOs and Heads of Risk who need a verifiable audit trail, not a PDF library.
             </p>
+            <div className="grid grid-cols-3 gap-3 pt-4 max-w-lg">
+              <div className="rounded-lg border border-border bg-card p-3">
+                <div className="text-xs font-semibold text-primary uppercase tracking-wider">Radar</div>
+                <div className="text-xs text-muted-foreground mt-1">Live regulator ingest</div>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-3">
+                <div className="text-xs font-semibold text-primary uppercase tracking-wider">Mapping</div>
+                <div className="text-xs text-muted-foreground mt-1">AI-linked to your policies</div>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-3">
+                <div className="text-xs font-semibold text-primary uppercase tracking-wider">Audit trail</div>
+                <div className="text-xs text-muted-foreground mt-1">Every decision, traceable</div>
+              </div>
+            </div>
             <div className="flex flex-wrap gap-3 pt-2">
               <a href="#demo">
                 <Button size="lg" className="gap-2">

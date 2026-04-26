@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useRoles } from "@/hooks/useRoles";
 import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
+import { RegulatoryRadar } from "@/components/dashboard/RegulatoryRadar";
 
 type DocRow = {
   id: string;
@@ -72,6 +73,10 @@ const Dashboard = () => {
           <Link to="/upload">
             <Button size="lg" className="gap-2"><UploadIcon className="h-4 w-4" /> New analysis</Button>
           </Link>
+        </div>
+
+        <div className="mb-10">
+          <RegulatoryRadar />
         </div>
 
         {loading ? (

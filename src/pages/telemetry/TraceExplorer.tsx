@@ -153,6 +153,26 @@ const TraceExplorer = () => {
                     <div className="flex gap-1.5">
                       <Badge variant="secondary">{selected.outcome}</Badge>
                       {selected.deviation && <Badge variant="secondary" className="bg-orange-500/10 text-orange-700 dark:text-orange-400">deviation</Badge>}
+                      <button
+                        onClick={() => {
+                          const pack = {
+                            generated_at: new Date().toISOString(),
+                            decision: selected,
+                            spans,
+                            related: { policy: related?.policy ?? null, regulations: related?.relatedRegs ?? [], connections: related?.relatedConns ?? [] },
+                          };
+                          const blob = new Blob([JSON.stringify(pack, null, 2)], { type: "application/json" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = `audit-pack-${selected.id}.json`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                        className="text-[11px] px-2 py-1 rounded-md border border-border hover:border-primary/40 hover:bg-secondary/40"
+                      >
+                        Export audit pack
+                      </button>
                     </div>
                   </div>
                 </div>
