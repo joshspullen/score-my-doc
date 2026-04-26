@@ -1,13 +1,13 @@
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { PageHero } from "@/components/marketing/PageHero";
 import { motion } from "framer-motion";
-import { Linkedin, Mail, Sparkles } from "lucide-react";
+import { Linkedin, Mail, Sparkles, Compass, Wrench, Brain, Cog, Palette, LucideIcon } from "lucide-react";
 
 type Member = {
   name: string;
   role: string;
   bio: string;
-  emoji: string;
+  Icon: LucideIcon;
   accent: string; // gradient
   glow: string; // shadow color
   tagline: string;
@@ -18,7 +18,7 @@ const TEAM: Member[] = [
     name: "Baptiste DUBOURDIEU",
     role: "Co-founder & CEO",
     bio: "Former MLRO turned product leader. Sets the company vision and works directly with banks to translate regulator pain into product.",
-    emoji: "🧭",
+    Icon: Compass,
     tagline: "Pointing the ship at the right regulator.",
     accent: "from-[#6366F1] via-[#8B5CF6] to-[#EC4899]",
     glow: "99,102,241",
@@ -27,7 +27,7 @@ const TEAM: Member[] = [
     name: "Hiram Lannes",
     role: "Co-founder & CTO",
     bio: "Architect of the MERIDIAN platform. Designs the agent infrastructure, knowledge graph and the integration layer that powers every module.",
-    emoji: "🛠️",
+    Icon: Wrench,
     tagline: "Wiring agents to reality.",
     accent: "from-[#0EA5E9] via-[#22D3EE] to-[#10B981]",
     glow: "14,165,233",
@@ -36,7 +36,7 @@ const TEAM: Member[] = [
     name: "Josh PULLEN",
     role: "Head of AI",
     bio: "Leads model selection, evaluation and the training-generation pipeline. Obsessed with grounded, auditable AI for regulated environments.",
-    emoji: "🧠",
+    Icon: Brain,
     tagline: "Teaching models to cite their sources.",
     accent: "from-[#F59E0B] via-[#F97316] to-[#EF4444]",
     glow: "249,115,22",
@@ -45,7 +45,7 @@ const TEAM: Member[] = [
     name: "Nadhir MAZARI BOUFARES",
     role: "Head of Engineering",
     bio: "Owns reliability, security and the developer platform. Makes sure every release ships fast and meets bank-grade quality bars.",
-    emoji: "⚙️",
+    Icon: Cog,
     tagline: "Ships fast. Sleeps well.",
     accent: "from-[#10B981] via-[#14B8A6] to-[#0EA5E9]",
     glow: "16,185,129",
@@ -54,7 +54,7 @@ const TEAM: Member[] = [
     name: "Tenzin TRIDHE",
     role: "Head of Design",
     bio: "Crafts the MERIDIAN identity end-to-end — from the brand system to every interaction inside the product.",
-    emoji: "🎨",
+    Icon: Palette,
     tagline: "Pixel by pixel, on purpose.",
     accent: "from-[#EC4899] via-[#A855F7] to-[#6366F1]",
     glow: "236,72,153",
@@ -87,22 +87,22 @@ export default function Team() {
                 aria-hidden
                 className={`pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-br ${m.accent} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}
               />
-              {/* Animated emoji avatar */}
+              {/* Animated icon avatar */}
               <div className="relative mb-5">
                 <motion.div
-                  className={`relative h-20 w-20 rounded-2xl bg-gradient-to-br ${m.accent} flex items-center justify-center text-4xl select-none`}
+                  className={`relative h-20 w-20 rounded-2xl bg-gradient-to-br ${m.accent} flex items-center justify-center text-white select-none`}
                   style={{ boxShadow: `0 12px 30px -10px rgba(${m.glow}, 0.55)` }}
                   animate={{ y: [0, -4, 0] }}
                   transition={{ duration: 4 + i * 0.3, repeat: Infinity, ease: "easeInOut" }}
                   whileHover={{ scale: 1.08, rotate: [0, -6, 6, -3, 0] }}
                 >
-                  <motion.span
-                    animate={{ rotate: [0, 8, -6, 0] }}
+                  <motion.div
+                    animate={{ rotate: [0, 6, -4, 0] }}
                     transition={{ duration: 5 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
                     className="drop-shadow-sm"
                   >
-                    {m.emoji}
-                  </motion.span>
+                    <m.Icon className="h-9 w-9" strokeWidth={1.75} />
+                  </motion.div>
                   <motion.span
                     aria-hidden
                     className="absolute -top-1 -right-1 text-primary"
