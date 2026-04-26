@@ -61,13 +61,13 @@ export function AppSidebar() {
   const catalogVisible: Item[] = [...CATALOG_BASE];
   const automationVisible = isAdmin ? AUTOMATION : [];
 
-  // Top → bottom: Automation, Decision Intelligence, People, Knowledge, Data Catalog
+  // Top → bottom: Automation, Decision Intelligence, People, Knowledge, Sources
   const groups: Group[] = [
     { key: "automation", label: "Automation", icon: Bot, items: automationVisible },
     { key: "decisions", label: "Decision Intelligence", icon: BrainCircuit, items: DECISIONS },
     { key: "people", label: "People", icon: UsersRound, items: peopleVisible },
     { key: "knowledge", label: "Knowledge", icon: BookOpen, items: KNOWLEDGE },
-    { key: "catalog", label: "Data Catalog", icon: Database, items: catalogVisible },
+    { key: "catalog", label: "Sources", icon: Database, items: catalogVisible },
   ].filter((g) => g.items.length > 0);
 
   const groupContainsActive = (g: Group) => g.items.some((i) => location.pathname === i.url || location.pathname.startsWith(i.url + "/"));

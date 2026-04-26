@@ -38,7 +38,7 @@ const DataCatalog = () => {
   const [draft, setDraft] = useState({ name: "", source_url: "", category: "", rationale: "" });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { document.title = "Data Catalog — MERIDIAN"; load(); }, []);
+  useEffect(() => { document.title = "Sources — MERIDIAN"; load(); }, []);
 
   const load = async () => {
     const [{ data: cs }, { data: rs }] = await Promise.all([
@@ -92,10 +92,10 @@ const DataCatalog = () => {
         <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <Database className="h-7 w-7" /> Data Catalog
+              <Database className="h-7 w-7" /> Sources
             </h1>
             <p className="text-muted-foreground mt-1 max-w-2xl">
-              Browse the regulatory data landscape powering MERIDIAN. See what's flowing in, and request new sources to extend coverage.
+              Browse the regulatory sources powering MERIDIAN. See what's flowing in, and request new ones to extend coverage.
             </p>
           </div>
           <Button onClick={() => setOpen(true)} className="gap-1.5"><Plus className="h-4 w-4" /> Request a source</Button>
