@@ -81,7 +81,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" data-tour="sidebar">
       <SidebarHeader className="border-b border-sidebar-border">
         <NavLink to="/dashboard" className="flex items-center gap-2 px-2 py-2">
           <img src={logo} alt="MERIDIAN" className="h-7 w-7 flex-shrink-0" />
