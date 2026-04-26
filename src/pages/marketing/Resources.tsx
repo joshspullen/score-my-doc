@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FileText, Users, ScrollText, GitCommit, Palette } from "lucide-react";
+import { FileText, Users, ScrollText, GitCommit, Palette, Cpu } from "lucide-react";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { PageHero } from "@/components/marketing/PageHero";
 
@@ -9,6 +9,7 @@ const TILES = [
   { to: "/resources/regulatory-library", title: "Regulatory library", desc: "Curated obligations, sanctions and decisions.", icon: ScrollText },
   { to: "/resources/changelog", title: "Changelog", desc: "Every release, every week.", icon: GitCommit },
   { to: "/resources/brand", title: "Brand", desc: "Logo, colors, typography and voice — the MERIDIAN identity system.", icon: Palette },
+  { to: "/resources/tech-stack", title: "Tech stack", desc: "Architecture, infrastructure and security — engineered for regulated environments.", icon: Cpu },
 ];
 
 export default function Resources() {

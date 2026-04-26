@@ -25,6 +25,7 @@ const RESOURCES = [
   { to: "/resources/regulatory-library", title: "Regulatory library", desc: "Curated obligations & sanctions." },
   { to: "/resources/changelog", title: "Changelog", desc: "What shipped, every week." },
   { to: "/resources/brand", title: "Brand", desc: "Logo, colors, typography & voice." },
+  { to: "/resources/tech-stack", title: "Tech stack", desc: "Architecture, infrastructure & security." },
 ];
 
 function MenuList({ items }: { items: { to: string; title: string; desc: string; soon?: boolean }[] }) {
