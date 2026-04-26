@@ -1,105 +1,62 @@
 ## Goal
 
-Add a **Decision Telemetry** module that treats every human decision as a traceable event (trigger → options → choice → policy referenced → outcome), reusing what we already have:
+Tighten navigation so admin tooling lives where admins expect it (Settings), People only shows people-related items, and the guided tour matches the new 5-group sidebar.
 
-- **Documentation** (`business_processes`) = Policy Library (already built, no duplication)
-- **People / Teams** = Users & Teams view (link from telemetry, don't rebuild)
-- **Analyses** = existing eval/outcome surface for AI; we extend the concept to humans
+## Changes
 
-## New top-level navigation
+### 1. Sidebar — People cleanup
+File: `src/components/AppSidebar.tsx`
+- Remove **Users** (admin) from the People group.
+- Keep People sub-items: **Overview**, **People Ops**, **Teams** (admins/managers only).
+- Remove **Connectors** from the Connections group (moves to Settings).
+- Remove the standalone **Agents** group route from sidebar visibility for non-admins (already the case); keep Automation → Agents only for admins.
 
-In `AppSidebar.tsx`, add a new group **Telemetry** (visible to all authenticated users; admin-only for settings):
+### 2. New Settings area (admin-only)
+- New page `src/pages/Settings.tsx` with tabs:
+  - **Users & Roles** — embed existing Admin user-management UI.
+  - **Connectors** — link/embed connectors page.
+  - **Workspace** — placeholder for org name/branding (basic stub).
+- Add route `/settings` (AdminRoute) in `src/App.tsx`.
+- Refactor `src/pages/Admin.tsx` content into a reusable `AdminUsersPanel` component used inside Settings (keep `/admin` as redirect to `/settings?tab=users` for backward compatibility).
 
-- Decisions (live feed + KPIs) — `/telemetry`
-- Trace Explorer — `/telemetry/traces`
-- Outcomes & Evals — `/telemetry/outcomes`
+### 3. UserMenu — surface Settings properly
+File: `src/components/UserMenu.tsx`
+- "Profile" → `/profile`.
+- "Settings" → `/settings` (visible only to admins via `useRoles`); for non-admins hide the entry.
+- Keep "Resources & Guide" and "Sign out".
 
-Policy Library stays under **Knowledge → Documentation** (no duplicate). Users & Teams stay under **People**. The telemetry pages link into them.
+### 4. AppHeader — remove duplicates
+File: `src/components/AppHeader.tsx`
+- Remove top-bar buttons: **Profile**, **Teams**, **Admin**, **Connectors** (all reachable from sidebar/UserMenu).
+- Keep: logo, **Dashboard**, **New analysis** CTA, UserMenu (sign-out moves into UserMenu only — already there).
 
-## Pages (4 new)
+### 5. People page tiles
+File: `src/pages/People.tsx`
+- Remove the **Users** tile (it now lives in Settings).
+- Keep **Teams** and **People Ops**; add a small note linking admins to Settings → Users for role management.
 
-1. **`/telemetry` — Decisions Home**
-   KPI strip (decisions today, deviation rate, avg decision time, policy compliance %), decisions-by-category bar chart, live feed (last 20 traces) with status chips. Click row → trace detail.
+### 6. Guided tour rewrite
+File: `src/lib/productTour.ts`
+- Reduce noise; align to new 5 groups + Workspace. Steps:
+  1. Sidebar intro (5 groups, bottom-up flow).
+  2. **Connections** — where data comes in.
+  3. **Knowledge** — regulations, documentation, training.
+  4. **People** — teams and ops.
+  5. **Decision Intelligence** — decision log & outcomes.
+  6. **Automation** — agents (admins only; skip if not admin).
+  7. **New analysis** CTA.
+  8. UserMenu (Profile, Settings if admin, re-launch tour).
+- Auto-expand the relevant sidebar group before each step by clicking the group trigger (or navigating to a child route which auto-expands via existing effect).
+- Skip admin-only steps for non-admin users.
 
-2. **`/telemetry/traces` — Trace Explorer (Langfuse-style)**
-   Filter bar: user, team, policy (FK to `business_processes`), date range, outcome. Master list left, expandable trace detail right showing **spans**: Trigger / Context → Options Presented → Decision Made → Policy Referenced → Outcome. Each span is a collapsible card with JSON payload + duration.
+## Technical notes
 
-3. **`/telemetry/outcomes` — Outcomes & Evals**
-   Table of decisions with outcome status (correct / incorrect / pending), AI recommendation vs human choice, divergence flag, link to the trace. Filter by divergence/policy.
+- `Settings.tsx` uses shadcn `Tabs` with URL query param (`?tab=users|connectors|workspace`) for deep-linking and tour targeting.
+- `Admin.tsx` becomes a thin wrapper that renders `<Navigate to="/settings?tab=users" />` to avoid breaking existing links.
+- Add `data-tour="nav-connections"`, `nav-people`, `nav-decisions`, `nav-automation` attributes on the group triggers in `AppSidebar.tsx` so the tour can target them reliably.
+- No DB or RLS changes required.
 
-4. **Policy detail enrichment** — extend existing `BusinessProcesses.tsx` row drawer with a "Decisions" tab: compliance rate, deviation count, recent linked traces. No new page.
+## Out of scope
 
-## Data model (1 migration)
-
-```sql
-CREATE TYPE public.decision_outcome AS ENUM ('pending','correct','incorrect','divergent','n_a');
-
-CREATE TABLE public.decision_traces (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,                      -- who decided
-  team_id uuid REFERENCES public.teams(id),
-  policy_id uuid REFERENCES public.business_processes(id),  -- policy referenced
-  category text,                              -- e.g. KYC, credit, AML
-  trigger_context jsonb NOT NULL DEFAULT '{}'::jsonb,
-  options_presented jsonb NOT NULL DEFAULT '[]'::jsonb,
-  decision_made jsonb NOT NULL DEFAULT '{}'::jsonb,
-  ai_recommendation jsonb,                    -- nullable
-  outcome public.decision_outcome NOT NULL DEFAULT 'pending',
-  outcome_notes text,
-  deviation boolean NOT NULL DEFAULT false,
-  duration_ms integer,
-  decided_at timestamptz NOT NULL DEFAULT now(),
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE TABLE public.decision_spans (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  trace_id uuid NOT NULL REFERENCES public.decision_traces(id) ON DELETE CASCADE,
-  step_order int NOT NULL,
-  step_type text NOT NULL,                    -- 'trigger'|'options'|'decision'|'policy_ref'|'outcome'
-  label text NOT NULL,
-  payload jsonb NOT NULL DEFAULT '{}'::jsonb,
-  duration_ms integer,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX ON public.decision_traces (user_id, decided_at DESC);
-CREATE INDEX ON public.decision_traces (policy_id);
-CREATE INDEX ON public.decision_spans (trace_id, step_order);
-```
-
-**RLS** (mirror existing patterns):
-- `decision_traces`: owner full access; managers SELECT via `manages_user`; admins ALL.
-- `decision_spans`: SELECT/ALL gated through parent trace via EXISTS check.
-
-## Seed data (MECE-light)
-
-3 sample policies are already there. Seed **8 decision traces** across 3 fictional users covering KYC onboarding, sanctions screening hit, and a credit override — including 1 deviation and 1 divergence vs AI recommendation. Each gets 4–5 spans. Just enough to populate KPIs and charts without bloat.
-
-## Files to create
-
-- `supabase/migrations/<ts>_decision_telemetry.sql` — schema + RLS + seed
-- `src/pages/telemetry/Decisions.tsx` — home + KPIs + feed
-- `src/pages/telemetry/TraceExplorer.tsx` — list + span detail
-- `src/pages/telemetry/Outcomes.tsx` — eval table
-- `src/components/telemetry/TraceSpanCard.tsx` — reusable span renderer
-- `src/components/telemetry/KpiStrip.tsx` — KPI tiles
-
-## Files to edit
-
-- `src/App.tsx` — 3 new routes under `ProtectedRoute`
-- `src/components/AppSidebar.tsx` — new "Telemetry" group with `data-tour` keys
-- `src/pages/BusinessProcesses.tsx` — add "Decisions" tab in detail drawer
-- `src/lib/productTour.ts` — add 1 tour step pointing at Telemetry
-
-## Out of scope (for this round)
-
-- No new Policy Library page (reuses Documentation)
-- No new Users page (Trace Explorer filters/links into existing People)
-- No write API for external systems yet — traces created via in-app UI / seed; ingestion endpoint can come later
-
-## Notes
-
-- Reuses existing `recharts` for the category bar chart.
-- All RLS follows the `manages_user` / `has_role` patterns already in the project.
-- No new dependencies.
+- Visual redesign of pages.
+- New permissions model — role checks remain (`isAdmin`, `isManager`).
