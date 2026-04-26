@@ -1,7 +1,7 @@
 import {
-  LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
+  LayoutDashboard, Upload as UploadIcon, User, Users,
   GraduationCap, ScrollText, FileText, UsersRound, BookOpen, Bot, Briefcase,
-  Activity, Network, Flag, ChevronDown, Workflow, BrainCircuit, Link2,
+  Activity, Network, Flag, ChevronDown, BrainCircuit, Link2,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -27,7 +27,6 @@ const PEOPLE_BASE: Item[] = [
   { title: "People Ops", url: "/people/ops", icon: Briefcase },
 ];
 const PEOPLE_TEAMS: Item = { title: "Teams", url: "/teams", icon: Users };
-const PEOPLE_USERS: Item = { title: "Users", url: "/admin", icon: Shield };
 
 const KNOWLEDGE: Item[] = [
   { title: "Overview", url: "/knowledge", icon: BookOpen },
@@ -39,7 +38,6 @@ const KNOWLEDGE: Item[] = [
 const CONNECTIONS_BASE: Item[] = [
   { title: "New analysis", url: "/upload", icon: UploadIcon },
 ];
-const CONNECTIONS_ADMIN: Item = { title: "Connectors", url: "/connectors", icon: Plug };
 
 const AUTOMATION: Item[] = [
   { title: "Agents", url: "/agents", icon: Bot },
@@ -59,9 +57,7 @@ export function AppSidebar() {
 
   const peopleVisible: Item[] = [...PEOPLE_BASE];
   if (isAdmin || isManager) peopleVisible.push(PEOPLE_TEAMS);
-  if (isAdmin) peopleVisible.push(PEOPLE_USERS);
   const connectionsVisible: Item[] = [...CONNECTIONS_BASE];
-  if (isAdmin) connectionsVisible.unshift(CONNECTIONS_ADMIN);
   const automationVisible = isAdmin ? AUTOMATION : [];
 
   // Top → bottom: Automation, Decision Intelligence, People, Knowledge, Connections

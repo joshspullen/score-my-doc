@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import Upload from "./pages/Upload.tsx";
 import Results from "./pages/Results.tsx";
 import Admin from "./pages/Admin.tsx";
+import Settings from "./pages/Settings.tsx";
 import Teams from "./pages/Teams.tsx";
 import Connectors from "./pages/Connectors.tsx";
 import Profile from "./pages/Profile.tsx";
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/upload" element={<ProtectedRoute><AppShell><Upload /></AppShell></ProtectedRoute>} />
             <Route path="/results/:id" element={<ProtectedRoute><AppShell><Results /></AppShell></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><AppShell><Admin /></AppShell></AdminRoute>} />
+            <Route path="/settings" element={<AdminRoute><AppShell><Settings /></AppShell></AdminRoute>} />
             <Route path="/teams" element={<ProtectedRoute><AppShell><Teams /></AppShell></ProtectedRoute>} />
             <Route path="/connectors" element={<AdminRoute><AppShell><Connectors /></AppShell></AdminRoute>} />
             <Route path="/profile" element={<ProtectedRoute><AppShell><Profile /></AppShell></ProtectedRoute>} />

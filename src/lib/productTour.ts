@@ -3,8 +3,8 @@ import "driver.js/dist/driver.css";
 import type { NavigateFunction } from "react-router-dom";
 
 /**
- * Interactive onboarding tour driving users across the core MVP flow:
- * Dashboard → Knowledge → Documentation → Regulations → Agents → New Analysis → User menu.
+ * Streamlined onboarding tour aligned with the 5 sidebar groups,
+ * walking from data ingress (Connections) up to Automation.
  */
 export function startProductTour(navigate: NavigateFunction) {
   const go = async (path: string, ms = 350) => {
@@ -24,40 +24,58 @@ export function startProductTour(navigate: NavigateFunction) {
         element: '[data-tour="sidebar"]',
         popover: {
           title: "Welcome to MERIDIAN",
-          description: "Three core modules: <b>Knowledge</b>, <b>Integrations</b> and <b>Agents</b>. People sits next to them.",
+          description:
+            "Five groups, one flow — from <b>Connections</b> at the bottom (where data comes in) up to <b>Automation</b> at the top.",
         },
+        onHighlightStarted: () => { void go("/dashboard"); },
       },
       {
-        element: '[data-tour="nav-knowledge"]',
-        popover: { title: "Knowledge", description: "Your single source of truth: <b>Regulations</b>, <b>Documentation</b> (Policies → Standards → Procedures) and <b>Training</b>." },
+        element: '[data-tour="sidebar"]',
+        popover: {
+          title: "Connections",
+          description: "Bring data in: documents you upload and external connectors feeding the platform.",
+        },
+        onHighlightStarted: () => { void go("/upload"); },
+      },
+      {
+        element: '[data-tour="sidebar"]',
+        popover: {
+          title: "Knowledge",
+          description: "Your single source of truth: <b>Regulations</b>, <b>Documentation</b> and <b>Training</b>.",
+        },
         onHighlightStarted: () => { void go("/knowledge"); },
       },
       {
-        element: '[data-tour="nav-docs"]',
-        popover: { title: "Documentation", description: "The hierarchy your auditors expect — Policies set the why, Procedures tell teams how." },
-        onHighlightStarted: () => { void go("/knowledge/processes"); },
-      },
-      {
-        element: '[data-tour="nav-regs"]',
-        popover: { title: "Regulations", description: "Track requirements from regulators (ACPR, EBA, OFAC, CNIL…) and assign them to teams." },
-        onHighlightStarted: () => { void go("/knowledge/regulations"); },
-      },
-      {
-        element: '[data-tour="nav-agents"]',
+        element: '[data-tour="sidebar"]',
         popover: {
-          title: "Agents",
-          description: "Autonomous workers in three patterns: <b>Collection</b>, <b>Analysis</b> and <b>Action</b>. Trigger manually, weekly, or on a custom cron.",
+          title: "People",
+          description: "Teams, ownership and people-ops — who is responsible for what.",
+        },
+        onHighlightStarted: () => { void go("/people"); },
+      },
+      {
+        element: '[data-tour="sidebar"]',
+        popover: {
+          title: "Decision Intelligence",
+          description: "Every decision is logged: explore the trail, related policies and outcomes.",
+        },
+        onHighlightStarted: () => { void go("/telemetry"); },
+      },
+      {
+        element: '[data-tour="sidebar"]',
+        popover: {
+          title: "Automation",
+          description: "Agents that collect, analyze and act — manual, scheduled or event-driven.",
         },
         onHighlightStarted: () => { void go("/agents"); },
       },
       {
-        element: '[data-tour="nav-upload"]',
-        popover: { title: "New analysis", description: "Drop a document here and let the analyzing agent score it against your regulations." },
-        onHighlightStarted: () => { void go("/upload"); },
-      },
-      {
         element: '[data-tour="user-menu"]',
-        popover: { title: "Your account", description: "Profile, Settings, and you can re-launch this <b>Resources & Guide</b> tour any time." },
+        popover: {
+          title: "Your account",
+          description: "Profile, Settings (admins) and re-launch this guide any time.",
+        },
+        onHighlightStarted: () => { void go("/dashboard"); },
       },
     ],
   });

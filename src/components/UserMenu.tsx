@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { User as UserIcon, Settings, BookOpen, LogOut, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
@@ -12,6 +13,7 @@ import { startProductTour } from "@/lib/productTour";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useRoles();
   const navigate = useNavigate();
   const [name, setName] = useState<string>("");
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -54,9 +56,11 @@ export function UserMenu() {
         <DropdownMenuItem onClick={() => navigate("/profile")}>
           <UserIcon className="h-4 w-4 mr-2" /> Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/profile")}>
-          <Settings className="h-4 w-4 mr-2" /> Settings
-        </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem onClick={() => navigate("/settings")}>
+            <Settings className="h-4 w-4 mr-2" /> Settings
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={() => startProductTour(navigate)}>
           <BookOpen className="h-4 w-4 mr-2" /> Resources & Guide
         </DropdownMenuItem>
