@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, UserPlus, BarChart3, ScrollText, Workflow, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ const empty: Partial<Module> = { title: "", description: "", content_url: null, 
 const Training = () => {
   const { user } = useAuth();
   const { isAdmin } = useRoles();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [modules, setModules] = useState<Module[]>([]);
   const [reqs, setReqs] = useState<Req[]>([]);
   const [bps, setBps] = useState<BP[]>([]);
@@ -43,6 +45,22 @@ const Training = () => {
   const [quizFor, setQuizFor] = useState<{ module: Module; assignmentId?: string } | null>(null);
 
   useEffect(() => { document.title = "Training — MERIDIAN"; load(); }, [user]);
+
+  // When opened with ?module=<id>, focus that module: switch to catalog view if needed
+  // and open its detail sheet.
+  useEffect(() => {
+    const mid = searchParams.get("module");
+    if (!mid || modules.length === 0) return;
+    const m = modules.find((x) => x.id === mid);
+    if (!m) return;
+    const isMine = myAssignments.some((a) => a.training_module_id === mid);
+    if (!isMine) setFilter("catalog");
+    setDetail(m);
+    // clear the query param so it doesn't reopen on every render
+    const next = new URLSearchParams(searchParams);
+    next.delete("module");
+    setSearchParams(next, { replace: true });
+  }, [modules, myAssignments, searchParams]);
 
   const load = async () => {
     if (!user) return;
