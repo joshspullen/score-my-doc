@@ -1,5 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowRight, Sparkles, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, Calendar, FileSearch, MessageSquare, BarChart3, Quote, X, Bot, BookOpen, Plug, UsersRound } from "lucide-react";
+import { ArrowRight, Sparkles, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, Calendar, FileSearch, MessageSquare, BarChart3, Quote, X, Bot, BookOpen, Plug, UsersRound, ScrollText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
@@ -428,56 +428,72 @@ const Index = () => {
         </div>
       </section>
 
-      {/* A better way to learn — 3 numbered product blocks (arti-style) */}
+      {/* The end-to-end workflow — 4 numbered product blocks reflecting the live modules */}
       <section id="product" className="py-24 border-t border-border bg-background">
         <div className="container">
           <div className="max-w-2xl mb-16">
-            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">A better way to learn</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">The MERIDIAN workflow</p>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
-              MERIDIAN is an AI compliance facilitator that delivers the rigorous, personal training your analysts deserve — through real conversations on real files.
+              From regulator feed to analyst certificate — every step is a live module inside MERIDIAN.
             </h2>
+            <p className="text-muted-foreground mt-5 text-lg">
+              Sources ingest the rules. Knowledge documents the sanctions. AI generates the training. Analysts take the quiz. Every decision is logged on their profile.
+            </p>
           </div>
 
           <div className="space-y-24">
             {[
               {
                 n: "01",
-                title: "Adapt to your bank",
-                icon: FileSearch,
-                desc: "MERIDIAN ingests your internal policies, jurisdiction-specific rules, and risk appetite — then tunes scoring and coaching against them.",
+                title: "Sources — connect every regulator and internal system",
+                icon: Plug,
+                desc: "The Sources module pulls live data from ACPR, EBA, ESMA, OFAC, FATF and your internal KYC, ticketing and document stores. Add a connector or upload a file — it becomes a record the rest of the platform can reason over.",
                 bullets: [
-                  "Import your AML, KYC, and onboarding policies",
-                  "Adjust tone, depth, and reading level per analyst",
-                  "Centralised regulatory resource hub (FCA, FinCEN, AMLD6, FATF)",
-                  "Signpost to the right escalation path for every flag",
+                  "Browse the connector catalog or add custom feeds",
+                  "Upload KYC files for instant analysis",
+                  "Per-source RLS and full audit trail on every fetch",
+                  "Bi-directional: pull obligations in, push alerts out",
                 ],
                 reverse: false,
               },
               {
                 n: "02",
-                title: "Train your team",
-                icon: MessageSquare,
-                desc: "Powered by multi-agent AI and former-MLRO content, MERIDIAN delivers compliance training that feels like a real review with a senior officer.",
+                title: "Knowledge — regulations, sanctions and documentation, linked",
+                icon: ScrollText,
+                desc: "Every regulator decision and sanction case (including new EU enforcement actions) is documented, classified by central-bank taxonomy, and linked to the internal processes and teams it impacts.",
                 bullets: [
-                  "Research-backed scenarios from real enforcement cases",
-                  "Voice and text interaction inside the KYC workflow",
-                  "Personalised feedback the moment a near-miss happens",
-                  "Micro-lessons under 3 minutes — not annual modules",
+                  "ACPR, EBA, ESMA, OFAC sanction cases — including EU additions",
+                  "Click a regulation to open its dedicated module page",
+                  "Mapped to your internal processes and documentation",
+                  "Searchable graph of obligations, processes and owners",
                 ],
                 reverse: true,
               },
               {
                 n: "03",
-                title: "Monitor your risk",
-                icon: BarChart3,
-                desc: "Use the compliance dashboard to measure learning outcomes, track risk trends, and identify exactly where your second-line defences are weakest.",
+                title: "AI Training — generate a learning module from any regulation",
+                icon: GraduationCap,
+                desc: "From any regulation page, click 'Generate training' and our AI builds a tailored learning module plus a multiple-choice quiz, persisted in your training library — no external links, everything in-house.",
                 bullets: [
-                  "Engagement and coaching analytics per team",
-                  "Sentiment and root-cause insights across files",
-                  "Risk-pattern detection across jurisdictions",
-                  "Audit-ready logs for every prevented decision",
+                  "One-click AI generation grounded in the source regulation",
+                  "Built-in quiz player with scored multiple-choice questions",
+                  "Each module is linked back to its parent regulation",
+                  "Stored in your library for re-assignment and analytics",
                 ],
                 reverse: false,
+              },
+              {
+                n: "04",
+                title: "Decisions & Profile — every action logged, per analyst",
+                icon: BarChart3,
+                desc: "The Intelligence module records every agent run, decision and quiz outcome. Each analyst's profile shows their training history, completed modules and risk coverage — audit-ready.",
+                bullets: [
+                  "Decision Log with full trace of every automated reasoning step",
+                  "Outcomes dashboard for risk and coverage trends",
+                  "Per-user profile with training history and certifications",
+                  "Role-based access via People & Teams",
+                ],
+                reverse: true,
               },
             ].map((b) => (
               <div
