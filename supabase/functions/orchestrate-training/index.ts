@@ -22,6 +22,8 @@ const MODEL_LEGACY = "google/gemini-2.5-flash";
 const DEFAULT_MAX_POLICIES = 8;
 const POLICY_TOTAL_BUDGET = 90_000;
 const SANCTION_BUDGET = 40_000;
+const PDF_TOTAL_BUDGET = 80_000;
+const PDF_PER_DOC_BUDGET = 25_000;
 
 type RegulationRow = {
   id: string;
@@ -140,6 +142,8 @@ Deno.serve(async (req) => {
       return json({ error: "No policy context found. Provide policy_ids or add policy records." }, 400);
     }
 
+    const policyPdfs = await loadPolicyPdfs(admin, regulationId, resolvedPolicies.map((p) => p.id));
+
     const run = await createTrainingGenerationRun(admin, {
       mode: "orchestrated",
       compliance_requirement_id: regulationId,
@@ -170,6 +174,7 @@ Deno.serve(async (req) => {
       policies: resolvedPolicies,
       audience,
       category,
+      pdfs: policyPdfs,
     });
 
     const stepTimings: Record<string, number> = {};
