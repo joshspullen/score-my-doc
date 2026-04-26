@@ -191,36 +191,68 @@ export type Database = {
       }
       business_processes: {
         Row: {
+          approved_by: string | null
           category: string | null
           code: string | null
           created_at: string
           description: string | null
+          doc_level: Database["public"]["Enums"]["doc_level"]
           id: string
+          linked_sanction: string | null
           name: string
           owner: string | null
+          parent_id: string | null
+          sanction_amount: string | null
+          sanction_year: number | null
           updated_at: string
+          version: string | null
+          violation_summary: string | null
         }
         Insert: {
+          approved_by?: string | null
           category?: string | null
           code?: string | null
           created_at?: string
           description?: string | null
+          doc_level?: Database["public"]["Enums"]["doc_level"]
           id?: string
+          linked_sanction?: string | null
           name: string
           owner?: string | null
+          parent_id?: string | null
+          sanction_amount?: string | null
+          sanction_year?: number | null
           updated_at?: string
+          version?: string | null
+          violation_summary?: string | null
         }
         Update: {
+          approved_by?: string | null
           category?: string | null
           code?: string | null
           created_at?: string
           description?: string | null
+          doc_level?: Database["public"]["Enums"]["doc_level"]
           id?: string
+          linked_sanction?: string | null
           name?: string
           owner?: string | null
+          parent_id?: string | null
+          sanction_amount?: string | null
+          sanction_year?: number | null
           updated_at?: string
+          version?: string | null
+          violation_summary?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "business_processes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "business_processes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       compliance_assignments: {
         Row: {
@@ -959,6 +991,7 @@ export type Database = {
         | "monthly"
         | "cron"
       app_role: "admin" | "user" | "manager"
+      doc_level: "policy" | "standard" | "procedure" | "work_instruction"
       regulation_category:
         | "sanctions"
         | "aml_cft"
@@ -1098,6 +1131,7 @@ export const Constants = {
       agent_status: ["active", "paused", "draft"],
       agent_trigger: ["manual", "hourly", "daily", "weekly", "monthly", "cron"],
       app_role: ["admin", "user", "manager"],
+      doc_level: ["policy", "standard", "procedure", "work_instruction"],
       regulation_category: [
         "sanctions",
         "aml_cft",
