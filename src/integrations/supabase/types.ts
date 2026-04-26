@@ -540,6 +540,119 @@ export type Database = {
           },
         ]
       }
+      decision_spans: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          id: string
+          label: string
+          payload: Json
+          step_order: number
+          step_type: string
+          trace_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          id?: string
+          label: string
+          payload?: Json
+          step_order: number
+          step_type: string
+          trace_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          id?: string
+          label?: string
+          payload?: Json
+          step_order?: number
+          step_type?: string
+          trace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_spans_trace_id_fkey"
+            columns: ["trace_id"]
+            isOneToOne: false
+            referencedRelation: "decision_traces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      decision_traces: {
+        Row: {
+          ai_recommendation: Json | null
+          category: string | null
+          created_at: string
+          decided_at: string
+          decision_made: Json
+          deviation: boolean
+          duration_ms: number | null
+          id: string
+          options_presented: Json
+          outcome: Database["public"]["Enums"]["decision_outcome"]
+          outcome_notes: string | null
+          policy_id: string | null
+          team_id: string | null
+          title: string
+          trigger_context: Json
+          user_id: string
+        }
+        Insert: {
+          ai_recommendation?: Json | null
+          category?: string | null
+          created_at?: string
+          decided_at?: string
+          decision_made?: Json
+          deviation?: boolean
+          duration_ms?: number | null
+          id?: string
+          options_presented?: Json
+          outcome?: Database["public"]["Enums"]["decision_outcome"]
+          outcome_notes?: string | null
+          policy_id?: string | null
+          team_id?: string | null
+          title: string
+          trigger_context?: Json
+          user_id: string
+        }
+        Update: {
+          ai_recommendation?: Json | null
+          category?: string | null
+          created_at?: string
+          decided_at?: string
+          decision_made?: Json
+          deviation?: boolean
+          duration_ms?: number | null
+          id?: string
+          options_presented?: Json
+          outcome?: Database["public"]["Enums"]["decision_outcome"]
+          outcome_notes?: string | null
+          policy_id?: string | null
+          team_id?: string | null
+          title?: string
+          trigger_context?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_traces_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "business_processes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decision_traces_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           created_at: string
@@ -1168,6 +1281,12 @@ export type Database = {
         | "offer"
         | "hired"
         | "rejected"
+      decision_outcome:
+        | "pending"
+        | "correct"
+        | "incorrect"
+        | "divergent"
+        | "n_a"
       doc_level: "policy" | "standard" | "procedure" | "work_instruction"
       leave_status: "pending" | "approved" | "rejected" | "cancelled"
       leave_type: "vacation" | "sick" | "personal" | "training" | "other"
@@ -1319,6 +1438,7 @@ export const Constants = {
         "hired",
         "rejected",
       ],
+      decision_outcome: ["pending", "correct", "incorrect", "divergent", "n_a"],
       doc_level: ["policy", "standard", "procedure", "work_instruction"],
       leave_status: ["pending", "approved", "rejected", "cancelled"],
       leave_type: ["vacation", "sick", "personal", "training", "other"],

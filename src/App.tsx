@@ -20,6 +20,9 @@ import BusinessProcesses from "./pages/BusinessProcesses.tsx";
 import Knowledge from "./pages/Knowledge.tsx";
 import Agents from "./pages/Agents.tsx";
 import PeopleOps from "./pages/PeopleOps.tsx";
+import Decisions from "./pages/telemetry/Decisions.tsx";
+import TraceExplorer from "./pages/telemetry/TraceExplorer.tsx";
+import Outcomes from "./pages/telemetry/Outcomes.tsx";
 import PlatformKnowledge from "./pages/marketing/PlatformKnowledge.tsx";
 import PlatformIntegrations from "./pages/marketing/PlatformIntegrations.tsx";
 import PlatformAgents from "./pages/marketing/PlatformAgents.tsx";
@@ -80,6 +83,9 @@ const App = () => (
             <Route path="/knowledge/processes" element={<ProtectedRoute><AppShell><BusinessProcesses /></AppShell></ProtectedRoute>} />
             <Route path="/knowledge/training" element={<ProtectedRoute><AppShell><Training /></AppShell></ProtectedRoute>} />
             <Route path="/agents" element={<AdminRoute><AppShell><Agents /></AppShell></AdminRoute>} />
+            <Route path="/telemetry" element={<ProtectedRoute><AppShell><Decisions /></AppShell></ProtectedRoute>} />
+            <Route path="/telemetry/traces" element={<ProtectedRoute><AppShell><TraceExplorer /></AppShell></ProtectedRoute>} />
+            <Route path="/telemetry/outcomes" element={<ProtectedRoute><AppShell><Outcomes /></AppShell></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

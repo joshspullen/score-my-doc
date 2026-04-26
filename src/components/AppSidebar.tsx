@@ -1,6 +1,7 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
   GraduationCap, ScrollText, FileText, UsersRound, BookOpen, Bot, Briefcase,
+  Activity, Network, Flag,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
@@ -39,6 +40,12 @@ const INTEGRATIONS_ADMIN: Item = { title: "Connectors", url: "/connectors", icon
 
 const AUTOMATION: Item[] = [
   { title: "Agents", url: "/agents", icon: Bot },
+];
+
+const TELEMETRY: Item[] = [
+  { title: "Decisions", url: "/telemetry", icon: Activity },
+  { title: "Trace Explorer", url: "/telemetry/traces", icon: Network },
+  { title: "Outcomes & Evals", url: "/telemetry/outcomes", icon: Flag },
 ];
 
 const TOUR_KEYS: Record<string, string> = {
@@ -101,6 +108,7 @@ export function AppSidebar() {
         {renderGroup("Workspace", WORKSPACE)}
         {renderGroup("People", peopleVisible)}
         {renderGroup("Knowledge", KNOWLEDGE)}
+        {renderGroup("Telemetry", TELEMETRY)}
         {renderGroup("Automation", automationVisible)}
         {renderGroup("Integrations", integrationsVisible)}
       </SidebarContent>
