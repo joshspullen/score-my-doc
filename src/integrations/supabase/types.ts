@@ -540,6 +540,42 @@ export type Database = {
           },
         ]
       }
+      data_source_requests: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          name: string
+          rationale: string | null
+          requested_by: string
+          source_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          rationale?: string | null
+          requested_by: string
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          rationale?: string | null
+          requested_by?: string
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       decision_spans: {
         Row: {
           created_at: string
