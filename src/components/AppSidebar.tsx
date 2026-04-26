@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
-  GraduationCap, ScrollText, Workflow, UsersRound, BookOpen, Bot, Briefcase,
+  GraduationCap, ScrollText, FileText, UsersRound, BookOpen, Bot, Briefcase,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
@@ -28,7 +28,7 @@ const PEOPLE_USERS: Item = { title: "Users", url: "/admin", icon: Shield };
 const KNOWLEDGE: Item[] = [
   { title: "Overview", url: "/knowledge", icon: BookOpen },
   { title: "Regulations", url: "/knowledge/regulations", icon: ScrollText },
-  { title: "Business Processes", url: "/knowledge/processes", icon: Workflow },
+  { title: "Documentation", url: "/knowledge/processes", icon: FileText },
   { title: "Training", url: "/knowledge/training", icon: GraduationCap },
 ];
 
