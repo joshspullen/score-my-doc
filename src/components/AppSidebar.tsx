@@ -29,7 +29,6 @@ const PEOPLE_BASE: Item[] = [
 const PEOPLE_TEAMS: Item = { title: "Teams", url: "/teams", icon: Users };
 
 const KNOWLEDGE: Item[] = [
-  { title: "Overview", url: "/knowledge", icon: BookOpen },
   { title: "Regulations", url: "/knowledge/regulations", icon: ScrollText },
   { title: "Documentation", url: "/knowledge/processes", icon: FileText },
   { title: "Training", url: "/knowledge/training", icon: GraduationCap },
@@ -40,15 +39,11 @@ const CATALOG_BASE: Item[] = [
   { title: "New analysis", url: "/upload", icon: UploadIcon },
 ];
 
-const AUTOMATION: Item[] = [
-  { title: "Agents", url: "/agents", icon: Bot },
-];
-
-const DECISIONS: Item[] = [
-  { title: "Overview", url: "/telemetry", icon: Activity },
+const INTELLIGENCE_BASE: Item[] = [
   { title: "Decision Log", url: "/telemetry/traces", icon: Network },
   { title: "Outcomes", url: "/telemetry/outcomes", icon: Flag },
 ];
+const INTELLIGENCE_AGENTS: Item = { title: "Agents", url: "/agents", icon: Bot };
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -59,12 +54,13 @@ export function AppSidebar() {
   const peopleVisible: Item[] = [...PEOPLE_BASE];
   if (isAdmin || isManager) peopleVisible.push(PEOPLE_TEAMS);
   const catalogVisible: Item[] = [...CATALOG_BASE];
-  const automationVisible = isAdmin ? AUTOMATION : [];
+  const intelligenceVisible: Item[] = [...INTELLIGENCE_BASE];
+  if (isAdmin) intelligenceVisible.push(INTELLIGENCE_AGENTS);
+  // People base no longer needs an "Overview" landing — cards on /people page
 
-  // Top → bottom: Automation, Decision Intelligence, People, Knowledge, Sources
+  // Top → bottom: Intelligence (Agents + Decisions), People, Knowledge, Sources
   const groups: Group[] = [
-    { key: "automation", label: "Automation", icon: Bot, items: automationVisible },
-    { key: "decisions", label: "Decision Intelligence", icon: BrainCircuit, items: DECISIONS },
+    { key: "intelligence", label: "Intelligence", icon: BrainCircuit, items: intelligenceVisible },
     { key: "people", label: "People", icon: UsersRound, items: peopleVisible },
     { key: "knowledge", label: "Knowledge", icon: BookOpen, items: KNOWLEDGE },
     { key: "catalog", label: "Sources", icon: Database, items: catalogVisible },
