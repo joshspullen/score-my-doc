@@ -26,7 +26,7 @@ const Outcomes = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
 
-  useEffect(() => { document.title = "Outcomes & Evals — MERIDIAN"; }, []);
+  useEffect(() => { document.title = "Outcomes — MERIDIAN"; }, []);
 
   useEffect(() => {
     (async () => {
@@ -50,8 +50,8 @@ const Outcomes = () => {
     <div className="container py-10">
       <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Flag className="h-7 w-7" /> Outcomes &amp; Evals</h1>
-          <p className="text-muted-foreground mt-1">Track what happened after each decision and where humans diverged from AI.</p>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Flag className="h-7 w-7" /> Outcomes</h1>
+          <p className="text-muted-foreground mt-1">What happened after each decision — and where the team's call differed from the AI suggestion.</p>
         </div>
         <Select value={filter} onValueChange={setFilter}>
           <SelectTrigger className="w-44 h-9"><SelectValue /></SelectTrigger>
