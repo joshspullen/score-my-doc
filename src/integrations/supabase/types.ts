@@ -254,6 +254,53 @@ export type Database = {
           },
         ]
       }
+      candidates: {
+        Row: {
+          applied_at: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          position_id: string | null
+          resume_url: string | null
+          stage: Database["public"]["Enums"]["candidate_stage"]
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          position_id?: string | null
+          resume_url?: string | null
+          stage?: Database["public"]["Enums"]["candidate_stage"]
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          position_id?: string | null
+          resume_url?: string | null
+          stage?: Database["public"]["Enums"]["candidate_stage"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       compliance_assignments: {
         Row: {
           compliance_requirement_id: string
@@ -556,6 +603,129 @@ export type Database = {
           email?: string | null
           id?: string
           job_title?: string | null
+        }
+        Relationships: []
+      }
+      leave_requests: {
+        Row: {
+          approver_id: string | null
+          created_at: string
+          end_date: string
+          id: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          reason: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["leave_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approver_id?: string | null
+          created_at?: string
+          end_date: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"]
+          reason?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["leave_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approver_id?: string | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"]
+          reason?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["leave_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payroll_entries: {
+        Row: {
+          base_amount: number
+          bonus_amount: number
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          period_end: string
+          period_start: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_amount?: number
+          bonus_amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          period_end: string
+          period_start: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_amount?: number
+          bonus_amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      positions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          department: string | null
+          description: string | null
+          id: string
+          location: string | null
+          opened_at: string | null
+          seniority: string | null
+          status: Database["public"]["Enums"]["position_status"]
+          team_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          opened_at?: string | null
+          seniority?: string | null
+          status?: Database["public"]["Enums"]["position_status"]
+          team_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          opened_at?: string | null
+          seniority?: string | null
+          status?: Database["public"]["Enums"]["position_status"]
+          team_id?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -991,7 +1161,17 @@ export type Database = {
         | "monthly"
         | "cron"
       app_role: "admin" | "user" | "manager"
+      candidate_stage:
+        | "applied"
+        | "screening"
+        | "interview"
+        | "offer"
+        | "hired"
+        | "rejected"
       doc_level: "policy" | "standard" | "procedure" | "work_instruction"
+      leave_status: "pending" | "approved" | "rejected" | "cancelled"
+      leave_type: "vacation" | "sick" | "personal" | "training" | "other"
+      position_status: "open" | "interviewing" | "filled" | "on_hold" | "closed"
       regulation_category:
         | "sanctions"
         | "aml_cft"
@@ -1131,7 +1311,18 @@ export const Constants = {
       agent_status: ["active", "paused", "draft"],
       agent_trigger: ["manual", "hourly", "daily", "weekly", "monthly", "cron"],
       app_role: ["admin", "user", "manager"],
+      candidate_stage: [
+        "applied",
+        "screening",
+        "interview",
+        "offer",
+        "hired",
+        "rejected",
+      ],
       doc_level: ["policy", "standard", "procedure", "work_instruction"],
+      leave_status: ["pending", "approved", "rejected", "cancelled"],
+      leave_type: ["vacation", "sick", "personal", "training", "other"],
+      position_status: ["open", "interviewing", "filled", "on_hold", "closed"],
       regulation_category: [
         "sanctions",
         "aml_cft",

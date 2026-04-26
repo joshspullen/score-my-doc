@@ -41,6 +41,15 @@ const AUTOMATION: Item[] = [
   { title: "Agents", url: "/agents", icon: Bot },
 ];
 
+const TOUR_KEYS: Record<string, string> = {
+  "/knowledge": "nav-knowledge",
+  "/knowledge/processes": "nav-docs",
+  "/knowledge/regulations": "nav-regs",
+  "/agents": "nav-agents",
+  "/upload": "nav-upload",
+};
+const tourKey = (url: string) => TOUR_KEYS[url];
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -65,7 +74,7 @@ export function AppSidebar() {
         <SidebarGroupContent>
           <SidebarMenu>
             {items.map((item) => (
-              <SidebarMenuItem key={item.url}>
+              <SidebarMenuItem key={item.url} data-tour={tourKey(item.url)}>
                 <SidebarMenuButton asChild isActive={location.pathname === item.url}>
                   <NavLink to={item.url} end className={linkBase} activeClassName={linkActive}>
                     <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -81,7 +90,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" data-tour="sidebar">
       <SidebarHeader className="border-b border-sidebar-border">
         <NavLink to="/dashboard" className="flex items-center gap-2 px-2 py-2">
           <img src={logo} alt="MERIDIAN" className="h-7 w-7 flex-shrink-0" />
