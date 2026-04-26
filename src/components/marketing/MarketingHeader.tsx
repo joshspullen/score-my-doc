@@ -79,6 +79,7 @@ export function MarketingHeader() {
           </NavigationMenu>
           <Link to="/pricing" className="px-4 text-sm font-medium hover:text-primary transition-colors">Pricing</Link>
           <Link to="/company" className="px-4 text-sm font-medium hover:text-primary transition-colors">Company</Link>
+          <Link to="/team" className="px-4 text-sm font-medium hover:text-primary transition-colors">Team</Link>
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
@@ -98,6 +99,7 @@ export function MarketingHeader() {
             <MobileGroup label="Resources" items={RESOURCES} />
             <Link to="/pricing" className="block py-2 font-medium" onClick={() => setOpen(false)}>Pricing</Link>
             <Link to="/company" className="block py-2 font-medium" onClick={() => setOpen(false)}>Company</Link>
+            <Link to="/team" className="block py-2 font-medium" onClick={() => setOpen(false)}>Team</Link>
             <div className="flex gap-2 pt-2 border-t border-border">
               <Link to="/auth" className="flex-1"><Button variant="outline" className="w-full">Sign in</Button></Link>
               <Link to="/contact" className="flex-1"><Button className="w-full">Book a demo</Button></Link>
