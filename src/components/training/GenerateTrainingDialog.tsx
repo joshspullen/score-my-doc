@@ -68,18 +68,22 @@ export const GenerateTrainingDialog = ({ open, onClose, regulation, onCreated }:
       const { data: ins, error: insErr } = await supabase.from("training_modules").insert(payload).select("id").single();
       if (insErr) throw insErr;
 
-      // Auto-assign to selected team members
+      // Build assignment cohort: always include the creator, plus selected team members
+      const userIds = new Set<string>();
+      const { data: authData } = await supabase.auth.getUser();
+      if (authData?.user?.id) userIds.add(authData.user.id);
       if (teamId !== "none") {
         const { data: members } = await supabase.from("team_members").select("user_id").eq("team_id", teamId);
-        const rows = (members ?? []).map((m: any) => ({ training_module_id: ins.id, user_id: m.user_id, status: "assigned" }));
-        if (rows.length > 0) {
-          await supabase.from("training_assignments").upsert(rows, { onConflict: "training_module_id,user_id", ignoreDuplicates: true });
-        }
+        (members ?? []).forEach((m: any) => userIds.add(m.user_id));
+      }
+      const rows = Array.from(userIds).map((uid) => ({ training_module_id: ins.id, user_id: uid, status: "assigned" }));
+      if (rows.length > 0) {
+        await supabase.from("training_assignments").upsert(rows, { onConflict: "training_module_id,user_id", ignoreDuplicates: true });
       }
 
       toast.success("Training module generated", {
         icon: <CheckCircle2 className="h-4 w-4" />,
-        description: `Quiz with ${(data.quiz ?? []).length} questions ready.`,
+        description: `Quiz with ${(data.quiz ?? []).length} questions ready. Assigned to ${rows.length} learner(s).`,
       });
       onCreated?.(ins.id);
       onClose();

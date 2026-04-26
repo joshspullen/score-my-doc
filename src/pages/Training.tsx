@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, ExternalLink, UserPlus, BarChart3, ScrollText, Workflow, Target } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, GraduationCap, Play, CheckCircle2, UserPlus, BarChart3, ScrollText, Workflow, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,7 @@ type CompAssign = { id: string; compliance_requirement_id: string; target_type: 
 type Team = { id: string; name: string };
 type Assignment = { id: string; training_module_id: string; user_id: string; status: string; due_at: string | null; completed_at: string | null };
 
-const empty: Partial<Module> = { title: "", description: "", content_url: "", duration_minutes: null, compliance_requirement_id: null };
+const empty: Partial<Module> = { title: "", description: "", content_url: null, duration_minutes: null, compliance_requirement_id: null };
 
 const Training = () => {
   const { user } = useAuth();
@@ -67,7 +67,7 @@ const Training = () => {
     if (!editing?.title) { toast.error("Title required"); return; }
     const payload = {
       title: editing.title!, description: editing.description || null,
-      content_url: editing.content_url || null,
+      content_url: null,
       duration_minutes: editing.duration_minutes ? Number(editing.duration_minutes) : null,
       compliance_requirement_id: editing.compliance_requirement_id || null,
     };
@@ -168,7 +168,6 @@ const Training = () => {
           </div>
           {m.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{m.description}</p>}
           <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-            {filter === "mine" && a && m.content_url && <a href={m.content_url} target="_blank" rel="noreferrer"><Button size="sm" variant="outline" className="gap-1.5">Open <ExternalLink className="h-3.5 w-3.5" /></Button></a>}
             {filter === "mine" && a && (m.quiz && m.quiz.length > 0) && (
               <Button size="sm" onClick={() => setQuizFor({ module: m, assignmentId: a.id })} className="gap-1.5">
                 <HelpCircle className="h-3.5 w-3.5" /> {a.status === "completed" ? "Retake quiz" : "Take quiz"}
@@ -178,6 +177,11 @@ const Training = () => {
             {filter === "mine" && a && (!m.quiz || m.quiz.length === 0) && a.status === "in_progress" && <Button size="sm" onClick={() => setStatus(a, "completed")} className="gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Complete</Button>}
             {filter === "catalog" && (
               <>
+                {m.quiz && m.quiz.length > 0 && (
+                  <Button size="sm" variant="outline" onClick={() => setQuizFor({ module: m })} className="gap-1.5">
+                    <HelpCircle className="h-3.5 w-3.5" /> Preview quiz
+                  </Button>
+                )}
                 <Button size="sm" variant="outline" onClick={() => autoAssign(m)} className="gap-1.5"><UserPlus className="h-3.5 w-3.5" /> Assign to targets</Button>
                 <Button size="icon" variant="ghost" onClick={() => setEditing(m)}><Pencil className="h-3.5 w-3.5" /></Button>
                 <Button size="icon" variant="ghost" onClick={() => removeModule(m.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -315,11 +319,9 @@ const Training = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5"><Label>Content URL</Label><Input value={editing?.content_url ?? ""} onChange={(e) => setEditing({ ...editing!, content_url: e.target.value })} placeholder="https://…" /></div>
-              <div className="space-y-1.5"><Label>Duration (min)</Label><Input type="number" value={editing?.duration_minutes ?? ""} onChange={(e) => setEditing({ ...editing!, duration_minutes: e.target.value ? Number(e.target.value) : null })} /></div>
-            </div>
+            <div className="space-y-1.5"><Label>Duration (min)</Label><Input type="number" value={editing?.duration_minutes ?? ""} onChange={(e) => setEditing({ ...editing!, duration_minutes: e.target.value ? Number(e.target.value) : null })} /></div>
             <div className="space-y-1.5"><Label>Description</Label><Textarea rows={3} value={editing?.description ?? ""} onChange={(e) => setEditing({ ...editing!, description: e.target.value })} /></div>
+            <p className="text-xs text-muted-foreground">Quizzes are generated from a regulation page (Compliance → Generate training). All learning happens in-app — no external links.</p>
           </div>
           <DialogFooter><Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button><Button onClick={saveModule}>Save</Button></DialogFooter>
         </DialogContent>
@@ -342,7 +344,7 @@ const Training = () => {
             description={m.description}
             fields={[
               { label: "Duration", value: m.duration_minutes ? `${m.duration_minutes} min` : null },
-              { label: "Content URL", value: m.content_url ? <a href={m.content_url} target="_blank" rel="noreferrer" className="text-primary hover:underline inline-flex items-center gap-1 text-xs">Open <ExternalLink className="h-3 w-3" /></a> : null },
+              { label: "Quiz", value: m.quiz && m.quiz.length > 0 ? `${m.quiz.length} questions` : "No quiz" },
             ]}
             sections={[
               {
