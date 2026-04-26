@@ -1,9 +1,10 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
   GraduationCap, ScrollText, FileText, UsersRound, BookOpen, Bot, Briefcase,
-  Activity, Network, Flag,
+  Activity, Network, Flag, ChevronDown, Workflow, BrainCircuit, Link2,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useRoles } from "@/hooks/useRoles";
 import logo from "@/assets/meridian-logo.svg";
@@ -11,8 +12,10 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 type Item = { title: string; url: string; icon: React.ComponentType<{ className?: string }> };
+type Group = { key: string; label: string; icon: React.ComponentType<{ className?: string }>; items: Item[] };
 
 const WORKSPACE: Item[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -48,15 +51,6 @@ const DECISIONS: Item[] = [
   { title: "Outcomes", url: "/telemetry/outcomes", icon: Flag },
 ];
 
-const TOUR_KEYS: Record<string, string> = {
-  "/knowledge": "nav-knowledge",
-  "/knowledge/processes": "nav-docs",
-  "/knowledge/regulations": "nav-regs",
-  "/agents": "nav-agents",
-  "/upload": "nav-upload",
-};
-const tourKey = (url: string) => TOUR_KEYS[url];
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -70,31 +64,49 @@ export function AppSidebar() {
   if (isAdmin) connectionsVisible.unshift(CONNECTIONS_ADMIN);
   const automationVisible = isAdmin ? AUTOMATION : [];
 
+  // Top → bottom: Automation, Decision Intelligence, People, Knowledge, Connections
+  const groups: Group[] = [
+    { key: "automation", label: "Automation", icon: Bot, items: automationVisible },
+    { key: "decisions", label: "Decision Intelligence", icon: BrainCircuit, items: DECISIONS },
+    { key: "people", label: "People", icon: UsersRound, items: peopleVisible },
+    { key: "knowledge", label: "Knowledge", icon: BookOpen, items: KNOWLEDGE },
+    { key: "connections", label: "Connections", icon: Link2, items: connectionsVisible },
+  ].filter((g) => g.items.length > 0);
+
+  const groupContainsActive = (g: Group) => g.items.some((i) => location.pathname === i.url || location.pathname.startsWith(i.url + "/"));
+  const [openKey, setOpenKey] = useState<string | null>(() => {
+    const active = groups.find(groupContainsActive);
+    return active?.key ?? null;
+  });
+
+  useEffect(() => {
+    const active = groups.find(groupContainsActive);
+    if (active) setOpenKey(active.key);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
   const linkBase = "flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors";
   const linkActive = "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
 
-  const renderGroup = (label: string, items: Item[]) => {
-    if (items.length === 0) return null;
-    return (
-      <SidebarGroup>
-        {!collapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider">{label}</SidebarGroupLabel>}
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {items.map((item) => (
-              <SidebarMenuItem key={item.url} data-tour={tourKey(item.url)}>
-                <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-                  <NavLink to={item.url} end className={linkBase} activeClassName={linkActive}>
-                    <item.icon className="h-4 w-4 flex-shrink-0" />
-                    {!collapsed && <span>{item.title}</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    );
-  };
+  const renderFlat = (label: string, items: Item[]) => (
+    <SidebarGroup>
+      {!collapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider">{label}</SidebarGroupLabel>}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.url}>
+              <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                <NavLink to={item.url} end className={linkBase} activeClassName={linkActive}>
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  {!collapsed && <span>{item.title}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
 
   return (
     <Sidebar collapsible="icon" data-tour="sidebar">
@@ -105,12 +117,54 @@ export function AppSidebar() {
         </NavLink>
       </SidebarHeader>
       <SidebarContent>
-        {renderGroup("Workspace", WORKSPACE)}
-        {renderGroup("Automation", automationVisible)}
-        {renderGroup("Decision Intelligence", DECISIONS)}
-        {renderGroup("People", peopleVisible)}
-        {renderGroup("Knowledge", KNOWLEDGE)}
-        {renderGroup("Connections", connectionsVisible)}
+        {renderFlat("Workspace", WORKSPACE)}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {groups.map((g) => {
+                const isOpen = openKey === g.key;
+                const hasActive = groupContainsActive(g);
+                return (
+                  <Collapsible
+                    key={g.key}
+                    open={isOpen && !collapsed}
+                    onOpenChange={(o) => setOpenKey(o ? g.key : null)}
+                  >
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton isActive={hasActive} className="w-full">
+                          <g.icon className="h-4 w-4 flex-shrink-0" />
+                          {!collapsed && (
+                            <>
+                              <span className="flex-1 text-left">{g.label}</span>
+                              <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                            </>
+                          )}
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      {!collapsed && (
+                        <CollapsibleContent>
+                          <SidebarMenu className="ml-4 mt-1 border-l border-sidebar-border pl-2">
+                            {g.items.map((item) => (
+                              <SidebarMenuItem key={item.url}>
+                                <SidebarMenuButton asChild isActive={location.pathname === item.url} size="sm">
+                                  <NavLink to={item.url} end className={linkBase} activeClassName={linkActive}>
+                                    <item.icon className="h-3.5 w-3.5 flex-shrink-0" />
+                                    <span>{item.title}</span>
+                                  </NavLink>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                            ))}
+                          </SidebarMenu>
+                        </CollapsibleContent>
+                      )}
+                    </SidebarMenuItem>
+                  </Collapsible>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );
