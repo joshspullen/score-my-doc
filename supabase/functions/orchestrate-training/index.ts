@@ -360,8 +360,9 @@ function buildBaseContext(opts: {
   policies: PolicyRow[];
   audience: string;
   category: string;
+  pdfs?: Array<{ filename: string; text: string; source: "regulation" | "policy" }>;
 }) {
-  const { regulation, policies, audience, category } = opts;
+  const { regulation, policies, audience, category, pdfs = [] } = opts;
   const sanctionText = [
     `Title: ${regulation.title}`,
     regulation.reference_code ? `Reference: ${regulation.reference_code}` : "",
@@ -375,6 +376,8 @@ function buildBaseContext(opts: {
     .join("\n");
   const clippedSanction = clip(sanctionText, SANCTION_BUDGET);
 
+  const pdfBlock = buildPdfBlock(pdfs);
+
   return `Target audience / brief: ${audience || "(not specified)"}
 Requested training category: ${category || "Awareness"}
 
@@ -384,7 +387,57 @@ ${clippedSanction.text}
 
 === POLICY CONTEXT ===
 ${buildPolicyBlock(policies)}
-=== END POLICY CONTEXT ===`;
+=== END POLICY CONTEXT ===
+${pdfBlock ? `\n=== UPLOADED POLICY/REGULATION PDFS ===\n${pdfBlock}\n=== END UPLOADED POLICY/REGULATION PDFS ===` : ""}`;
+}
+
+function buildPdfBlock(pdfs: Array<{ filename: string; text: string; source: "regulation" | "policy" }>): string {
+  if (!pdfs.length) return "";
+  let remaining = PDF_TOTAL_BUDGET;
+  const parts: string[] = [];
+  for (const p of pdfs) {
+    if (remaining <= 0) break;
+    const perDoc = Math.min(PDF_PER_DOC_BUDGET, remaining);
+    const clipped = clip(p.text || "", perDoc);
+    if (!clipped.text) continue;
+    remaining -= clipped.text.length;
+    parts.push(`--- PDF (${p.source}: ${p.filename})${clipped.truncated ? " (truncated)" : ""} ---\n${clipped.text}`);
+  }
+  return parts.join("\n\n");
+}
+
+async function loadPolicyPdfs(
+  admin: any,
+  regulationId: string,
+  policyIds: string[]
+): Promise<Array<{ filename: string; text: string; source: "regulation" | "policy" }>> {
+  try {
+    const out: Array<{ filename: string; text: string; source: "regulation" | "policy" }> = [];
+
+    const { data: regDocs } = await admin
+      .from("policy_documents")
+      .select("filename, extracted_text")
+      .eq("compliance_requirement_id", regulationId)
+      .eq("extraction_status", "ready");
+    for (const d of regDocs ?? []) {
+      if (d.extracted_text) out.push({ filename: d.filename, text: d.extracted_text, source: "regulation" });
+    }
+
+    if (policyIds.length > 0) {
+      const { data: polDocs } = await admin
+        .from("policy_documents")
+        .select("filename, extracted_text")
+        .in("business_process_id", policyIds)
+        .eq("extraction_status", "ready");
+      for (const d of polDocs ?? []) {
+        if (d.extracted_text) out.push({ filename: d.filename, text: d.extracted_text, source: "policy" });
+      }
+    }
+
+    return out;
+  } catch (_) {
+    return [];
+  }
 }
 
 async function callTextLLM(args: {
