@@ -506,6 +506,62 @@ const Profile = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Record decision dialog */}
+      <Dialog open={decisionOpen} onOpenChange={setDecisionOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Record a decision</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Field label="What did you decide on? *">
+              <Input placeholder="e.g. Onboard Acme Holdings" value={newDecision.title} onChange={(e) => setNewDecision({ ...newDecision, title: e.target.value })} />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Category">
+                <Select value={newDecision.category} onValueChange={(v) => setNewDecision({ ...newDecision, category: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {["KYC", "AML", "Sanctions", "Credit", "Operational", "Other"].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Policy referenced">
+                <Select value={newDecision.policy_id ?? "none"} onValueChange={(v) => setNewDecision({ ...newDecision, policy_id: v === "none" ? null : v })}>
+                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {policies.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+            <Field label="Options on the table (one per line)">
+              <Textarea rows={3} value={newDecision.options} onChange={(e) => setNewDecision({ ...newDecision, options: e.target.value })} />
+            </Field>
+            <Field label="Your choice *">
+              <Input placeholder="e.g. Approve" value={newDecision.choice} onChange={(e) => setNewDecision({ ...newDecision, choice: e.target.value })} />
+            </Field>
+            <Field label="Outcome">
+              <Select value={newDecision.outcome} onValueChange={(v) => setNewDecision({ ...newDecision, outcome: v as DecisionTrace["outcome"] })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending review</SelectItem>
+                  <SelectItem value="correct">Correct</SelectItem>
+                  <SelectItem value="incorrect">Incorrect</SelectItem>
+                  <SelectItem value="divergent">Divergent from AI</SelectItem>
+                  <SelectItem value="n_a">Not applicable</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Notes / rationale">
+              <Textarea rows={3} value={newDecision.notes} onChange={(e) => setNewDecision({ ...newDecision, notes: e.target.value })} />
+            </Field>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDecisionOpen(false)}>Cancel</Button>
+            <Button onClick={recordDecision}>Save decision</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
