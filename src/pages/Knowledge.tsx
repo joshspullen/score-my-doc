@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ScrollText, Workflow, GraduationCap, BookOpen } from "lucide-react";
+import { ScrollText, FileText, GraduationCap, BookOpen } from "lucide-react";
 
 const TILES = [
   { to: "/knowledge/regulations", title: "Regulations", desc: "Central-bank obligations classified by taxonomy.", icon: ScrollText },
-  { to: "/knowledge/processes", title: "Business Processes", desc: "Bank process catalog mapped to regulations.", icon: Workflow },
+  { to: "/knowledge/processes", title: "Documentation", desc: "Policies → Standards → Procedures → Work Instructions, linked to real sanctions.", icon: FileText },
   { to: "/knowledge/training", title: "Training", desc: "Learning content linked to each regulation.", icon: GraduationCap },
 ];
 

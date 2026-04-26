@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
-import { LayoutGrid, Table as TableIcon, BarChart3, LucideIcon } from "lucide-react";
+import { LayoutGrid, Table as TableIcon, BarChart3, Network, LucideIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export type ViewMode = "dashboard" | "cards" | "table";
+export type ViewMode = "dashboard" | "cards" | "table" | "tree";
 
 export interface FilterOption {
   value: string;
@@ -27,6 +27,7 @@ const viewMeta: Record<ViewMode, { label: string; icon: LucideIcon }> = {
   dashboard: { label: "Dashboard", icon: BarChart3 },
   cards: { label: "Cards", icon: LayoutGrid },
   table: { label: "Table", icon: TableIcon },
+  tree: { label: "Hierarchy", icon: Network },
 };
 
 export const ModuleHeader = ({ icon: Icon, title, subtitle, views, view, onViewChange, filters, filter, onFilterChange, actions }: ModuleHeaderProps) => {
