@@ -1,7 +1,7 @@
 import {
-  LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
+  LayoutDashboard, Upload as UploadIcon, User, Users,
   GraduationCap, ScrollText, FileText, UsersRound, BookOpen, Bot, Briefcase,
-  Activity, Network, Flag, ChevronDown, Workflow, BrainCircuit, Link2,
+  Activity, Network, Flag, ChevronDown, BrainCircuit, Link2,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
