@@ -4,6 +4,7 @@ import { Plug, Bot, ScrollText, Users, ArrowRight, Loader2, CheckCircle2, AlertC
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { RegulatoryRadar } from "@/components/dashboard/RegulatoryRadar";
 
 type Stat = { label: string; value: string | number; icon: React.ComponentType<{ className?: string }>; to: string };
 
