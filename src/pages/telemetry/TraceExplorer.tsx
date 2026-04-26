@@ -25,7 +25,7 @@ const TraceExplorer = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const selectedId = params.get("id");
 
-  useEffect(() => { document.title = "Trace Explorer — MERIDIAN"; }, []);
+  useEffect(() => { document.title = "Decision Log — MERIDIAN"; }, []);
 
   useEffect(() => {
     (async () => {
@@ -55,8 +55,8 @@ const TraceExplorer = () => {
   return (
     <div className="container py-10">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Network className="h-7 w-7" /> Trace Explorer</h1>
-        <p className="text-muted-foreground mt-1">Inspect every step of every decision.</p>
+        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Network className="h-7 w-7" /> Decision Log</h1>
+        <p className="text-muted-foreground mt-1">Step-by-step replay of each decision: what triggered it, the options on the table, who chose what, which policy applied, and the result.</p>
       </div>
 
       <div className="flex items-center gap-2 mb-4 flex-wrap">
@@ -124,7 +124,7 @@ const TraceExplorer = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Spans</div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Steps</div>
                   {spans.map((s) => <TraceSpanCard key={s.id} span={s} />)}
                 </div>
 
