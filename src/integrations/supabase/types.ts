@@ -404,6 +404,7 @@ export type Database = {
           regulator_id: string | null
           requires_api_key: boolean
           slug: string
+          source_url: string | null
           updated_at: string
         }
         Insert: {
@@ -425,6 +426,7 @@ export type Database = {
           regulator_id?: string | null
           requires_api_key?: boolean
           slug: string
+          source_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -446,6 +448,7 @@ export type Database = {
           regulator_id?: string | null
           requires_api_key?: boolean
           slug?: string
+          source_url?: string | null
           updated_at?: string
         }
         Relationships: [

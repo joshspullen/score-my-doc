@@ -26,7 +26,7 @@ type Agent = {
   config: any; last_run_at: string | null; last_run_status: string | null; next_run_at: string | null;
 };
 type Regulator = { id: string; name: string; short_code: string };
-type Connector = { id: string; name: string; slug: string };
+type Connector = { id: string; name: string; slug: string; source_url: string | null };
 type Run = { id: string; status: string; triggered_by: string; records_collected: number; new_records: number; error_message: string | null; logs: any; started_at: string; finished_at: string | null };
 
 const PATTERN_META: Record<Pattern, { label: string; icon: any; tone: string; desc: string }> = {
@@ -58,7 +58,7 @@ export default function Agents() {
     const [a, r, c] = await Promise.all([
       supabase.from("agents").select("*").order("created_at", { ascending: false }),
       supabase.from("regulators").select("id, name, short_code").order("name"),
-      supabase.from("connectors").select("id, name, slug").order("name"),
+      supabase.from("connectors").select("id, name, slug, source_url").order("name"),
     ]);
     setAgents((a.data ?? []) as Agent[]);
     setRegulators((r.data ?? []) as Regulator[]);
@@ -84,6 +84,9 @@ export default function Agents() {
 
   const saveAgent = async () => {
     if (!editor?.name || !editor.pattern) { toast.error("Name and pattern are required"); return; }
+    if (editor.pattern === "collection" && !editor.connector_id) {
+      toast.error("Collection agents need a connector (the source URL lives there)"); return;
+    }
     const payload: any = {
       name: editor.name,
       description: editor.description ?? null,
@@ -283,12 +286,13 @@ export default function Agents() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1.5"><Label>Persist into connector</Label>
+                <div className="space-y-1.5">
+                  <Label>Connector {editor.pattern === "collection" && <span className="text-destructive">*</span>}</Label>
                   <Select value={editor.connector_id ?? "none"} onValueChange={(v) => setEditor({ ...editor, connector_id: v === "none" ? null : v })}>
-                    <SelectTrigger><SelectValue placeholder="Select connector" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select connector (source URL lives here)" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None (preview only)</SelectItem>
-                      {connectors.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                      <SelectItem value="none">None</SelectItem>
+                      {connectors.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}{c.source_url ? "" : " (no URL set)"}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -296,10 +300,14 @@ export default function Agents() {
 
               {editor.pattern === "collection" && (
                 <div className="rounded-md border p-3 space-y-3 bg-muted/30">
-                  <div className="space-y-1.5"><Label>Source URL (RSS / page to scrape)</Label>
-                    <Input value={editor.config?.scrape_url ?? ""}
-                      onChange={(e) => setEditor({ ...editor, config: { ...editor.config, scrape_url: e.target.value } })}
-                      placeholder="https://acpr.banque-france.fr/rss.xml" /></div>
+                  <div className="space-y-1"><Label className="text-xs uppercase tracking-wider text-muted-foreground">Source URL (from connector)</Label>
+                    {(() => {
+                      const c = connectors.find((x) => x.id === editor.connector_id);
+                      if (!c) return <p className="text-xs text-muted-foreground">Select a connector above to inherit its source URL.</p>;
+                      if (!c.source_url) return <p className="text-xs text-amber-600 dark:text-amber-400">⚠ This connector has no source URL. Set it in the Connectors page.</p>;
+                      return <code className="text-xs break-all bg-background px-2 py-1 rounded border block">{c.source_url}</code>;
+                    })()}
+                  </div>
                   <div className="space-y-1.5"><Label>Keyword filter (comma separated, optional)</Label>
                     <Input value={(editor.config?.keywords ?? []).join(", ")}
                       onChange={(e) => setEditor({ ...editor, config: { ...editor.config, keywords: e.target.value.split(",").map((k) => k.trim()).filter(Boolean) } })}

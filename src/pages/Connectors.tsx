@@ -16,7 +16,7 @@ import { formatDistanceToNow } from "date-fns";
 type ConnectorType = "api" | "scraping" | "file" | "other";
 type Connector = {
   id: string; slug: string; name: string; category: string; description: string | null;
-  homepage_url: string | null; api_base_url: string | null;
+  homepage_url: string | null; api_base_url: string | null; source_url: string | null;
   requires_api_key: boolean; api_key_secret_name: string | null;
   enabled: boolean; last_sync_at: string | null; last_sync_status: string | null; last_sync_error: string | null;
   records_count: number; connector_type: ConnectorType; config: Record<string, any>;
@@ -82,6 +82,7 @@ const Connectors = () => {
       connector_type: draft.connector_type ?? "api",
       api_base_url: draft.api_base_url || null,
       homepage_url: draft.homepage_url || null,
+      source_url: draft.source_url || null,
       api_key_secret_name: draft.api_key_secret_name || null,
       requires_api_key: !!draft.api_key_secret_name,
       config: draft.config ?? {},
@@ -255,6 +256,11 @@ const Connectors = () => {
                 <div className="space-y-1.5"><Label>Homepage URL</Label>
                   <Input value={draft.homepage_url ?? ""} onChange={(e) => setDraft({ ...draft, homepage_url: e.target.value })} placeholder="https://…" />
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Source URL <span className="text-xs text-muted-foreground font-normal">— what agents will fetch (RSS / page / file feed)</span></Label>
+                <Input value={draft.source_url ?? ""} onChange={(e) => setDraft({ ...draft, source_url: e.target.value })} placeholder="https://acpr.banque-france.fr/rss.xml" />
               </div>
 
               {/* Type-specific fields */}

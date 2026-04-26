@@ -52,8 +52,14 @@ Deno.serve(async (req) => {
 
     try {
       if (agent.pattern === "collection") {
-        const url = agent.config?.scrape_url || agent.config?.url;
-        if (!url) throw new Error("No scrape_url in agent.config");
+        // Source URL comes from the linked connector (single source of truth).
+        let url: string | null = agent.config?.scrape_url ?? null;
+        if (!url && agent.connector_id) {
+          const { data: conn } = await admin.from("connectors")
+            .select("source_url").eq("id", agent.connector_id).maybeSingle();
+          url = conn?.source_url ?? null;
+        }
+        if (!url) throw new Error("No source URL — link a connector with a source_url");
         log(`Fetching ${url}`);
         const res = await fetch(url, { headers: { "User-Agent": "MeridianAgent/1.0", Accept: "application/rss+xml, application/xml, text/html, */*" } });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
