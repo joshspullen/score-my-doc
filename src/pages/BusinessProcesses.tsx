@@ -462,7 +462,7 @@ const Documentation = () => {
               ...(p.linked_sanction ? [{
                 title: "Sanction this document responds to",
                 icon: AlertTriangle,
-                children: (
+                content: (
                   <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Badge variant="outline" className="border-destructive/30 text-destructive bg-destructive/5">
@@ -480,7 +480,6 @@ const Documentation = () => {
                   label: k.name, to: "/knowledge/processes", icon: LEVEL_META[k.doc_level].icon,
                   badge: LEVEL_META[k.doc_level].label,
                   meta: k.code ?? undefined,
-                  onClick: () => setDetail(k),
                 })),
                 empty: "No child documents.",
               }] : []),
