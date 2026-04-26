@@ -68,10 +68,10 @@ const PeopleOps = () => {
       supabase.from("leave_requests" as any).select("*").order("start_date", { ascending: false }),
       supabase.from("payroll_entries" as any).select("*").order("period_start", { ascending: false }),
     ]);
-    setPositions((p.data ?? []) as Position[]);
-    setCandidates((c.data ?? []) as Candidate[]);
-    setLeaves((l.data ?? []) as Leave[]);
-    setPayroll((pr.data ?? []) as Payroll[]);
+    setPositions((p.data ?? []) as unknown as Position[]);
+    setCandidates((c.data ?? []) as unknown as Candidate[]);
+    setLeaves((l.data ?? []) as unknown as Leave[]);
+    setPayroll((pr.data ?? []) as unknown as Payroll[]);
     setLoading(false);
   };
 
