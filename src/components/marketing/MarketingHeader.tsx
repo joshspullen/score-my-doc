@@ -24,6 +24,7 @@ const RESOURCES = [
   { to: "/resources/customers", title: "Customers", desc: "How banks deploy MERIDIAN." },
   { to: "/resources/regulatory-library", title: "Regulatory library", desc: "Curated obligations & sanctions." },
   { to: "/resources/changelog", title: "Changelog", desc: "What shipped, every week." },
+  { to: "/resources/brand", title: "Brand", desc: "Logo, colors, typography & voice." },
 ];
 
 function MenuList({ items }: { items: { to: string; title: string; desc: string; soon?: boolean }[] }) {
