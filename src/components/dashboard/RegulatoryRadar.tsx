@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useRoles } from "@/hooks/useRoles";
 
-type Record = {
+type RadarItem = {
   id: string;
   title: string;
   summary: string | null;
@@ -31,14 +31,14 @@ const SEV_TONE: Record<string, string> = {
 
 export function RegulatoryRadar() {
   const { isAdmin } = useRoles();
-  const [records, setRecords] = useState<Record[]>([]);
+  const [records, setRecords] = useState<RadarItem[]>([]);
   const [processes, setProcesses] = useState<Process[]>([]);
   const [decisionCount, setDecisionCount] = useState(0);
   const [sourcesCount, setSourcesCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
-  const [open, setOpen] = useState<Record | null>(null);
+  const [open, setOpen] = useState<RadarItem | null>(null);
 
   const load = async () => {
     const [{ data: recs }, { data: procs }, { data: traces }, { count: srcCount }] = await Promise.all([
@@ -51,7 +51,7 @@ export function RegulatoryRadar() {
       supabase.from("decision_traces").select("id, category"),
       supabase.from("connectors").select("*", { count: "exact", head: true }).eq("enabled", true),
     ]);
-    setRecords((recs ?? []) as Record[]);
+    setRecords((recs ?? []) as RadarItem[]);
     setProcesses((procs ?? []) as Process[]);
     setDecisionCount((traces ?? []).length);
     setSourcesCount(srcCount ?? 0);
@@ -87,7 +87,7 @@ export function RegulatoryRadar() {
     setSyncing(false);
   };
 
-  const analyze = async (rec: Record) => {
+  const analyze = async (rec: RadarItem) => {
     setAnalyzing(rec.id);
     const { data, error } = await supabase.functions.invoke("radar-impact", { body: { record_id: rec.id } });
     if (error) toast.error(error.message);
