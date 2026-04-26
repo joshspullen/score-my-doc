@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Users, Shield, Briefcase } from "lucide-react";
+import { Users, Briefcase, Settings } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
 
 type Tile = { to: string; title: string; desc: string; icon: React.ComponentType<{ className?: string }>; admin?: boolean; manager?: boolean; soon?: boolean };
 
 const TILES: Tile[] = [
-  { to: "/people/users", title: "Users", desc: "Roles, access and accounts.", icon: Shield, admin: true },
   { to: "/people/teams", title: "Teams", desc: "Org units and managers.", icon: Users, manager: true },
   { to: "/people/ops", title: "People Ops", desc: "Careers, operations and people-finance.", icon: Briefcase, soon: true },
 ];
@@ -23,6 +22,12 @@ const People = () => {
         <h1 className="text-3xl font-bold tracking-tight">People</h1>
         <p className="text-muted-foreground mt-1">Users, roles and teams across your organization.</p>
       </div>
+      {isAdmin && (
+        <Link to="/settings?tab=users"
+          className="mb-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground border border-dashed border-border rounded-lg px-3 py-2 w-fit">
+          <Settings className="h-4 w-4" /> Manage users & roles in <span className="text-primary font-medium">Settings</span>
+        </Link>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {visible.map((t) => (
           <Link key={t.to} to={t.to}
