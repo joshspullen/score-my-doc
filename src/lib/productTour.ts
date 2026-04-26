@@ -26,79 +26,87 @@ const STEPS: TourStep[] = [
     selector: '[data-tour="module-title"]',
     title: "Welcome to MERIDIAN",
     description:
-      "This quick tour walks you through the five pillars of the platform. Sit back — it advances on its own, but you can click <b>Next</b> any time.",
+      "This tour follows the real workflow: <b>1)</b> add a source, <b>2)</b> document a regulation or sanction, <b>3)</b> let AI generate training, <b>4)</b> take the quiz, <b>5)</b> review your profile. It auto-advances — click <b>Next</b> to skip.",
     autoMs: 5000,
   },
   {
     route: "/dashboard",
-    selector: '[data-tour="group-intelligence"]',
-    title: "Intelligence",
+    selector: '[data-tour="group-catalog"]',
+    title: "Step 1 · A new source is added",
     description:
-      "Decision logs, outcomes and (for admins) the agents that run autonomously. Everything the system decides is observable here.",
+      "Everything starts here. <b>Sources</b> is where data enters the platform — uploaded documents and external connectors that sync continuously.",
     autoMs: 4500,
   },
   {
-    route: "/telemetry/traces",
+    route: "/catalog",
     selector: '[data-tour="module-header"]',
-    title: "Decision Log",
+    title: "Step 1 · Browse & connect sources",
     description:
-      "Every agent run leaves a trace: inputs, tools called, citations and the final decision — replayable and exportable.",
+      "Pick an existing connector or upload a new document. Each source is classified, indexed and made available to the rest of the platform.",
     autoMs: 5000,
   },
   {
-    route: "/dashboard",
-    selector: '[data-tour="group-people"]',
-    title: "People",
+    route: "/upload",
+    selector: '[data-tour="module-header"]',
+    title: "Step 1 · Run an analysis",
     description:
-      "Teams, ownership and people-ops. Assign documents, training and accountability to the right humans.",
-    autoMs: 4500,
+      "Drop a document — MERIDIAN extracts entities, scores risk and links it to the relevant regulations automatically.",
+    autoMs: 5000,
   },
   {
     route: "/dashboard",
     selector: '[data-tour="group-knowledge"]',
-    title: "Knowledge",
+    title: "Step 2 · Knowledge is built",
     description:
-      "Your single source of truth: <b>Regulations</b>, internal <b>Documentation</b> and <b>Training</b> — all linked together.",
+      "From sources we derive <b>Knowledge</b>: regulations, internal documentation and the sanctions case library.",
     autoMs: 4500,
   },
   {
     route: "/knowledge/regulations",
     selector: '[data-tour="module-header"]',
-    title: "Regulations in context",
+    title: "Step 2 · Regulations & sanctions documented",
     description:
-      "Open any regulation or sanction case to generate a training module on the spot — assigned to the right team automatically.",
+      "Each regulation and enforcement case is documented with severity, regulator, jurisdiction and the internal documentation it impacts.",
     autoMs: 5500,
+  },
+  {
+    route: "/knowledge/regulations",
+    selector: '[data-tour="module-header"]',
+    title: "Step 3 · Generate AI learning material",
+    description:
+      "Open any regulation or sanction and click <b>Generate training</b>. AI drafts a module — pick the team, link the documentation and the quiz is built for you.",
+    autoMs: 6000,
   },
   {
     route: "/knowledge/training",
     selector: '[data-tour="module-header"]',
-    title: "Training & quizzes",
+    title: "Step 4 · Take the quiz",
     description:
-      "Generated modules ship with multiple-choice quizzes. Wrong answers alert the learner so the gap closes immediately.",
+      "Generated modules ship with multiple-choice quizzes. Wrong answers trigger an immediate alert pointing back to the source documentation.",
     autoMs: 5500,
   },
   {
     route: "/dashboard",
-    selector: '[data-tour="group-catalog"]',
-    title: "Sources",
+    selector: '[data-tour="group-people"]',
+    title: "Step 5 · People & accountability",
     description:
-      "Where data enters the platform: documents you upload and external connectors that sync continuously.",
+      "Teams and people-ops let you assign documentation, training and accountability to the right humans.",
     autoMs: 4500,
   },
   {
-    route: "/upload",
-    selector: '[data-tour="module-header"]',
-    title: "Run a new analysis",
+    route: "/profile",
+    selector: '[data-tour="module-header"], main',
+    title: "Step 5 · Your profile",
     description:
-      "Drop a document here. MERIDIAN will classify, score and route it — and surface any compliance gap.",
-    autoMs: 5000,
+      "Your profile is where you see assigned training, completion scores, the documentation you own and your activity across the platform.",
+    autoMs: 5500,
   },
   {
-    route: "/dashboard",
+    route: "/profile",
     selector: '[data-tour="user-menu"]',
-    title: "Your account",
+    title: "You're ready",
     description:
-      "Profile, settings and the option to relaunch this tour any time. You're ready — let's go.",
+      "Open your account menu any time to relaunch this tour, switch settings or sign out. Happy compliance!",
   },
 ];
 
