@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Network, Loader2, Filter } from "lucide-react";
+import { useSearchParams, Link } from "react-router-dom";
+import { Network, Loader2, Filter, User as UserIcon, FileText, ScrollText, Plug, Activity, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,6 +16,11 @@ type Trace = {
 };
 type Span = { id: string; step_order: number; step_type: string; label: string; payload: any; duration_ms: number | null };
 
+type Profile = { id: string; display_name: string | null; headline: string | null; avatar_url: string | null };
+type Policy = { id: string; name: string; doc_level: string | null; code: string | null; owner: string | null };
+type Reg = { id: string; title: string; reference_code: string | null; regulator: string | null; category: string | null };
+type Conn = { id: string; name: string; category: string };
+
 const TraceExplorer = () => {
   const [params, setParams] = useSearchParams();
   const [traces, setTraces] = useState<Trace[]>([]);
@@ -23,15 +28,29 @@ const TraceExplorer = () => {
   const [loading, setLoading] = useState(true);
   const [outcomeFilter, setOutcomeFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  const [policies, setPolicies] = useState<Record<string, Policy>>({});
+  const [regs, setRegs] = useState<Reg[]>([]);
+  const [conns, setConns] = useState<Conn[]>([]);
   const selectedId = params.get("id");
 
   useEffect(() => { document.title = "Decision Log — MERIDIAN"; }, []);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("decision_traces").select("*").order("decided_at", { ascending: false });
-      const list = (data ?? []) as Trace[];
+      const [tr, pr, po, rg, cn] = await Promise.all([
+        supabase.from("decision_traces").select("*").order("decided_at", { ascending: false }),
+        supabase.from("profiles").select("id, display_name, headline, avatar_url"),
+        supabase.from("business_processes").select("id, name, doc_level, code, owner"),
+        supabase.from("compliance_requirements").select("id, title, reference_code, regulator, category"),
+        supabase.from("connectors").select("id, name, category"),
+      ]);
+      const list = (tr.data ?? []) as Trace[];
       setTraces(list);
+      setProfiles(Object.fromEntries(((pr.data ?? []) as Profile[]).map((p) => [p.id, p])));
+      setPolicies(Object.fromEntries(((po.data ?? []) as Policy[]).map((p) => [p.id, p])));
+      setRegs((rg.data ?? []) as Reg[]);
+      setConns((cn.data ?? []) as Conn[]);
       if (!selectedId && list[0]) setParams({ id: list[0].id }, { replace: true });
       setLoading(false);
     })();
@@ -51,6 +70,21 @@ const TraceExplorer = () => {
     (categoryFilter === "all" || (t.category ?? "Other") === categoryFilter),
   );
   const selected = traces.find((t) => t.id === selectedId);
+
+  // Related entities for the selected trace
+  const related = useMemo(() => {
+    if (!selected) return null;
+    const person = profiles[selected.user_id] ?? null;
+    const policy = selected.policy_id ? policies[selected.policy_id] ?? null : null;
+    const cat = (selected.category ?? "").toLowerCase();
+    const matchCat = (s: string | null) => s ? s.toLowerCase().includes(cat) || cat.includes(s.toLowerCase()) : false;
+    const relatedRegs = cat ? regs.filter((r) => matchCat(r.category) || matchCat(r.regulator) || matchCat(r.title)).slice(0, 4) : [];
+    const relatedConns = cat ? conns.filter((c) => matchCat(c.category) || matchCat(c.name)).slice(0, 4) : [];
+    const otherDecisions = selected.policy_id
+      ? traces.filter((t) => t.policy_id === selected.policy_id && t.id !== selected.id).slice(0, 4)
+      : [];
+    return { person, policy, relatedRegs, relatedConns, otherDecisions };
+  }, [selected, profiles, policies, regs, conns, traces]);
 
   return (
     <div className="container py-10">
@@ -134,6 +168,81 @@ const TraceExplorer = () => {
                     <pre className="text-xs overflow-auto">{JSON.stringify(selected.ai_recommendation, null, 2)}</pre>
                   </div>
                 )}
+
+                {related && (
+                  <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                    <RelatedCard icon={UserIcon} title="Decision maker">
+                      {related.person ? (
+                        <Link to="/people" className="block hover:bg-muted/40 rounded-md px-2 py-1.5 -mx-2 transition-colors">
+                          <div className="text-sm font-medium">{related.person.display_name ?? "Unnamed"}</div>
+                          {related.person.headline && <div className="text-xs text-muted-foreground">{related.person.headline}</div>}
+                        </Link>
+                      ) : <Empty>Not linked to a profile yet.</Empty>}
+                    </RelatedCard>
+
+                    <RelatedCard icon={FileText} title="Policy / documentation">
+                      {related.policy ? (
+                        <Link to="/knowledge/processes" className="block hover:bg-muted/40 rounded-md px-2 py-1.5 -mx-2 transition-colors">
+                          <div className="text-sm font-medium">{related.policy.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {[related.policy.code, related.policy.doc_level, related.policy.owner].filter(Boolean).join(" · ")}
+                          </div>
+                        </Link>
+                      ) : <Empty>No policy referenced.</Empty>}
+                    </RelatedCard>
+
+                    <RelatedCard icon={ScrollText} title="Related regulations">
+                      {related.relatedRegs.length === 0 ? <Empty>No matches for this category.</Empty> : (
+                        <ul className="space-y-1">
+                          {related.relatedRegs.map((r) => (
+                            <li key={r.id}>
+                              <Link to="/knowledge/regulations" className="block hover:bg-muted/40 rounded-md px-2 py-1.5 -mx-2 text-sm">
+                                <span className="font-medium">{r.reference_code ?? r.title}</span>
+                                {r.regulator && <span className="text-xs text-muted-foreground"> · {r.regulator}</span>}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </RelatedCard>
+
+                    <RelatedCard icon={Plug} title="Related connections">
+                      {related.relatedConns.length === 0 ? <Empty>No connector matches.</Empty> : (
+                        <ul className="space-y-1">
+                          {related.relatedConns.map((c) => (
+                            <li key={c.id}>
+                              <Link to="/connectors" className="block hover:bg-muted/40 rounded-md px-2 py-1.5 -mx-2 text-sm">
+                                <span className="font-medium">{c.name}</span>
+                                <span className="text-xs text-muted-foreground"> · {c.category}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </RelatedCard>
+
+                    {related.otherDecisions.length > 0 && (
+                      <RelatedCard icon={Activity} title="Other decisions on this policy" className="sm:col-span-2">
+                        <ul className="space-y-1">
+                          {related.otherDecisions.map((d) => (
+                            <li key={d.id}>
+                              <button onClick={() => setParams({ id: d.id })} className="w-full text-left hover:bg-muted/40 rounded-md px-2 py-1.5 -mx-2 flex items-center justify-between gap-2">
+                                <div className="min-w-0">
+                                  <div className="text-sm font-medium truncate">{d.title}</div>
+                                  <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(d.decided_at), { addSuffix: true })}</div>
+                                </div>
+                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                  <Badge variant="secondary" className="text-[10px]">{d.outcome}</Badge>
+                                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                                </div>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </RelatedCard>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -142,5 +251,19 @@ const TraceExplorer = () => {
     </div>
   );
 };
+
+function RelatedCard({ icon: Icon, title, children, className = "" }: { icon: any; title: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-md border border-border bg-muted/20 p-3 ${className}`}>
+      <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+        <Icon className="h-3.5 w-3.5" /> {title}
+      </div>
+      {children}
+    </div>
+  );
+}
+function Empty({ children }: { children: React.ReactNode }) {
+  return <div className="text-xs text-muted-foreground italic">{children}</div>;
+}
 
 export default TraceExplorer;
