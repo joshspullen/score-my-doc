@@ -32,10 +32,10 @@ const KNOWLEDGE: Item[] = [
   { title: "Training", url: "/knowledge/training", icon: GraduationCap },
 ];
 
-const INTEGRATIONS: Item[] = [
-  { title: "Connectors", url: "/connectors", icon: Plug },
+const INTEGRATIONS_BASE: Item[] = [
   { title: "New analysis", url: "/upload", icon: UploadIcon },
 ];
+const INTEGRATIONS_ADMIN: Item = { title: "Connectors", url: "/connectors", icon: Plug };
 
 const AUTOMATION: Item[] = [
   { title: "Agents", url: "/agents", icon: Bot },
@@ -50,7 +50,8 @@ export function AppSidebar() {
   const peopleVisible: Item[] = [...PEOPLE_BASE];
   if (isAdmin || isManager) peopleVisible.push(PEOPLE_TEAMS);
   if (isAdmin) peopleVisible.push(PEOPLE_USERS);
-  const integrationsVisible = isAdmin ? INTEGRATIONS : [];
+  const integrationsVisible: Item[] = [...INTEGRATIONS_BASE];
+  if (isAdmin) integrationsVisible.unshift(INTEGRATIONS_ADMIN);
   const automationVisible = isAdmin ? AUTOMATION : [];
 
   const linkBase = "flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors";
