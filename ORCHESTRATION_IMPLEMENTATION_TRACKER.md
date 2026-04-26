@@ -34,11 +34,11 @@ Integrate agent orchestration so policies from `/knowledge/processes` and sancti
 - [x] Add optional legacy fallback path (`generate-training`), flag-controlled.
 
 ### Phase 3: UI Integration
-- [ ] Add admin action in `/knowledge/regulations`: `Generate with orchestration`.
-- [ ] Connect action to `orchestrate-training`.
-- [ ] Show clear success/error/fallback toasts.
-- [ ] Route user to generated module in `/knowledge/training`.
-- [ ] Keep existing `GenerateTrainingDialog` available.
+- [x] Add admin action in `/knowledge/regulations`: `Generate with orchestration`.
+- [x] Connect action to `orchestrate-training`.
+- [x] Show clear success/error/fallback toasts.
+- [x] Route user to generated module in `/knowledge/training`.
+- [x] Keep existing `GenerateTrainingDialog` available.
 
 ### Phase 4: Testing and Rollout
 - [ ] Add unit tests for context assembly and truncation.
@@ -62,6 +62,7 @@ Use this section to track exactly what was changed and why.
 | 2026-04-26 | Observability | Added orchestration run log table migration | backend | done | `training_generation_runs` + RLS + indexes |
 | 2026-04-26 | Observability | Added run lifecycle helper methods | backend | done | create/update/success/error/fallback helpers |
 | 2026-04-26 | Backend | Added `orchestrate-training` edge function (pipeline + validation + persistence + fallback) | backend | done | Task 2 backend implementation |
+| 2026-04-26 | UI | Added orchestration trigger in regulations detail panel and linked to training route | frontend | done | Legacy and orchestrated generation now side-by-side |
 
 ## File-Level Change Checklist
 
@@ -71,6 +72,7 @@ Mark touched files as work progresses.
 - [ ] `supabase/functions/generate-training/index.ts` (fallback integration only, non-breaking)
 - [x] `supabase/migrations/*` (new run-log table)
 - [ ] `src/pages/Compliance.tsx` (new admin trigger)
+- [x] `src/pages/Compliance.tsx` (new admin trigger)
 - [ ] `src/components/training/GenerateTrainingDialog.tsx` (only if wiring reuse is needed)
 - [ ] `src/pages/Training.tsx` (only if minimal routing/UX updates are needed)
 - [ ] `src/integrations/supabase/types.ts` (generated types update)

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3, Workflow, GraduationCap, ArrowUpDown, ArrowUp, ArrowDown, Building2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,12 @@ type Module = { id: string; title: string; compliance_requirement_id: string | n
 type Regulator = { id: string; name: string; short_code: string; jurisdiction: string | null; country: string | null; website_url: string | null; description: string | null; category: Category | null };
 type Sub = { id: string; regulator_id: string; name: string; code: string | null; description: string | null };
 type Connector = { id: string; name: string; slug: string; regulator_id: string | null };
+type OrchestrateTrainingResponse = {
+  module_id?: string;
+  mode_used?: "orchestrated" | "legacy_fallback";
+  warnings?: string[];
+  error?: string;
+};
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: "sanctions", label: "Sanctions" },
@@ -59,6 +66,7 @@ type SortKey = "reference_code" | "title" | "category" | "regulator" | "subcateg
 type SortDir = "asc" | "desc";
 
 const Compliance = () => {
+  const navigate = useNavigate();
   const { isAdmin } = useRoles();
   const [reqs, setReqs] = useState<Req[]>([]);
   const [bps, setBps] = useState<BP[]>([]);
@@ -76,6 +84,7 @@ const Compliance = () => {
   const [view, setView] = useState<ViewMode>("table");
   const [detail, setDetail] = useState<Req | null>(null);
   const [genFor, setGenFor] = useState<Req | null>(null);
+  const [orchestratingId, setOrchestratingId] = useState<string | null>(null);
 
   // filters
   const [fCategory, setFCategory] = useState<string>("all");
@@ -153,6 +162,45 @@ const Compliance = () => {
     const { error } = await supabase.from("compliance_assignments").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     load();
+  };
+
+  const generateWithOrchestration = async (r: Req) => {
+    setOrchestratingId(r.id);
+    try {
+      const payload = {
+        regulation_id: r.id,
+        policy_ids: r.business_process_id ? [r.business_process_id] : [],
+        category: catLabel(r.category),
+        use_fallback: true,
+      };
+      const { data, error } = await supabase.functions.invoke("orchestrate-training", { body: payload });
+      if (error) throw error;
+      const response = (data ?? {}) as OrchestrateTrainingResponse;
+      if (response.error) throw new Error(response.error);
+
+      const moduleId = response.module_id;
+      const mode = response.mode_used;
+      const warnings = Array.isArray(response.warnings) ? response.warnings : [];
+
+      if (!moduleId) throw new Error("Orchestration completed without module id");
+
+      if (mode === "legacy_fallback") {
+        toast.warning("Orchestration fallback used", {
+          description: warnings.length ? warnings.slice(0, 2).join(" | ") : "Legacy generator was used to complete module creation.",
+        });
+      } else {
+        toast.success("Orchestrated module generated");
+      }
+
+      await load();
+      setDetail(null);
+      navigate(`/knowledge/training?module=${moduleId}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to generate with orchestration";
+      toast.error(message);
+    } finally {
+      setOrchestratingId(null);
+    }
   };
 
   const reqAssignments = (reqId: string) => assignments.filter((a) => a.compliance_requirement_id === reqId);
@@ -570,11 +618,37 @@ const Compliance = () => {
                   <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 flex items-center justify-between gap-3">
                     <div className="text-sm">
                       <div className="font-medium">AI-generated training module</div>
-                      <div className="text-xs text-muted-foreground">Pick a team, documentation and category — get a quiz with alerts on wrong answers.</div>
+                      <div className="text-xs text-muted-foreground">
+                        Pick a team, documentation and category — get a quiz with alerts on wrong answers.
+                      </div>
                     </div>
-                    <Button size="sm" className="gap-1.5 flex-shrink-0" onClick={() => setGenFor(r)}>
-                      <Sparkles className="h-3.5 w-3.5" /> Generate
-                    </Button>
+                    {isAdmin ? (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          className="gap-1.5 flex-shrink-0"
+                          variant="secondary"
+                          onClick={() => setGenFor(r)}
+                        >
+                          <Sparkles className="h-3.5 w-3.5" /> Legacy
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="gap-1.5 flex-shrink-0"
+                          onClick={() => generateWithOrchestration(r)}
+                          disabled={orchestratingId === r.id}
+                        >
+                          {orchestratingId === r.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-3.5 w-3.5" />
+                          )}
+                          Orchestrate
+                        </Button>
+                      </div>
+                    ) : (
+                      <Badge variant="outline" className="text-xs">Admin only</Badge>
+                    )}
                   </div>
                 ),
               },
