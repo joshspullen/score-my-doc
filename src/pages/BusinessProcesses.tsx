@@ -135,9 +135,7 @@ const Documentation = () => {
     { value: "all", label: "All", count: rows.length },
     { value: "policy", label: "Policies", count: rows.filter((r) => r.doc_level === "policy").length },
     { value: "standard", label: "Standards", count: rows.filter((r) => r.doc_level === "standard").length },
-    { value: "procedure", label: "SOPs", count: rows.filter((r) => r.doc_level === "procedure").length },
-    { value: "work_instruction", label: "Work Instr.", count: rows.filter((r) => r.doc_level === "work_instruction").length },
-    { value: "with-sanction", label: "Sanction-linked", count: rows.filter((r) => r.linked_sanction).length },
+    { value: "procedure", label: "Procedures", count: rows.filter((r) => r.doc_level === "procedure").length },
   ];
 
   const toggle = (id: string) => {
@@ -203,8 +201,7 @@ const Documentation = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Level</TableHead><TableHead>Code</TableHead><TableHead>Name</TableHead><TableHead>Category</TableHead>
-            <TableHead>Owner</TableHead><TableHead>Sanction</TableHead><TableHead>Reqs</TableHead>
+            <TableHead>Level</TableHead><TableHead>Name</TableHead><TableHead>Owner</TableHead>
             {isAdmin && <TableHead className="w-24"></TableHead>}
           </TableRow>
         </TableHeader>
@@ -212,16 +209,11 @@ const Documentation = () => {
           {filtered.map((r) => (
             <TableRow key={r.id} className="cursor-pointer" onClick={() => setDetail(r)}>
               <TableCell><LevelBadge level={r.doc_level} /></TableCell>
-              <TableCell className="font-mono text-xs">{r.code || "—"}</TableCell>
-              <TableCell className="font-medium">{r.name}</TableCell>
-              <TableCell>{r.category ? <Badge variant="outline" className="text-xs">{r.category}</Badge> : "—"}</TableCell>
-              <TableCell className="text-muted-foreground text-sm">{r.owner || "—"}</TableCell>
-              <TableCell className="text-xs">
-                {r.linked_sanction ? (
-                  <span className="text-destructive">{r.sanction_amount || "Yes"}{r.sanction_year ? ` · ${r.sanction_year}` : ""}</span>
-                ) : "—"}
+              <TableCell className="font-medium">
+                {r.code && <span className="font-mono text-xs text-muted-foreground mr-2">{r.code}</span>}
+                {r.name}
               </TableCell>
-              <TableCell className="text-sm">{reqCount(r.id)}</TableCell>
+              <TableCell className="text-muted-foreground text-sm">{r.owner || "—"}</TableCell>
               {isAdmin && (
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1">
