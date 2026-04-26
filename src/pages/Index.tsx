@@ -459,7 +459,7 @@ const Index = () => {
               {
                 n: "02",
                 title: "Knowledge — regulations, sanctions and documentation, linked",
-                icon: ScrollX,
+                icon: ScrollText,
                 desc: "Every regulator decision and sanction case (including new EU enforcement actions) is documented, classified by central-bank taxonomy, and linked to the internal processes and teams it impacts.",
                 bullets: [
                   "ACPR, EBA, ESMA, OFAC sanction cases — including EU additions",
