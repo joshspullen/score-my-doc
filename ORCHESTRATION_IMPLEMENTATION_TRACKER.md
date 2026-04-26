@@ -19,19 +19,19 @@ Integrate agent orchestration so policies from `/knowledge/processes` and sancti
 - [x] Add helper methods to write run lifecycle events.
 
 ### Phase 2: Backend Orchestration Function
-- [ ] Add new edge function `orchestrate-training`.
-- [ ] Add auth and role checks (admin-triggered path).
-- [ ] Add input validation for `regulation_id`, optional policy/team/category/audience.
-- [ ] Implement context loader from `compliance_requirements` and `business_processes`.
-- [ ] Add deterministic truncation/context budget logic.
-- [ ] Implement 4-step pipeline:
-  - [ ] Policy Mapper
-  - [ ] Sanction Analyst
-  - [ ] Relevance Mapper
-  - [ ] Training Scenario
-- [ ] Add strict JSON schema validation for final output.
-- [ ] Persist module + assignments only after successful validation.
-- [ ] Add optional legacy fallback path (`generate-training`), flag-controlled.
+- [x] Add new edge function `orchestrate-training`.
+- [x] Add auth and role checks (admin-triggered path).
+- [x] Add input validation for `regulation_id`, optional policy/team/category/audience.
+- [x] Implement context loader from `compliance_requirements` and `business_processes`.
+- [x] Add deterministic truncation/context budget logic.
+- [x] Implement 4-step pipeline:
+  - [x] Policy Mapper
+  - [x] Sanction Analyst
+  - [x] Relevance Mapper
+  - [x] Training Scenario
+- [x] Add strict JSON schema validation for final output.
+- [x] Persist module + assignments only after successful validation.
+- [x] Add optional legacy fallback path (`generate-training`), flag-controlled.
 
 ### Phase 3: UI Integration
 - [ ] Add admin action in `/knowledge/regulations`: `Generate with orchestration`.
@@ -61,14 +61,15 @@ Use this section to track exactly what was changed and why.
 | 2026-04-26 | Contract | Added shared runtime validator + prompt/schema constants | backend | done | `supabase/functions/_shared/orchestration-contract-v1.ts` |
 | 2026-04-26 | Observability | Added orchestration run log table migration | backend | done | `training_generation_runs` + RLS + indexes |
 | 2026-04-26 | Observability | Added run lifecycle helper methods | backend | done | create/update/success/error/fallback helpers |
+| 2026-04-26 | Backend | Added `orchestrate-training` edge function (pipeline + validation + persistence + fallback) | backend | done | Task 2 backend implementation |
 
 ## File-Level Change Checklist
 
 Mark touched files as work progresses.
 
-- [ ] `supabase/functions/orchestrate-training/index.ts` (new)
+- [x] `supabase/functions/orchestrate-training/index.ts` (new)
 - [ ] `supabase/functions/generate-training/index.ts` (fallback integration only, non-breaking)
-- [ ] `supabase/migrations/*` (new run-log table)
+- [x] `supabase/migrations/*` (new run-log table)
 - [ ] `src/pages/Compliance.tsx` (new admin trigger)
 - [ ] `src/components/training/GenerateTrainingDialog.tsx` (only if wiring reuse is needed)
 - [ ] `src/pages/Training.tsx` (only if minimal routing/UX updates are needed)
