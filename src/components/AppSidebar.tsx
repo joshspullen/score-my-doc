@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
-  GraduationCap, ScrollText, Workflow, UsersRound, BookOpen, Bot,
+  GraduationCap, ScrollText, Workflow, UsersRound, BookOpen, Bot, Briefcase,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
@@ -15,12 +15,12 @@ type Item = { title: string; url: string; icon: React.ComponentType<{ className?
 
 const WORKSPACE: Item[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "New analysis", url: "/upload", icon: UploadIcon },
   { title: "My Profile", url: "/profile", icon: User },
 ];
 
 const PEOPLE_BASE: Item[] = [
   { title: "Overview", url: "/people", icon: UsersRound },
+  { title: "People Ops", url: "/people/ops", icon: Briefcase },
 ];
 const PEOPLE_TEAMS: Item = { title: "Teams", url: "/teams", icon: Users };
 const PEOPLE_USERS: Item = { title: "Users", url: "/admin", icon: Shield };
@@ -34,6 +34,7 @@ const KNOWLEDGE: Item[] = [
 
 const INTEGRATIONS: Item[] = [
   { title: "Connectors", url: "/connectors", icon: Plug },
+  { title: "New analysis", url: "/upload", icon: UploadIcon },
 ];
 
 const AUTOMATION: Item[] = [
