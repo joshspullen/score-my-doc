@@ -586,7 +586,7 @@ const Compliance = () => {
               {
                 title: "Training modules", icon: GraduationCap,
                 links: linkedModules.map((m) => ({
-                  label: m.title, to: "/knowledge/training", icon: GraduationCap,
+                  label: m.title, to: `/knowledge/training?module=${m.id}`, icon: GraduationCap,
                   meta: m.duration_minutes ? `${m.duration_minutes} min` : undefined,
                 })),
                 empty: "No training module references this regulation yet.",
