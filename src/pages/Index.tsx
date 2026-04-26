@@ -130,6 +130,33 @@ const Index = () => {
         </div>
       </section>
 
+      {/* The Platform — 4 tiles */}
+      <section className="py-24 border-t border-border bg-background">
+        <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">The platform</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">Four pillars. One operating system for compliance.</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { to: "/platform/knowledge", icon: BookOpen, title: "Knowledge", desc: "Regulations, processes, training — linked." },
+              { to: "/platform/integrations", icon: Plug, title: "Integrations", desc: "Internal & external data connections." },
+              { to: "/platform/agents", icon: Bot, title: "Agents", desc: "Autonomous search, analyze and act." },
+              { to: "/platform/people-ops", icon: UsersRound, title: "People Ops", desc: "Careers, ops & people-finance.", soon: true },
+            ].map((t) => (
+              <Link key={t.to} to={t.to} className="group rounded-2xl border border-border bg-card p-6 hover:border-primary/40 hover:shadow-md transition-all relative" style={{ boxShadow: "var(--shadow-card)" }}>
+                {t.soon && <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">Soon</span>}
+                <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <t.icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-bold text-lg mb-1.5">{t.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* AI vs Traditional comparison */}
       <section className="py-24 border-t border-border bg-background">
         <div className="container">
