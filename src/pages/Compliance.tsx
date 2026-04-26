@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3, Workflow, GraduationCap, ArrowUpDown, ArrowUp, ArrowDown, Building2, X, FileText } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3, Workflow, GraduationCap, ArrowUpDown, ArrowUp, ArrowDown, Building2, X, FileText, Bot, ExternalLink, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -470,6 +470,37 @@ const Compliance = () => {
       {loading ? <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div> :
         sortedReqs.length === 0 && view !== "dashboard" ? <div className="text-center py-20 text-muted-foreground">No regulations match these filters.</div> :
         view === "cards" ? renderCards() : view === "table" ? renderTable() : renderDashboard()}
+
+      <section className="mt-12">
+        <div className="flex items-end justify-between mb-3 gap-3 flex-wrap">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight flex items-center gap-2">
+              <Bot className="h-5 w-5 text-primary" /> Agent Training
+            </h2>
+            <p className="text-sm text-muted-foreground">Train and orchestrate the compliance agents that map regulations to your policies.</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <a href="https://agent-orchestra-pal.lovable.app" target="_blank" rel="noopener noreferrer" className="gap-1.5">
+                <Maximize2 className="h-4 w-4" /> Open in new tab
+              </a>
+            </Button>
+          </div>
+        </div>
+        <div className="rounded-lg border bg-card overflow-hidden shadow-sm">
+          <iframe
+            src="https://agent-orchestra-pal.lovable.app"
+            title="Agent Training workspace"
+            className="w-full h-[720px] border-0 bg-background"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+          />
+        </div>
+        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
+          <ExternalLink className="h-3 w-3" /> Embedded from agent-orchestra-pal.lovable.app
+        </p>
+      </section>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
