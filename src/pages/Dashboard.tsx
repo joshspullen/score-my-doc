@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { useRoles } from "@/hooks/useRoles";
+import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
 
 type DocRow = {
   id: string;
@@ -19,6 +21,7 @@ type DocRow = {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { isAdmin, loading: rolesLoading } = useRoles();
   const [docs, setDocs] = useState<DocRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,16 +53,24 @@ const Dashboard = () => {
     else { toast.success("Deleted"); load(); }
   };
 
+  if (!rolesLoading && isAdmin) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="container py-10"><AdminDashboard /></main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <main className="container py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Your documents</h1>
-            <p className="text-muted-foreground mt-1">Compliance analyses and scores.</p>
+            <h1 className="text-3xl font-bold tracking-tight">Your workspace</h1>
+            <p className="text-muted-foreground mt-1">Your recent analyses, training and flagged files.</p>
           </div>
           <Link to="/upload">
-            <Button size="lg" className="gap-2"><UploadIcon className="h-4 w-4" /> Upload document</Button>
+            <Button size="lg" className="gap-2"><UploadIcon className="h-4 w-4" /> New analysis</Button>
           </Link>
         </div>
 

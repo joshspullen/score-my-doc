@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users, Shield, Plug,
-  GraduationCap, ScrollText, Workflow, UsersRound, BookOpen, Bot,
+  GraduationCap, ScrollText, Workflow, UsersRound, BookOpen, Bot, Briefcase,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
@@ -15,12 +15,12 @@ type Item = { title: string; url: string; icon: React.ComponentType<{ className?
 
 const WORKSPACE: Item[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "New analysis", url: "/upload", icon: UploadIcon },
   { title: "My Profile", url: "/profile", icon: User },
 ];
 
 const PEOPLE_BASE: Item[] = [
   { title: "Overview", url: "/people", icon: UsersRound },
+  { title: "People Ops", url: "/people/ops", icon: Briefcase },
 ];
 const PEOPLE_TEAMS: Item = { title: "Teams", url: "/teams", icon: Users };
 const PEOPLE_USERS: Item = { title: "Users", url: "/admin", icon: Shield };
@@ -32,9 +32,10 @@ const KNOWLEDGE: Item[] = [
   { title: "Training", url: "/knowledge/training", icon: GraduationCap },
 ];
 
-const INTEGRATIONS: Item[] = [
-  { title: "Connectors", url: "/connectors", icon: Plug },
+const INTEGRATIONS_BASE: Item[] = [
+  { title: "New analysis", url: "/upload", icon: UploadIcon },
 ];
+const INTEGRATIONS_ADMIN: Item = { title: "Connectors", url: "/connectors", icon: Plug };
 
 const AUTOMATION: Item[] = [
   { title: "Agents", url: "/agents", icon: Bot },
@@ -49,7 +50,8 @@ export function AppSidebar() {
   const peopleVisible: Item[] = [...PEOPLE_BASE];
   if (isAdmin || isManager) peopleVisible.push(PEOPLE_TEAMS);
   if (isAdmin) peopleVisible.push(PEOPLE_USERS);
-  const integrationsVisible = isAdmin ? INTEGRATIONS : [];
+  const integrationsVisible: Item[] = [...INTEGRATIONS_BASE];
+  if (isAdmin) integrationsVisible.unshift(INTEGRATIONS_ADMIN);
   const automationVisible = isAdmin ? AUTOMATION : [];
 
   const linkBase = "flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors";

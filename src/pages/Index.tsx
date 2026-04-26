@@ -1,8 +1,9 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowRight, Sparkles, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, Calendar, FileSearch, MessageSquare, BarChart3, Quote, X } from "lucide-react";
+import { ArrowRight, Sparkles, AlertTriangle, MousePointerClick, Layers, ShieldX, Brain, GraduationCap, Infinity as InfinityIcon, Check, Calendar, FileSearch, MessageSquare, BarChart3, Quote, X, Bot, BookOpen, Plug, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/AppHeader";
 import { useAuth } from "@/hooks/useAuth";
+import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import {
   Accordion,
   AccordionContent,
@@ -29,13 +30,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <MarketingHeader />
 
       {/* Hero — Meet MERIDIAN */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-subtle)" }} />
         <div className="container py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
+            <Link to="/platform/agents" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors">
+              <Bot className="h-3.5 w-3.5" /> Now with autonomous Agents
+              <ArrowRight className="h-3 w-3" />
+            </Link>
             <p className="text-sm md:text-base font-semibold text-primary">Meet MERIDIAN!</p>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
               Your AI Compliance Copilot, trained on every <a href="https://acpr.banque-france.fr/en" target="_blank" rel="noopener noreferrer" className="underline decoration-primary/40 underline-offset-[6px] hover:decoration-primary">ACPR</a> sanction ever issued.
@@ -120,6 +125,33 @@ const Index = () => {
                   className="h-24 md:h-28 w-auto object-contain"
                 />
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* The Platform — 4 tiles */}
+      <section className="py-24 border-t border-border bg-background">
+        <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">The platform</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">Four pillars. One operating system for compliance.</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { to: "/platform/knowledge", icon: BookOpen, title: "Knowledge", desc: "Regulations, processes, training — linked." },
+              { to: "/platform/integrations", icon: Plug, title: "Integrations", desc: "Internal & external data connections." },
+              { to: "/platform/agents", icon: Bot, title: "Agents", desc: "Autonomous search, analyze and act." },
+              { to: "/platform/people-ops", icon: UsersRound, title: "People Ops", desc: "Careers, ops & people-finance.", soon: true },
+            ].map((t) => (
+              <Link key={t.to} to={t.to} className="group rounded-2xl border border-border bg-card p-6 hover:border-primary/40 hover:shadow-md transition-all relative" style={{ boxShadow: "var(--shadow-card)" }}>
+                {t.soon && <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">Soon</span>}
+                <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <t.icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-bold text-lg mb-1.5">{t.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
+              </Link>
             ))}
           </div>
         </div>
@@ -716,11 +748,7 @@ const Index = () => {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8">
-        <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} MERIDIAN. AI-assisted analysis is for guidance only.
-        </div>
-      </footer>
+      <MarketingFooter />
     </div>
   );
 };
