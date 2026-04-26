@@ -42,10 +42,10 @@ const AUTOMATION: Item[] = [
   { title: "Agents", url: "/agents", icon: Bot },
 ];
 
-const TELEMETRY: Item[] = [
-  { title: "Decisions", url: "/telemetry", icon: Activity },
-  { title: "Trace Explorer", url: "/telemetry/traces", icon: Network },
-  { title: "Outcomes & Evals", url: "/telemetry/outcomes", icon: Flag },
+const DECISIONS: Item[] = [
+  { title: "Overview", url: "/telemetry", icon: Activity },
+  { title: "Decision Log", url: "/telemetry/traces", icon: Network },
+  { title: "Outcomes", url: "/telemetry/outcomes", icon: Flag },
 ];
 
 const TOUR_KEYS: Record<string, string> = {
@@ -108,7 +108,7 @@ export function AppSidebar() {
         {renderGroup("Workspace", WORKSPACE)}
         {renderGroup("People", peopleVisible)}
         {renderGroup("Knowledge", KNOWLEDGE)}
-        {renderGroup("Telemetry", TELEMETRY)}
+        {renderGroup("Decision Intelligence", DECISIONS)}
         {renderGroup("Automation", automationVisible)}
         {renderGroup("Integrations", integrationsVisible)}
       </SidebarContent>
