@@ -38,6 +38,7 @@ import RegulatoryLibrary from "./pages/marketing/RegulatoryLibrary.tsx";
 import Brand from "./pages/marketing/Brand.tsx";
 import TechStack from "./pages/marketing/TechStack.tsx";
 import Company from "./pages/marketing/Company.tsx";
+import Team from "./pages/marketing/Team.tsx";
 import Pricing from "./pages/marketing/Pricing.tsx";
 import Contact from "./pages/marketing/Contact.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/resources/brand" element={<Brand />} />
             <Route path="/resources/tech-stack" element={<TechStack />} />
             <Route path="/company" element={<Company />} />
+            <Route path="/team" element={<Team />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/dashboard" element={<ProtectedRoute><AppShell><Dashboard /></AppShell></ProtectedRoute>} />
