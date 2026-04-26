@@ -14,8 +14,10 @@ import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 import { EntityDetailSheet } from "@/components/EntityDetailSheet";
+import { QuizPlayer, type QuizQuestion } from "@/components/training/QuizPlayer";
+import { HelpCircle } from "lucide-react";
 
-type Module = { id: string; title: string; description: string | null; content_url: string | null; duration_minutes: number | null; compliance_requirement_id: string | null };
+type Module = { id: string; title: string; description: string | null; content_url: string | null; duration_minutes: number | null; compliance_requirement_id: string | null; quiz?: QuizQuestion[] | null; category?: string | null; team_id?: string | null; business_process_id?: string | null };
 type Req = { id: string; title: string; reference_code: string | null; business_process_id: string | null; category: string | null };
 type BP = { id: string; name: string };
 type CompAssign = { id: string; compliance_requirement_id: string; target_type: string; target_role: string | null; target_team_id: string | null; target_user_id: string | null };
@@ -38,6 +40,7 @@ const Training = () => {
   const [view, setView] = useState<ViewMode>("cards");
   const [filter, setFilter] = useState<string>("mine");
   const [detail, setDetail] = useState<Module | null>(null);
+  const [quizFor, setQuizFor] = useState<{ module: Module; assignmentId?: string } | null>(null);
 
   useEffect(() => { document.title = "Training — MERIDIAN"; load(); }, [user]);
 
@@ -51,7 +54,7 @@ const Training = () => {
       supabase.from("teams").select("id,name"),
       supabase.from("compliance_assignments").select("*"),
     ]);
-    setModules((m.data ?? []) as Module[]);
+    setModules(((m.data ?? []) as unknown) as Module[]);
     setReqs((r.data ?? []) as Req[]);
     setMyAssignments((a.data ?? []) as Assignment[]);
     setBps((b.data ?? []) as BP[]);
@@ -166,8 +169,13 @@ const Training = () => {
           {m.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{m.description}</p>}
           <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
             {filter === "mine" && a && m.content_url && <a href={m.content_url} target="_blank" rel="noreferrer"><Button size="sm" variant="outline" className="gap-1.5">Open <ExternalLink className="h-3.5 w-3.5" /></Button></a>}
-            {filter === "mine" && a?.status === "assigned" && <Button size="sm" onClick={() => setStatus(a, "in_progress")} className="gap-1.5"><Play className="h-3.5 w-3.5" /> Start</Button>}
-            {filter === "mine" && a?.status === "in_progress" && <Button size="sm" onClick={() => setStatus(a, "completed")} className="gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Complete</Button>}
+            {filter === "mine" && a && (m.quiz && m.quiz.length > 0) && (
+              <Button size="sm" onClick={() => setQuizFor({ module: m, assignmentId: a.id })} className="gap-1.5">
+                <HelpCircle className="h-3.5 w-3.5" /> {a.status === "completed" ? "Retake quiz" : "Take quiz"}
+              </Button>
+            )}
+            {filter === "mine" && a && (!m.quiz || m.quiz.length === 0) && a.status === "assigned" && <Button size="sm" onClick={() => setStatus(a, "in_progress")} className="gap-1.5"><Play className="h-3.5 w-3.5" /> Start</Button>}
+            {filter === "mine" && a && (!m.quiz || m.quiz.length === 0) && a.status === "in_progress" && <Button size="sm" onClick={() => setStatus(a, "completed")} className="gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Complete</Button>}
             {filter === "catalog" && (
               <>
                 <Button size="sm" variant="outline" onClick={() => autoAssign(m)} className="gap-1.5"><UserPlus className="h-3.5 w-3.5" /> Assign to targets</Button>
@@ -363,6 +371,17 @@ const Training = () => {
           />
         );
       })()}
+
+      {quizFor && (
+        <QuizPlayer
+          open={!!quizFor}
+          onClose={() => setQuizFor(null)}
+          title={quizFor.module.title}
+          quiz={(quizFor.module.quiz ?? []) as QuizQuestion[]}
+          assignmentId={quizFor.assignmentId}
+          onComplete={() => load()}
+        />
+      )}
     </div>
   );
 };

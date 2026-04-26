@@ -14,6 +14,8 @@ import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 import { EntityDetailSheet } from "@/components/EntityDetailSheet";
+import { GenerateTrainingDialog } from "@/components/training/GenerateTrainingDialog";
+import { Sparkles } from "lucide-react";
 
 type Category = "sanctions" | "aml_cft" | "prudential" | "conduct_reporting" | "operational_cyber";
 type Req = { id: string; reference_code: string | null; title: string; regulator: string | null; requirement_type: string | null; severity: string | null; description: string | null; business_process_id: string | null; category: Category | null; regulator_id: string | null; subcategory_id: string | null };
@@ -73,6 +75,7 @@ const Compliance = () => {
   const [newAssign, setNewAssign] = useState<{ type: "role" | "team" | "user"; value: string }>({ type: "role", value: "user" });
   const [view, setView] = useState<ViewMode>("table");
   const [detail, setDetail] = useState<Req | null>(null);
+  const [genFor, setGenFor] = useState<Req | null>(null);
 
   // filters
   const [fCategory, setFCategory] = useState<string>("all");
@@ -562,6 +565,20 @@ const Compliance = () => {
             ]}
             sections={[
               {
+                title: "Generate training", icon: Sparkles,
+                content: (
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 flex items-center justify-between gap-3">
+                    <div className="text-sm">
+                      <div className="font-medium">AI-generated training module</div>
+                      <div className="text-xs text-muted-foreground">Pick a team, documentation and category — get a quiz with alerts on wrong answers.</div>
+                    </div>
+                    <Button size="sm" className="gap-1.5 flex-shrink-0" onClick={() => setGenFor(r)}>
+                      <Sparkles className="h-3.5 w-3.5" /> Generate
+                    </Button>
+                  </div>
+                ),
+              },
+              {
                 title: "Linked business process", icon: Workflow,
                 links: bp ? [{ label: bp.name, to: "/knowledge/processes", icon: Workflow }] : [],
                 empty: "No process linked to this regulation.",
@@ -592,6 +609,13 @@ const Compliance = () => {
           />
         );
       })()}
+
+      <GenerateTrainingDialog
+        open={!!genFor}
+        onClose={() => setGenFor(null)}
+        regulation={genFor as any}
+        onCreated={() => { setGenFor(null); load(); toast.success("Module added to Training"); }}
+      />
     </div>
   );
 };

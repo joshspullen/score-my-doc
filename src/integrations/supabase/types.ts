@@ -1179,6 +1179,8 @@ export type Database = {
           created_at: string
           due_at: string | null
           id: string
+          last_attempt: Json | null
+          score: number | null
           status: string
           training_module_id: string
           updated_at: string
@@ -1189,6 +1191,8 @@ export type Database = {
           created_at?: string
           due_at?: string | null
           id?: string
+          last_attempt?: Json | null
+          score?: number | null
           status?: string
           training_module_id: string
           updated_at?: string
@@ -1199,6 +1203,8 @@ export type Database = {
           created_at?: string
           due_at?: string | null
           id?: string
+          last_attempt?: Json | null
+          score?: number | null
           status?: string
           training_module_id?: string
           updated_at?: string
@@ -1216,32 +1222,44 @@ export type Database = {
       }
       training_modules: {
         Row: {
+          business_process_id: string | null
+          category: string | null
           compliance_requirement_id: string | null
           content_url: string | null
           created_at: string
           description: string | null
           duration_minutes: number | null
           id: string
+          quiz: Json
+          team_id: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          business_process_id?: string | null
+          category?: string | null
           compliance_requirement_id?: string | null
           content_url?: string | null
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
           id?: string
+          quiz?: Json
+          team_id?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          business_process_id?: string | null
+          category?: string | null
           compliance_requirement_id?: string | null
           content_url?: string | null
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
           id?: string
+          quiz?: Json
+          team_id?: string | null
           title?: string
           updated_at?: string
         }
