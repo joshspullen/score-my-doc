@@ -35,6 +35,7 @@ import BlogPost from "./pages/marketing/BlogPost.tsx";
 import Customers from "./pages/marketing/Customers.tsx";
 import Changelog from "./pages/marketing/Changelog.tsx";
 import RegulatoryLibrary from "./pages/marketing/RegulatoryLibrary.tsx";
+import Brand from "./pages/marketing/Brand.tsx";
 import Company from "./pages/marketing/Company.tsx";
 import Pricing from "./pages/marketing/Pricing.tsx";
 import Contact from "./pages/marketing/Contact.tsx";
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/resources/customers" element={<Customers />} />
             <Route path="/resources/changelog" element={<Changelog />} />
             <Route path="/resources/regulatory-library" element={<RegulatoryLibrary />} />
+            <Route path="/resources/brand" element={<Brand />} />
             <Route path="/company" element={<Company />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/contact" element={<Contact />} />
