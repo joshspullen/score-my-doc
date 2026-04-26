@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, FileText, Upload as UploadIcon, Download, BarChart3, ScrollText, GraduationCap, ChevronRight, AlertTriangle, ChevronDown, BookOpen, FileCheck, ListChecks } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, FileText, Upload as UploadIcon, Download, BarChart3, ScrollText, GraduationCap, ChevronRight, AlertTriangle, ChevronDown, BookOpen, FileCheck, ListChecks, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,7 @@ type Module = { id: string; title: string; compliance_requirement_id: string | n
 
 const empty: Partial<BP> = { code: "", name: "", category: "", owner: "", description: "", doc_level: "procedure", parent_id: null };
 
-const LEVEL_META: Record<DocLevel, { label: string; icon: React.ComponentType<{ className?: string }>; cls: string; rank: number }> = {
+const LEVEL_META: Record<DocLevel, { label: string; icon: LucideIcon; cls: string; rank: number }> = {
   policy:           { label: "Policy",           icon: BookOpen,    cls: "bg-primary/10 text-primary border-primary/20",          rank: 1 },
   standard:         { label: "Standard",         icon: FileCheck,   cls: "bg-blue-500/10 text-blue-700 border-blue-500/20",        rank: 2 },
   procedure:        { label: "Procedure (SOP)",  icon: ListChecks,  cls: "bg-amber-500/10 text-amber-700 border-amber-500/20",     rank: 3 },
