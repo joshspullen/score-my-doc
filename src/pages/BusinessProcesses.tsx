@@ -13,6 +13,7 @@ import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 import { EntityDetailSheet } from "@/components/EntityDetailSheet";
+import { PolicyDocuments } from "@/components/PolicyDocuments";
 
 type DocLevel = "policy" | "standard" | "procedure" | "work_instruction";
 type BP = {
@@ -451,6 +452,10 @@ const Documentation = () => {
               { label: "Parent document", value: parent ? <span>{LEVEL_META[parent.doc_level].label}: {parent.name}</span> : null },
             ]}
             sections={[
+              {
+                title: "Policy documents (PDFs)", icon: FileText,
+                content: <PolicyDocuments target={{ type: "policy", id: p.id }} />,
+              },
               ...(p.linked_sanction ? [{
                 title: "Sanction this document responds to",
                 icon: AlertTriangle,
