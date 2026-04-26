@@ -1220,6 +1220,94 @@ export type Database = {
           },
         ]
       }
+      training_generation_runs: {
+        Row: {
+          business_process_id: string | null
+          compliance_requirement_id: string | null
+          created_at: string
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          input_snapshot: Json
+          mode: string
+          model_name: string | null
+          output_snapshot: Json
+          policy_ids: string[]
+          prompt_versions: Json
+          schema_version: string | null
+          status: string
+          step_timings_ms: Json
+          team_id: string | null
+          triggered_by_user_id: string
+          updated_at: string
+          warnings: Json
+        }
+        Insert: {
+          business_process_id?: string | null
+          compliance_requirement_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          input_snapshot?: Json
+          mode: string
+          model_name?: string | null
+          output_snapshot?: Json
+          policy_ids?: string[]
+          prompt_versions?: Json
+          schema_version?: string | null
+          status?: string
+          step_timings_ms?: Json
+          team_id?: string | null
+          triggered_by_user_id: string
+          updated_at?: string
+          warnings?: Json
+        }
+        Update: {
+          business_process_id?: string | null
+          compliance_requirement_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          input_snapshot?: Json
+          mode?: string
+          model_name?: string | null
+          output_snapshot?: Json
+          policy_ids?: string[]
+          prompt_versions?: Json
+          schema_version?: string | null
+          status?: string
+          step_timings_ms?: Json
+          team_id?: string | null
+          triggered_by_user_id?: string
+          updated_at?: string
+          warnings?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_generation_runs_business_process_id_fkey"
+            columns: ["business_process_id"]
+            isOneToOne: false
+            referencedRelation: "business_processes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_generation_runs_compliance_requirement_id_fkey"
+            columns: ["compliance_requirement_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_generation_runs_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       training_modules: {
         Row: {
           business_process_id: string | null
