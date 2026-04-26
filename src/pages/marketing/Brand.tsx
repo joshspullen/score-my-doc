@@ -3,6 +3,64 @@ import { PageHero } from "@/components/marketing/PageHero";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import logo from "@/assets/meridian-logo.svg";
+import { toast } from "sonner";
+
+async function downloadLogoPng(size = 1024, background: "transparent" | "light" | "dark" = "transparent") {
+  try {
+    const res = await fetch(logo);
+    const svgText = await res.text();
+    const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("Failed to load SVG"));
+      img.src = url;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas not supported");
+
+    if (background === "light") {
+      ctx.fillStyle = "#FAFCFE";
+      ctx.fillRect(0, 0, size, size);
+    } else if (background === "dark") {
+      ctx.fillStyle = "#0F172A";
+      ctx.fillRect(0, 0, size, size);
+    }
+    ctx.drawImage(img, 0, 0, size, size);
+    URL.revokeObjectURL(url);
+
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+    if (!blob) throw new Error("Failed to encode PNG");
+
+    const dlUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = dlUrl;
+    a.download = `meridian-logo-${size}${background !== "transparent" ? `-${background}` : ""}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(dlUrl);
+  } catch (e) {
+    console.error(e);
+    toast.error("Could not generate PNG. Please try the SVG instead.");
+  }
+}
+
+function downloadSvg() {
+  const a = document.createElement("a");
+  a.href = logo;
+  a.download = "meridian-logo.svg";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 
 const COLORS = [
   { name: "Primary", var: "--primary", hsl: "217 91% 55%", hex: "#1E6FE8", usage: "Primary actions, links, accents" },
@@ -31,13 +89,20 @@ export default function Brand() {
         title="The MERIDIAN brand system."
         description="Logo, typography, colors and voice — everything you need to represent MERIDIAN consistently across products, partnerships and press."
       >
-        <div className="flex gap-3">
-          <Button asChild>
-            <a href="/assets/meridian-logo.svg" download>
-              <Download className="h-4 w-4 mr-2" /> Download logo (SVG)
-            </a>
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={downloadSvg}>
+            <Download className="h-4 w-4 mr-2" /> SVG
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" onClick={() => downloadLogoPng(1024, "transparent")}>
+            <Download className="h-4 w-4 mr-2" /> PNG · 1024 (transparent)
+          </Button>
+          <Button variant="outline" onClick={() => downloadLogoPng(1024, "light")}>
+            <Download className="h-4 w-4 mr-2" /> PNG · light bg
+          </Button>
+          <Button variant="outline" onClick={() => downloadLogoPng(1024, "dark")}>
+            <Download className="h-4 w-4 mr-2" /> PNG · dark bg
+          </Button>
+          <Button variant="ghost" asChild>
             <a href="mailto:brand@meridian.io">Press inquiries</a>
           </Button>
         </div>
