@@ -13,6 +13,7 @@ import Admin from "./pages/Admin.tsx";
 import Settings from "./pages/Settings.tsx";
 import Teams from "./pages/Teams.tsx";
 import Connectors from "./pages/Connectors.tsx";
+import DataCatalog from "./pages/DataCatalog.tsx";
 import Profile from "./pages/Profile.tsx";
 import People from "./pages/People.tsx";
 import Training from "./pages/Training.tsx";
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/settings" element={<AdminRoute><AppShell><Settings /></AppShell></AdminRoute>} />
             <Route path="/teams" element={<ProtectedRoute><AppShell><Teams /></AppShell></ProtectedRoute>} />
             <Route path="/connectors" element={<AdminRoute><AppShell><Connectors /></AppShell></AdminRoute>} />
+            <Route path="/catalog" element={<ProtectedRoute><AppShell><DataCatalog /></AppShell></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><AppShell><Profile /></AppShell></ProtectedRoute>} />
             <Route path="/people" element={<ProtectedRoute><AppShell><People /></AppShell></ProtectedRoute>} />
             <Route path="/people/users" element={<AdminRoute><AppShell><Admin /></AppShell></AdminRoute>} />

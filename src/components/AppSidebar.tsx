@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Upload as UploadIcon, User, Users,
   GraduationCap, ScrollText, FileText, UsersRound, BookOpen, Bot, Briefcase,
-  Activity, Network, Flag, ChevronDown, BrainCircuit, Link2,
+  Activity, Network, Flag, ChevronDown, BrainCircuit, Database,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -35,7 +35,8 @@ const KNOWLEDGE: Item[] = [
   { title: "Training", url: "/knowledge/training", icon: GraduationCap },
 ];
 
-const CONNECTIONS_BASE: Item[] = [
+const CATALOG_BASE: Item[] = [
+  { title: "Browse sources", url: "/catalog", icon: Database },
   { title: "New analysis", url: "/upload", icon: UploadIcon },
 ];
 
@@ -57,16 +58,16 @@ export function AppSidebar() {
 
   const peopleVisible: Item[] = [...PEOPLE_BASE];
   if (isAdmin || isManager) peopleVisible.push(PEOPLE_TEAMS);
-  const connectionsVisible: Item[] = [...CONNECTIONS_BASE];
+  const catalogVisible: Item[] = [...CATALOG_BASE];
   const automationVisible = isAdmin ? AUTOMATION : [];
 
-  // Top → bottom: Automation, Decision Intelligence, People, Knowledge, Connections
+  // Top → bottom: Automation, Decision Intelligence, People, Knowledge, Data Catalog
   const groups: Group[] = [
     { key: "automation", label: "Automation", icon: Bot, items: automationVisible },
     { key: "decisions", label: "Decision Intelligence", icon: BrainCircuit, items: DECISIONS },
     { key: "people", label: "People", icon: UsersRound, items: peopleVisible },
     { key: "knowledge", label: "Knowledge", icon: BookOpen, items: KNOWLEDGE },
-    { key: "connections", label: "Connections", icon: Link2, items: connectionsVisible },
+    { key: "catalog", label: "Data Catalog", icon: Database, items: catalogVisible },
   ].filter((g) => g.items.length > 0);
 
   const groupContainsActive = (g: Group) => g.items.some((i) => location.pathname === i.url || location.pathname.startsWith(i.url + "/"));
