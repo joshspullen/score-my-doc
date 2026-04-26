@@ -15,6 +15,7 @@ import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 import { EntityDetailSheet } from "@/components/EntityDetailSheet";
+import { PolicyDocuments } from "@/components/PolicyDocuments";
 import { GenerateTrainingDialog } from "@/components/training/GenerateTrainingDialog";
 import { Sparkles } from "lucide-react";
 
@@ -612,6 +613,10 @@ const Compliance = () => {
               { label: "Type", value: r.requirement_type || null },
             ]}
             sections={[
+              {
+                title: "Policy documents (PDFs)", icon: FileText,
+                content: <PolicyDocuments target={{ type: "regulation", id: r.id }} />,
+              },
               {
                 title: "Generate training", icon: Sparkles,
                 content: (
