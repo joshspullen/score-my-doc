@@ -23,7 +23,6 @@ const WORKSPACE: Item[] = [
 ];
 
 const PEOPLE_BASE: Item[] = [
-  { title: "Overview", url: "/people", icon: UsersRound },
   { title: "People Ops", url: "/people/ops", icon: Briefcase },
 ];
 const PEOPLE_TEAMS: Item = { title: "Teams", url: "/teams", icon: Users };
