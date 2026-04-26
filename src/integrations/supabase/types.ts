@@ -833,6 +833,69 @@ export type Database = {
         }
         Relationships: []
       }
+      policy_documents: {
+        Row: {
+          business_process_id: string | null
+          compliance_requirement_id: string | null
+          created_at: string
+          extracted_text: string | null
+          extraction_error: string | null
+          extraction_status: string
+          file_size: number
+          filename: string
+          id: string
+          mime_type: string
+          storage_path: string
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          business_process_id?: string | null
+          compliance_requirement_id?: string | null
+          created_at?: string
+          extracted_text?: string | null
+          extraction_error?: string | null
+          extraction_status?: string
+          file_size?: number
+          filename: string
+          id?: string
+          mime_type?: string
+          storage_path: string
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          business_process_id?: string | null
+          compliance_requirement_id?: string | null
+          created_at?: string
+          extracted_text?: string | null
+          extraction_error?: string | null
+          extraction_status?: string
+          file_size?: number
+          filename?: string
+          id?: string
+          mime_type?: string
+          storage_path?: string
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_documents_business_process_id_fkey"
+            columns: ["business_process_id"]
+            isOneToOne: false
+            referencedRelation: "business_processes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_documents_compliance_requirement_id_fkey"
+            columns: ["compliance_requirement_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       positions: {
         Row: {
           created_at: string

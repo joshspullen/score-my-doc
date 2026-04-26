@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3, Workflow, GraduationCap, ArrowUpDown, ArrowUp, ArrowDown, Building2, X } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ScrollText, Target, Users as UsersIcon, User as UserIcon, Shield, BarChart3, Workflow, GraduationCap, ArrowUpDown, ArrowUp, ArrowDown, Building2, X, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { ModuleHeader, ViewMode } from "@/components/ModuleHeader";
 import { EntityDetailSheet } from "@/components/EntityDetailSheet";
+import { PolicyDocuments } from "@/components/PolicyDocuments";
 import { GenerateTrainingDialog } from "@/components/training/GenerateTrainingDialog";
 import { Sparkles } from "lucide-react";
 
@@ -612,6 +613,10 @@ const Compliance = () => {
               { label: "Type", value: r.requirement_type || null },
             ]}
             sections={[
+              {
+                title: "Policy documents (PDFs)", icon: FileText,
+                content: <PolicyDocuments target={{ type: "regulation", id: r.id }} />,
+              },
               {
                 title: "Generate training", icon: Sparkles,
                 content: (
